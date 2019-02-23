@@ -1,0 +1,43 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: circleci/rust:latest
+
+    steps:
+      - checkout
+      - restore_cache:
+          key: project-cache
+      # - run:
+      #     name: Check formatting
+      #     command: |
+      #       rustup component add rustfmt
+      #       rustfmt --version
+      #       cargo fmt -- --write-mode=diff
+      # - run:
+      #     name: Nightly Build
+      #     command: |
+      #       rustup run nightly rustc --version --verbose
+      #       rustup run nightly cargo --version --verbose
+      #       rustup run nightly cargo build
+      # - run:
+      #     name: Stable Build
+      #     command: |
+      #       rustup run stable rustc --version --verbose
+      #       rustup run stable cargo --version --verbose
+      #       rustup run stable cargo build
+      # - run:
+      #     name: Test
+      #     command: rustup run stable cargo test
+      - run:
+          name: Test
+          command: cargo test
+      - run:
+          name: Upload Coverage
+          command: sh ./scripts/codecov.sh
+      - save_cache:
+          key: project-cache
+          paths:
+            - "~/.cargo"
+            - "./target"

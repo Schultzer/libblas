@@ -1,0 +1,42 @@
+[package]
+authors = ["Benjamin Schultzer <benjamin@schultzer.com>"]
+description = "BLAS implementation for Rust"
+documentation = "https://crate.io/blas-rs"
+keywords = ["blas", "basic linear algebra subprograms", "linear algebra", "mathematics", "machine learning"]
+categories = ["algorithms", "machine learning", "science"]
+license = "MIT/Apache-2.0"
+name = "blasrs"
+repository = "https://github.com/schultzer/blas-rs"
+version = "0.1.0"
+readme = "README.md"
+edition = "2018"
+
+[badges]
+circle-ci = { repository = "schultzer/blas-rs", branch = "master" }
+
+[workspace]
+members = []
+
+[dependencies]
+num-complex = "0.2"
+num-traits = "0.2"
+
+[dev-dependencies]
+criterion = "0.2"
+blas = "0.19"
+blas-src = { version = "0.2", features = ["openblas"] }
+
+[[bench]]
+name = "accelerate"
+harness = false
+
+[profile.bench]
+opt-level = 3
+debug = false
+rpath = false
+lto = true
+debug-assertions = false
+codegen-units = 16
+panic = 'unwind'
+incremental = false
+overflow-checks = false
