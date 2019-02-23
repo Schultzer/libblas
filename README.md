@@ -3,7 +3,7 @@
 [![CircleCI](https://circleci.com/gh/Schultzer/blas-rs.svg?style=svg)](https://circleci.com/gh/Schultzer/blas-rs)
 
 
-`BLAS`for Rust.
+[BLAS](https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms)for Rust.
 
 ## Usage
 [usage]: #usage
@@ -26,6 +26,10 @@ extern crate blas_rs;
 
 
 Release notes are available in [RELEASES.md](RELEASES.md).
+
+
+## Acknowledgement
+blas-rs is implememeted following the [REFERENCE BLAS Version 3.8.0](http://www.netlib.org/blas/) and [blas-js](https://github.com/R-js/blasjs).
 
 
 ## License
