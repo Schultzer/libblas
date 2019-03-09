@@ -468,286 +468,130 @@ pub fn rotm<T: Float + NumAssignOps>(
 /// This is SROTMG and DROTMG comined in one function.
 /// This is [SROTMG](http://www.netlib.org/lapack/explore-html/dd/d48/srotmg_8f.html) and [DROTMG](http://www.netlib.org/lapack/explore-html/df/deb/drotmg_8f.html) comined in one function.
 #[inline]
-
-/// NETLIB VERSERION;
-// pub fn rotmg<T: Float + NumAssignOps + num_traits::cast::FromPrimitive>(
-//     d1: &mut T,
-//     d2: &mut T,
-//     x1: &mut T,
-//     y1: &mut T,
-//     param: &mut [T],
-// ) {
-//     // https://github.com/xianyi/OpenBLAS/pull/1480
-//     let mut flag = param[0];
-//     let mut h11 = param[1];
-//     let mut h12 = param[3];
-//     let mut h21 = param[2];
-//     let mut h22 = param[4];
-//     let gam = T::from_f32(4096.0).unwrap();
-//     let gamsq = T::from_f32(16_777_216.0).unwrap();
-//     let rgamsq = T::from_f32(5.960_464_5E-8).unwrap();
-
-//     if *d1 < T::zero() {
-//         flag = -T::one();
-//         h11 = T::zero();
-//         h12 = T::zero();
-//         h21 = T::zero();
-//         h22 = T::zero();
-//         *d1 = T::zero();
-//         *d2 = T::zero();
-//         *x1 = T::zero();
-//     } else {
-//         let p2 = *d2 * *y1;
-//         if p2 == T::zero() {
-//             param[0] = -(T::one() + T::one());
-//             return;
-//         }
-//         let p1 = *d1 * *x1;
-//         let q2 = p2 * *y1;
-//         let q1 = p1 * *x1;
-//         if q1.abs() > q2.abs() {
-//             h21 = -*y1 / *x1;
-//             h12 = p2 / p1;
-//             let u = T::one() - h12 * h21;
-//             if u > T::zero() {
-//                 flag = T::zero();
-//                 *d1 /= u;
-//                 *d2 /= u;
-//                 *x1 *= u;
-//             }
-//         } else if q2 < T::zero() {
-//             flag = -T::one();
-//             h11 = T::zero();
-//             h12 = T::zero();
-//             h21 = T::zero();
-//             h22 = T::zero();
-//             *d1 = T::zero();
-//             *d2 = T::zero();
-//             *x1 = T::zero();
-//         } else {
-//             flag = T::one();
-//             h11 = p1 / p2;
-//             h22 = *x1 / *y1;
-//             let u = T::one() + h11 * h22;
-//             let tmp = *d2 / u;
-//             *d2 = *d1 / u;
-//             *d1 = tmp;
-//             *x1 = *y1 * u;
-//         }
-//         if *d1 != T::zero() {
-//             while (*d1 <= rgamsq) || (*d1 >= gamsq) {
-//                 if flag.is_zero() {
-//                     h11 = T::one();
-//                     h22 = T::one();
-//                     flag = -T::one();
-//                 } else {
-//                     h21 = -T::one();
-//                     h12 = T::one();
-//                     flag = -T::one();
-//                 }
-//                 if *d1 <= rgamsq {
-//                     *d1 *= gamsq;
-//                     *x1 /= gam;
-//                     h11 /= gam;
-//                     h12 /= gam;
-//                 } else {
-//                     *d1 /= gamsq;
-//                     *x1 *= gam;
-//                     h11 *= gam;
-//                     h12 *= gam;
-//                 }
-//             }
-//         }
-//         if *d2 != T::zero() {
-//             while (d2.abs() <= rgamsq) || (d2.abs() >= gamsq) {
-//                 if flag.is_zero() {
-//                     h11 = T::one();
-//                     h22 = T::one();
-//                     flag = -T::one();
-//                 } else {
-//                     h21 = -T::one();
-//                     h12 = T::one();
-//                     flag = -T::one();
-//                 }
-//                 if d2.abs() <= rgamsq {
-//                     *d2 *= gamsq;
-//                     h21 /= gam;
-//                     h22 /= gam;
-//                 } else {
-//                     *d2 /= gamsq;
-//                     h21 *= gam;
-//                     h22 *= gam;
-//                 }
-//             }
-//         }
-//     }
-//     if flag < T::zero() {
-//         param[1] = h11;
-//         param[2] = h21;
-//         param[3] = h12;
-//         param[4] = h22;
-//     } else if flag.is_zero() {
-//         param[2] = h21;
-//         param[3] = h12;
-//     } else {
-//         param[1] = h11;
-//         param[4] = h22;
-//     }
-//     param[0] = flag;
-// }
-
 pub fn rotmg<T: Float + NumAssignOps + num_traits::cast::FromPrimitive>(
-    dd1: &mut T,
-    dd2: &mut T,
-    dx1: &mut T,
-    dy1: &mut T,
-    dparam: &mut [T],
+    d1: &mut T,
+    d2: &mut T,
+    x1: &mut T,
+    y1: &mut T,
+    param: &mut [T],
 ) {
+    // https://github.com/xianyi/OpenBLAS/pull/1480
+    let mut flag = param[0];
+    let mut h11 = param[1];
+    let mut h12 = param[3];
+    let mut h21 = param[2];
+    let mut h22 = param[4];
     let gam = T::from_f32(4096.0).unwrap();
     let gamsq = T::from_f32(16_777_216.0).unwrap();
     let rgamsq = T::from_f32(5.960_464_5E-8).unwrap();
-    let two = T::one() + T::one();
-    let du;
-    let dp1;
-    let dp2;
-    let dq2;
-    let dq1;
-    let mut dh11 = T::zero();
-    let mut dh21 = T::zero();
-    let mut dh12 = T::zero();
-    let mut dh22 = T::zero();
-    let mut dflag = -T::one();
-    let dtemp;
 
-    if dd2.is_zero() || dy1.is_zero() {
-        dflag = -two;
-        dparam[0] = dflag;
-        return;
-    }
-
-    if *dd1 < T::zero() {
-        // dflag = -T::one();
-        // dh11 = T::zero();
-        // dh12 = T::zero();
-        // dh21 = T::zero();
-        // dh22 = T::zero();
-
-        *dd1 = T::zero();
-        *dd2 = T::zero();
-        *dx1 = T::zero();
-    } else if (dd1.is_zero() || dx1.is_zero()) && *dd2 > T::zero() {
-        dflag = T::one();
-        dh12 = T::one();
-        dh21 = -T::one();
-        *dx1 = *dy1;
-        dtemp = *dd1;
-        *dd1 = *dd2;
-        *dd2 = dtemp;
+    if *d1 < T::zero() {
+        flag = -T::one();
+        h11 = T::zero();
+        h12 = T::zero();
+        h21 = T::zero();
+        h22 = T::zero();
+        *d1 = T::zero();
+        *d2 = T::zero();
+        *x1 = T::zero();
     } else {
-        dp2 = *dd2 * *dy1;
-        if dp2.is_zero() {
-            dflag = -two;
-            dparam[0] = dflag;
+        let p2 = *d2 * *y1;
+        if p2 == T::zero() {
+            param[0] = -(T::one() + T::one());
             return;
         }
-        dp1 = *dd1 * *dx1;
-        dq2 = dp2 * *dy1;
-        dq1 = dp1 * *dx1;
-        if dq1.abs() > dq2.abs() {
-            // dflag = T::zero();
-            dh11 = T::one();
-            dh22 = T::one();
-            dh21 = -*dy1 / *dx1;
-            dh12 = dp2 / dp1;
-
-            du = T::one() - dh12 * dh21;
-            if du > T::zero() {
-                dflag = T::zero();
-                *dd1 /= du;
-                *dd2 /= du;
-                *dx1 *= du;
-            } else {
-                dflag = -T::one();
-
-                dh11 = T::zero();
-                dh12 = T::zero();
-                dh21 = T::zero();
-                dh22 = T::zero();
-
-                *dd1 = T::zero();
-                *dd2 = T::zero();
-                *dx1 = T::zero();
+        let p1 = *d1 * *x1;
+        let q2 = p2 * *y1;
+        let q1 = p1 * *x1;
+        if q1.abs() > q2.abs() {
+            h21 = -*y1 / *x1;
+            h12 = p2 / p1;
+            let u = T::one() - h12 * h21;
+            if u > T::zero() {
+                flag = T::zero();
+                *d1 /= u;
+                *d2 /= u;
+                *x1 *= u;
             }
-        } else if dq2 < T::zero() {
-            dflag = -T::one();
-
-            dh11 = T::zero();
-            dh12 = T::zero();
-            dh21 = T::zero();
-            dh22 = T::zero();
-
-            *dd1 = T::zero();
-            *dd2 = T::zero();
-            *dx1 = T::zero();
+        } else if q2 < T::zero() {
+            flag = -T::one();
+            h11 = T::zero();
+            h12 = T::zero();
+            h21 = T::zero();
+            h22 = T::zero();
+            *d1 = T::zero();
+            *d2 = T::zero();
+            *x1 = T::zero();
         } else {
-            dflag = T::one();
-            dh21 = -T::one();
-            dh12 = T::one();
-
-            dh11 = dp1 / dp2;
-            dh22 = *dx1 / *dy1;
-            du = T::one() + dh11 * dh22;
-            dtemp = *dd2 / du;
-
-            *dd2 = *dd1 / du;
-            *dd1 = dtemp;
-            *dx1 = *dy1 * du;
+            flag = T::one();
+            h11 = p1 / p2;
+            h22 = *x1 / *y1;
+            let u = T::one() + h11 * h22;
+            let tmp = *d2 / u;
+            *d2 = *d1 / u;
+            *d1 = tmp;
+            *x1 = *y1 * u;
         }
-
-        while *dd1 <= rgamsq && !dd1.is_zero() {
-            dflag = -T::one();
-            *dd1 *= gam * gam;
-            *dx1 /= gam;
-            dh11 /= gam;
-            dh12 /= gam;
+        if *d1 != T::zero() {
+            while (*d1 <= rgamsq) || (*d1 >= gamsq) {
+                if flag.is_zero() {
+                    h11 = T::one();
+                    h22 = T::one();
+                    flag = -T::one();
+                } else {
+                    h21 = -T::one();
+                    h12 = T::one();
+                    flag = -T::one();
+                }
+                if *d1 <= rgamsq {
+                    *d1 *= gamsq;
+                    *x1 /= gam;
+                    h11 /= gam;
+                    h12 /= gam;
+                } else {
+                    *d1 /= gamsq;
+                    *x1 *= gam;
+                    h11 *= gam;
+                    h12 *= gam;
+                }
+            }
         }
-        while dd1.abs() > gamsq {
-            dflag = -T::one();
-            *dd1 /= gam * gam;
-            *dx1 *= gam;
-            dh11 *= gam;
-            dh12 *= gam;
-        }
-
-        while dd2.abs() <= rgamsq && !dd2.is_zero() {
-            dflag = -T::one();
-            *dd2 *= gam * gam;
-            dh21 /= gam;
-            dh22 /= gam;
-        }
-        while dd2.abs() > gamsq {
-            dflag = -T::one();
-            *dd2 /= gam * gam;
-            dh21 *= gam;
-            dh22 *= gam;
+        if *d2 != T::zero() {
+            while (d2.abs() <= rgamsq) || (d2.abs() >= gamsq) {
+                if flag.is_zero() {
+                    h11 = T::one();
+                    h22 = T::one();
+                    flag = -T::one();
+                } else {
+                    h21 = -T::one();
+                    h12 = T::one();
+                    flag = -T::one();
+                }
+                if d2.abs() <= rgamsq {
+                    *d2 *= gamsq;
+                    h21 /= gam;
+                    h22 /= gam;
+                } else {
+                    *d2 /= gamsq;
+                    h21 *= gam;
+                    h22 *= gam;
+                }
+            }
         }
     }
-
-    if dflag < T::zero() {
-        dparam[1] = dh11;
-        dparam[2] = dh21;
-        dparam[3] = dh12;
-        dparam[4] = dh22;
-    } else if dflag.is_zero() {
-        dparam[2] = dh21;
-        dparam[3] = dh12;
+    if flag < T::zero() {
+        param[1] = h11;
+        param[2] = h21;
+        param[3] = h12;
+        param[4] = h22;
+    } else if flag.is_zero() {
+        param[2] = h21;
+        param[3] = h12;
     } else {
-        dparam[1] = dh11;
-        dparam[4] = dh22;
+        param[1] = h11;
+        param[4] = h22;
     }
-
-    dparam[0] = dflag;
-    return;
+    param[0] = flag;
 }
 
 /// SCAL scales a vector by a constant. uses unrolled loops for increment equal to 1.
