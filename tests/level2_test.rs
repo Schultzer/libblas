@@ -1,5 +1,5 @@
 use blasrs::level2;
-use blasrs::matrix;
+use blasrs::unstable::matrix;
 mod fixtures;
 mod utils;
 

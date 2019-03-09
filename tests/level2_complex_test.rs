@@ -1,5 +1,5 @@
 use blasrs::level2::complex;
-use blasrs::matrix;
+use blasrs::unstable::matrix;
 use num_complex::Complex;
 mod fixtures;
 
