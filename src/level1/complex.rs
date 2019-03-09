@@ -13,7 +13,7 @@ pub fn axpy<T: Float + NumAssignOps>(
     y: &mut [Complex<T>],
     incy: isize,
 ) {
-    if n <= 0 {
+    if n == 0 {
         return;
     }
     let mut ix = 0;
@@ -43,7 +43,7 @@ pub fn copy<T: Float + NumAssignOps>(
     y: &mut [Complex<T>],
     incy: isize,
 ) {
-    if n <= 0 {
+    if n == 0 {
         return;
     }
     let mut ix = 0;
@@ -74,7 +74,7 @@ pub fn dotc<T: Float + NumAssignOps>(
     incy: isize,
 ) -> Complex<T> {
     let mut tmp = Complex::zero();
-    if n <= 0 {
+    if n == 0 {
         return tmp;
     }
 
@@ -107,7 +107,7 @@ pub fn dotu<T: Float + NumAssignOps>(
     incy: isize,
 ) -> Complex<T> {
     let mut tmp = Complex::zero();
-    if n <= 0 {
+    if n == 0 {
         return tmp;
     };
 
@@ -178,14 +178,10 @@ pub fn rotg<T: Float + NumAssignOps>(
         *a = *b;
         return;
     }
-    let cabs_a = a.norm_sqr().sqrt();
-    let cabs_b = b.norm_sqr().sqrt();
-    let scale = cabs_a + cabs_b;
-    let s1 = cabs_a / scale;
-    let s2 = cabs_b / scale;
-    let norm = scale * (s1 * s1 + s2 * s2).sqrt();
-    let alpha = *a / cabs_a;
-    *c = cabs_a / norm;
+    let scale = a.norm() + b.norm();
+    let norm = scale * ((*a / scale).norm().powi(2) + (*b / scale).norm().powi(2)).sqrt();
+    let alpha = *a / a.norm();
+    *c = a.norm() / norm;
     *s = alpha * b.conj() / norm;
     *a = alpha * norm;
 }
@@ -213,7 +209,10 @@ pub fn scal<T: Float + NumAssignOps>(n: usize, a: Complex<T>, x: &mut [Complex<T
 /// This is [CSSCAL](http://www.netlib.org/lapack/explore-html/de/d5e/csscal_8f.html) and [ZDSCAL](http://www.netlib.org/lapack/explore-html/dd/d76/zdscal_8f.html) combined in one function.
 #[inline]
 pub fn sscal<T: Float + NumAssignOps>(n: usize, a: T, x: &mut [Complex<T>], incx: usize) {
-    if n == 0 || incx == 0 {
+    if n == 0 {
+        return;
+    }
+    if incx == 0 {
         return;
     }
 
@@ -274,14 +273,12 @@ pub fn iamax<T: Float + NumAssignOps>(n: usize, x: &[Complex<T>], incx: usize) -
         return iamax;
     }
 
-    // let Complex { re, im } = x[0];
-    // let mut max = re.abs() + im.abs();
+    // FIXME use l1_norm()
     let mut max = x[0].norm();
     let mut i = 2;
     if incx == 1 {
         while i < n {
-            // let Complex { re, im } = x[i];
-            // let tmp = re.abs() + im.abs();
+            // FIXME use l1_norm()
             let tmp = x[i].norm();
             i += 1;
             if tmp > max {
@@ -292,8 +289,7 @@ pub fn iamax<T: Float + NumAssignOps>(n: usize, x: &[Complex<T>], incx: usize) -
     } else {
         let mut ix = 1 + incx;
         while i < n {
-            // let Complex { re, im } = x[ix];
-            // let tmp = re.abs() + im.abs();
+            // FIXME use l1_norm()
             let tmp = x[ix].norm();
             ix += incx;
             i += 1;
@@ -310,7 +306,6 @@ pub fn iamax<T: Float + NumAssignOps>(n: usize, x: &[Complex<T>], incx: usize) -
 /// This is [SCASUM](http://www.netlib.org/lapack/explore-html/db/d53/scasum_8f.html) and [DZASUM](http://www.netlib.org/lapack/explore-html/df/d0f/dzasum_8f.html) combined in one function.
 #[inline]
 pub fn asum<T: Float + NumAssignOps>(n: usize, x: &[Complex<T>], incx: usize) -> T {
-    // let mut sum = 0f32;
     let mut sum = T::zero();
     if n == 0 || incx == 0 {
         return sum;
@@ -320,9 +315,8 @@ pub fn asum<T: Float + NumAssignOps>(n: usize, x: &[Complex<T>], incx: usize) ->
     let nincx = n * incx;
     while i < nincx {
         let Complex { re, im } = x[i];
-        // sum += (re.abs() + im.abs()).to_f32().unwrap(); // as f32;
+        // FIXME use l1_norm()
         sum += re.abs() + im.abs();
-        // sum += x[i].norm().to_f32().unwrap();
         i += incx;
     }
     sum
@@ -330,24 +324,16 @@ pub fn asum<T: Float + NumAssignOps>(n: usize, x: &[Complex<T>], incx: usize) ->
 
 /// NRM2 returns the euclidean norm of a vector via the function name, so that NRM2 := sqrt( x**H*x )
 /// This is [SCNRM2](http://www.netlib.org/lapack/explore-html/db/d66/scnrm2_8f.html) and [DZNRM2](http://www.netlib.org/lapack/explore-html/d9/d19/dznrm2_8f.html) combined in one function.
-pub fn nrm2<T: Float + NumAssignOps>(n: usize, x: &[Complex<T>], incx: isize) -> T {
-    lassq(n, x, incx, T::zero(), T::one())
-}
-
-// classq/zlassq lapack function
-pub fn lassq<T: Float + NumAssignOps>(
-    n: usize,
-    x: &[Complex<T>],
-    incx: isize,
-    mut scale: T,
-    mut ssq: T,
-) -> T {
-    if n < 1 || incx < 1 {
+pub fn nrm2<T: Float + NumAssignOps>(n: usize, x: &[Complex<T>], incx: usize) -> T {
+    if n == 0 || incx == 0 {
         return T::zero();
     }
+    //  The following loop is equivalent to this call to the LAPACK auxiliary routine:
+    //  CALL CLASSQ( N, X, INCX, SCALE, SSQ )
+    let mut scale = T::zero();
+    let mut ssq = T::one();
     let mut ix = 0;
-    let stop = 1 + (n - 1) * (incx as usize);
-    while ix < stop {
+    while ix < n * incx {
         let Complex { re, im } = x[ix];
         if !re.is_zero() {
             let tmp = re.abs();
@@ -371,7 +357,7 @@ pub fn lassq<T: Float + NumAssignOps>(
                 ssq += t1 * t1;
             }
         }
-        ix += incx as usize
+        ix += incx
     }
     scale * ssq.sqrt()
 }
