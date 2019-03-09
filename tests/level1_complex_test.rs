@@ -704,7 +704,7 @@ fn iamax() {
         Complex::new(5.0, 11.0),
         Complex::new(6.0, 12.0),
     ];
-    assert_eq!(complex::iamax(3, &x, 2), 5);
+    assert_eq!(complex::iamax(3, &x, 2), 3);
     assert_eq!(complex::iamax(6, &x, 0), 0);
     assert_eq!(complex::iamax(0, &x, 1), 0);
 

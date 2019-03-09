@@ -298,7 +298,7 @@ pub fn iamax<T: Float + NumAssignOps>(n: usize, x: &[Complex<T>], incx: usize) -
             ix += incx;
             i += 1;
             if tmp > max {
-                iamax = ix;
+                iamax = i;
                 max = tmp;
             }
         }
