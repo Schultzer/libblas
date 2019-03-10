@@ -176,82 +176,6 @@ fn gbmv() {
     let result = std::panic::catch_unwind(|| {
         complex::gbmv(
             't',
-            -6,
-            8,
-            4,
-            4,
-            Complex::new(0.0, 0.0),
-            &vec![],
-            6,
-            &vec![],
-            1,
-            Complex::new(2.0, 0.5),
-            &mut vec![],
-            1,
-        )
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::gbmv(
-            't',
-            6,
-            -8,
-            4,
-            4,
-            Complex::new(0.0, 0.0),
-            &vec![],
-            6,
-            &vec![],
-            1,
-            Complex::new(2.0, 0.5),
-            &mut vec![],
-            1,
-        )
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::gbmv(
-            't',
-            6,
-            8,
-            -4,
-            4,
-            Complex::new(0.0, 0.0),
-            &vec![],
-            6,
-            &vec![],
-            1,
-            Complex::new(2.0, 0.5),
-            &mut vec![],
-            1,
-        )
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::gbmv(
-            't',
-            6,
-            8,
-            4,
-            -4,
-            Complex::new(0.0, 0.0),
-            &vec![],
-            6,
-            &vec![],
-            1,
-            Complex::new(2.0, 0.5),
-            &mut vec![],
-            1,
-        )
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::gbmv(
-            't',
             6,
             8,
             4,
@@ -492,40 +416,6 @@ fn gemv() {
             'x',
             6,
             8,
-            Complex::new(0.0, 0.0),
-            &vec![],
-            6,
-            &vec![],
-            1,
-            Complex::new(2.0, 0.5),
-            &mut vec![],
-            1,
-        )
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::gemv(
-            't',
-            -6,
-            8,
-            Complex::new(0.0, 0.0),
-            &vec![],
-            6,
-            &vec![],
-            1,
-            Complex::new(2.0, 0.5),
-            &mut vec![],
-            1,
-        )
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::gemv(
-            't',
-            6,
-            -8,
             Complex::new(0.0, 0.0),
             &vec![],
             6,
@@ -787,36 +677,6 @@ fn gerc() {
     let result = std::panic::catch_unwind(|| {
         complex::gerc(
             6,
-            -8,
-            Complex::new(0.0, 0.0),
-            &vec![],
-            1,
-            &vec![],
-            1,
-            &mut vec![],
-            6,
-        )
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::gerc(
-            -6,
-            8,
-            Complex::new(0.0, 0.0),
-            &vec![],
-            1,
-            &vec![],
-            1,
-            &mut vec![],
-            6,
-        )
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::gerc(
-            6,
             8,
             Complex::new(0.0, 0.0),
             &vec![],
@@ -1019,36 +879,6 @@ fn geru() {
         6,
     );
     capproximately!(a, expect);
-
-    let result = std::panic::catch_unwind(|| {
-        complex::geru(
-            6,
-            -8,
-            Complex::new(0.0, 0.0),
-            &vec![],
-            1,
-            &vec![],
-            1,
-            &mut vec![],
-            6,
-        )
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::geru(
-            -6,
-            8,
-            Complex::new(0.0, 0.0),
-            &vec![],
-            1,
-            &vec![],
-            1,
-            &mut vec![],
-            6,
-        )
-    });
-    assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
         complex::geru(
@@ -1311,23 +1141,6 @@ fn hbmv() {
     let result = std::panic::catch_unwind(|| {
         complex::hbmv(
             'l',
-            -6,
-            3,
-            Complex::new(0.2, 0.8),
-            &a,
-            6,
-            &x,
-            1,
-            Complex::new(1.0, 0.0),
-            &mut fixtures::complex::vector(6),
-            1,
-        );
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::hbmv(
-            'l',
             6,
             4,
             Complex::new(0.0, 0.0),
@@ -1341,22 +1154,6 @@ fn hbmv() {
         );
     });
     assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::hbmv(
-            'l',
-            6,
-            -4,
-            Complex::new(0.2, 0.8),
-            &a,
-            6,
-            &x,
-            1,
-            Complex::new(1.0, 0.0),
-            &mut fixtures::complex::vector(6),
-            1,
-        );
-    });
 
     assert!(result.is_err());
 
@@ -1612,22 +1409,6 @@ fn hemv() {
             Complex::new(4.1985782666268578, 2.9198979594665389),
         ]
     );
-
-    let result = std::panic::catch_unwind(|| {
-        complex::hemv(
-            'l',
-            -6,
-            Complex::new(0.2, 0.8),
-            &a,
-            6,
-            &x,
-            1,
-            Complex::new(1.0, 0.0),
-            &mut fixtures::complex::vector(6),
-            1,
-        );
-    });
-    assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
         complex::hemv(
@@ -1888,11 +1669,6 @@ fn her() {
     );
 
     let result = std::panic::catch_unwind(|| {
-        complex::her('l', -6, 5.0, &x, 1, &mut vec![], 6);
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
         complex::her('l', 6, 1.2, &x, 1, &mut vec![], 5);
     });
     assert!(result.is_err());
@@ -2029,21 +1805,6 @@ fn her2() {
         complex::her2(
             'x',
             6,
-            Complex::new(0.0, 0.0),
-            &x,
-            -1,
-            &y,
-            -1,
-            &mut vec![],
-            6,
-        );
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::her2(
-            'l',
-            -6,
             Complex::new(0.0, 0.0),
             &x,
             -1,
@@ -2299,21 +2060,6 @@ fn hpmv() {
     let result = std::panic::catch_unwind(|| {
         complex::hpmv(
             'l',
-            -6,
-            Complex::new(0.0, 0.0),
-            &vec![],
-            &vec![],
-            -1,
-            Complex::new(0.0, 0.0),
-            &mut vec![],
-            -1,
-        );
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::hpmv(
-            'l',
             6,
             Complex::new(0.0, 0.0),
             &vec![],
@@ -2429,11 +2175,6 @@ fn hpr() {
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::hpr('l', -6, 0.0, &x, 1, &mut vec![]);
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
         complex::hpr('l', 6, 0.0, &x, 0, &mut vec![]);
     });
     assert!(result.is_err());
@@ -2529,11 +2270,6 @@ fn hpr2() {
 
     let result = std::panic::catch_unwind(|| {
         complex::hpr2('x', 6, Complex::new(0.0, 0.0), &x, 1, &y, 1, &mut vec![]);
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::hpr2('l', -6, Complex::new(0.0, 0.0), &x, 1, &y, 1, &mut vec![]);
     });
     assert!(result.is_err());
 
@@ -2841,16 +2577,6 @@ fn tbmv() {
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::tbmv('u', 't', 'n', -6, 5, &a, 6, &mut vec![], 1);
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::tbmv('u', 't', 'n', 6, -5, &a, 6, &mut vec![], 1);
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
         complex::tbmv('u', 't', 'n', 6, 5, &a, 4, &mut vec![], 1);
     });
     assert!(result.is_err());
@@ -3149,16 +2875,6 @@ fn tbsv() {
 
     let result = std::panic::catch_unwind(|| {
         complex::tbsv('u', 't', 'c', 6, 5, &a, 6, &mut vec![], 1);
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::tbsv('u', 't', 'n', -6, 5, &a, 6, &mut vec![], 1);
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::tbsv('u', 't', 'n', 6, -5, &a, 6, &mut vec![], 1);
     });
     assert!(result.is_err());
 
@@ -3467,11 +3183,6 @@ fn tpmv() {
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::tpmv('u', 't', 'n', -6, &ap, &mut vec![], 1);
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
         complex::tpmv('u', 't', 'n', 6, &ap, &mut vec![], 0);
     });
     assert!(result.is_err());
@@ -3768,11 +3479,6 @@ fn tpsv() {
 
     let result = std::panic::catch_unwind(|| {
         complex::tpsv('u', 't', 'x', 6, &ap, &mut vec![], 1);
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::tpsv('u', 't', 'n', -6, &ap, &mut vec![], 1);
     });
     assert!(result.is_err());
 
@@ -4093,11 +3799,6 @@ fn trmv() {
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::trmv('u', 't', 'n', -6, &a, 6, &mut vec![], 1);
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
         complex::trmv('u', 't', 'n', 6, &a, 6, &mut vec![], 0);
     });
     assert!(result.is_err());
@@ -4411,11 +4112,6 @@ fn trsv() {
 
     let result = std::panic::catch_unwind(|| {
         complex::trsv('u', 't', 'x', 6, &a, 6, &mut vec![], 1);
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::trsv('u', 't', 'n', -6, &a, 6, &mut vec![], 1);
     });
     assert!(result.is_err());
 
