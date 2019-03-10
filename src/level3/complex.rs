@@ -2,6 +2,42 @@ use num_complex::Complex;
 use num_traits::{Float, NumAssignOps, One, Zero};
 use std::cmp::max;
 
+fn multiply<T: Float + NumAssignOps>(
+    left: &mut [Complex<T>],
+    right: Complex<T>,
+    ld: usize,
+    n: usize,
+    m: usize,
+) {
+    if right.is_zero() {
+        zero(left, ld, n, m);
+    } else {
+        let mut j = 0;
+        while j < n {
+            let coords = j * ld;
+            let mut i = 0;
+            while i < m {
+                left[coords + i] *= right;
+                i += 1;
+            }
+            j += 1;
+        }
+    }
+}
+
+fn zero<T: Float + NumAssignOps>(left: &mut [Complex<T>], ld: usize, n: usize, m: usize) {
+    let mut j = 0;
+    while j < n {
+        let coords = j * ld;
+        let mut i = 0;
+        while i < m {
+            left[coords + i] = Complex::zero();
+            i += 1;
+        }
+        j += 1;
+    }
+}
+
 /// CGEMM  performs one of the matrix-matrix operations
 /// C := alpha*op( A )*op( B ) + beta*C, where  op( X ) is one of op( X ) = X   or   op( X ) = X**T   or   op( X ) = X**H,
 /// alpha and beta are scalars, and A, B and C are matrices, with op( A ) an m by k matrix,  op( B )  a  k by n matrix and  C an m by n matrix.
@@ -10,17 +46,17 @@ use std::cmp::max;
 pub fn gemm<T: Float + NumAssignOps>(
     trans_a: char,
     trans_b: char,
-    m: isize,
-    n: isize,
-    k: isize,
+    m: usize,
+    n: usize,
+    k: usize,
     alpha: Complex<T>,
     a: &[Complex<T>],
-    lda: isize,
+    lda: usize,
     b: &[Complex<T>],
-    ldb: isize,
+    ldb: usize,
     beta: Complex<T>,
     c: &mut [Complex<T>],
-    ldc: isize,
+    ldc: usize,
 ) {
     let nrowa = if trans_a == 'n' || trans_a == 'N' {
         m
@@ -43,12 +79,6 @@ pub fn gemm<T: Float + NumAssignOps>(
         || trans_b == 'c')
     {
         info = 2;
-    } else if m < 0 {
-        info = 3;
-    } else if n < 0 {
-        info = 4;
-    } else if k < 0 {
-        info = 5;
     } else if lda < max(1, nrowa) {
         info = 8;
     } else if ldb < max(1, nrowb) {
@@ -69,48 +99,35 @@ pub fn gemm<T: Float + NumAssignOps>(
     }
 
     if alpha_is_zero {
-        let mut j = 0;
-        while j < n {
-            let coorcj = j * ldc;
-            let mut i = 0;
-            while i < m {
-                if beta_is_zero {
-                    c[(coorcj + i) as usize] = Complex::zero();
-                } else {
-                    c[(coorcj + i) as usize] *= beta;
-                }
-                i += 1;
-            }
-            j += 1;
-        }
+        multiply(c, beta, ldc, n, m);
         return;
     }
 
     if (trans_a == 'n' || trans_a == 'N') && (trans_b == 'n' || trans_b == 'N') {
         let mut j = 0;
         while j < n {
-            let coorcj = j * ldc;
-            let coorbj = j * ldb;
+            let cj = j * ldc;
+            let bj = j * ldb;
             if beta_is_zero {
                 let mut i = 0;
                 while i < m {
-                    c[(coorcj + i) as usize] = Complex::zero();
+                    c[cj + i] = Complex::zero();
                     i += 1;
                 }
             } else if !beta_is_one {
                 let mut i = 0;
                 while i < m {
-                    c[(coorcj + i) as usize] *= beta;
+                    c[cj + i] *= beta;
                     i += 1;
                 }
             }
             let mut l = 0;
             while l < k {
-                let cooral = l * lda;
-                let tmp = alpha * b[(coorbj + l) as usize];
+                let al = l * lda;
+                let tmp = alpha * b[bj + l];
                 let mut i = 0;
                 while i < m {
-                    c[(coorcj + i) as usize] += tmp * a[(cooral + i) as usize];
+                    c[cj + i] += tmp * a[al + i];
                     i += 1;
                 }
                 l += 1;
@@ -121,28 +138,28 @@ pub fn gemm<T: Float + NumAssignOps>(
     } else if (trans_a == 'n' || trans_a == 'N') && (trans_b == 'c' || trans_b == 'C') {
         let mut j = 0;
         while j < n {
-            let coorcj = j * ldc;
+            let cj = j * ldc;
             if beta_is_zero {
                 let mut i = 0;
                 while i < m {
-                    c[(coorcj + i) as usize] = Complex::zero();
+                    c[cj + i] = Complex::zero();
                     i += 1;
                 }
             } else if !beta_is_one {
                 let mut i = 0;
                 while i < m {
-                    c[(coorcj + i) as usize] *= beta;
+                    c[cj + i] *= beta;
                     i += 1;
                 }
             }
             let mut l = 0;
             while l < k {
-                let coorbl = l * ldb;
-                let cooral = l * lda;
-                let tmp = alpha * b[(coorbl + j) as usize].conj();
+                let bl = l * ldb;
+                let al = l * lda;
+                let tmp = alpha * b[bl + j].conj();
                 let mut i = 0;
                 while i < m {
-                    c[(coorcj + i) as usize] += tmp * a[(cooral + i) as usize];
+                    c[cj + i] += tmp * a[al + i];
                     i += 1;
                 }
                 l += 1;
@@ -153,28 +170,28 @@ pub fn gemm<T: Float + NumAssignOps>(
     } else if (trans_a == 'n' || trans_a == 'N') && (trans_b == 't' || trans_b == 'T') {
         let mut j = 0;
         while j < n {
-            let coorcj = j * ldc;
+            let cj = j * ldc;
             if beta_is_zero {
                 let mut i = 0;
                 while i < m {
-                    c[(coorcj + i) as usize] = Complex::zero();
+                    c[cj + i] = Complex::zero();
                     i += 1;
                 }
             } else if !beta_is_one {
                 let mut i = 0;
                 while i < m {
-                    c[(coorcj + i) as usize] *= beta;
+                    c[cj + i] *= beta;
                     i += 1;
                 }
             }
             let mut l = 0;
             while l < k {
-                let coorbl = l * ldb;
-                let cooral = l * lda;
-                let tmp = alpha * b[(coorbl + j) as usize];
+                let bl = l * ldb;
+                let al = l * lda;
+                let tmp = alpha * b[bl + j];
                 let mut i = 0;
                 while i < m {
-                    c[(coorcj + i) as usize] += tmp * a[(cooral + i) as usize];
+                    c[cj + i] += tmp * a[al + i];
                     i += 1;
                 }
                 l += 1;
@@ -185,22 +202,22 @@ pub fn gemm<T: Float + NumAssignOps>(
     } else if (trans_a == 'c' || trans_a == 'C') && (trans_b == 'n' || trans_b == 'N') {
         let mut j = 0;
         while j < n {
-            let coorbj = j * ldb;
-            let coorcj = j * ldc;
+            let bj = j * ldb;
+            let cj = j * ldc;
             let mut i = 0;
             while i < m {
-                let coorai = i * lda;
+                let ai = i * lda;
                 let mut tmp = Complex::zero();
                 let mut l = 0;
                 while l < k {
-                    tmp += a[(coorai + l) as usize].conj() * b[(coorbj + l) as usize];
+                    tmp += a[ai + l].conj() * b[bj + l];
                     l += 1;
                 }
                 tmp *= alpha;
                 if !beta_is_zero {
-                    tmp += beta * c[(coorcj + i) as usize]
+                    tmp += beta * c[cj + i]
                 }
-                c[(coorcj + i) as usize] = tmp;
+                c[cj + i] = tmp;
                 i += 1;
             }
             j += 1;
@@ -209,22 +226,22 @@ pub fn gemm<T: Float + NumAssignOps>(
     } else if (trans_a == 'c' || trans_a == 'C') && (trans_b == 'c' || trans_b == 'C') {
         let mut j = 0;
         while j < n {
-            let coorcj = j * ldc;
+            let cj = j * ldc;
             let mut i = 0;
             while i < m {
-                let coorai = i * lda;
+                let ai = i * lda;
                 let mut tmp = Complex::zero();
                 let mut l = 0;
                 while l < k {
-                    let coorbl = l * ldb;
-                    tmp += a[(coorai + l) as usize].conj() * b[(coorbl + j) as usize].conj();
+                    let bl = l * ldb;
+                    tmp += a[ai + l].conj() * b[bl + j].conj();
                     l += 1;
                 }
                 tmp *= alpha;
                 if !beta_is_zero {
-                    tmp += beta * c[(coorcj + i) as usize];
+                    tmp += beta * c[cj + i];
                 }
-                c[(coorcj + i) as usize] = tmp;
+                c[cj + i] = tmp;
                 i += 1;
             }
             j += 1;
@@ -233,22 +250,22 @@ pub fn gemm<T: Float + NumAssignOps>(
     } else if (trans_a == 'c' || trans_a == 'C') && (trans_b == 't' || trans_b == 'T') {
         let mut j = 0;
         while j < n {
-            let coorcj = j * ldc;
+            let cj = j * ldc;
             let mut i = 0;
             while i < m {
-                let coorai = i * lda;
+                let ai = i * lda;
                 let mut tmp = Complex::zero();
                 let mut l = 0;
                 while l < k {
-                    let coorbl = l * ldb;
-                    tmp += a[(coorai + l) as usize].conj() * b[(coorbl + j) as usize];
+                    let bl = l * ldb;
+                    tmp += a[ai + l].conj() * b[bl + j];
                     l += 1;
                 }
                 tmp *= alpha;
                 if !beta_is_zero {
-                    tmp += beta * c[(coorcj + i) as usize];
+                    tmp += beta * c[cj + i];
                 }
-                c[(coorcj + i) as usize] = tmp;
+                c[cj + i] = tmp;
                 i += 1;
             }
             j += 1;
@@ -257,22 +274,22 @@ pub fn gemm<T: Float + NumAssignOps>(
     } else if (trans_a == 't' || trans_a == 'T') && (trans_b == 'n' || trans_b == 'N') {
         let mut j = 0;
         while j < n {
-            let coorbj = j * ldb;
-            let coorcj = j * ldc;
+            let bj = j * ldb;
+            let cj = j * ldc;
             let mut i = 0;
             while i < m {
-                let coorai = i * lda;
+                let ai = i * lda;
                 let mut tmp = Complex::zero();
                 let mut l = 0;
                 while l < k {
-                    tmp += a[(coorai + l) as usize] * b[(coorbj + l) as usize];
+                    tmp += a[ai + l] * b[bj + l];
                     l += 1;
                 }
                 tmp *= alpha;
                 if !beta_is_zero {
-                    tmp += beta * c[(coorcj + i) as usize];
+                    tmp += beta * c[cj + i];
                 }
-                c[(coorcj + i) as usize] = tmp;
+                c[cj + i] = tmp;
                 i += 1;
             }
             j += 1;
@@ -281,22 +298,22 @@ pub fn gemm<T: Float + NumAssignOps>(
     } else if (trans_a == 't' || trans_a == 'T') && (trans_b == 'c' || trans_b == 'C') {
         let mut j = 0;
         while j < n {
-            let coorcj = j * ldc;
+            let cj = j * ldc;
             let mut i = 0;
             while i < m {
-                let coorai = i * lda;
+                let ai = i * lda;
                 let mut tmp = Complex::zero();
                 let mut l = 0;
                 while l < k {
-                    let coorbl = l * ldb;
-                    tmp += a[(coorai + l) as usize] * b[(coorbl + j) as usize].conj();
+                    let bl = l * ldb;
+                    tmp += a[ai + l] * b[bl + j].conj();
                     l += 1;
                 }
                 tmp *= alpha;
                 if !beta_is_zero {
-                    tmp += beta * c[(coorcj + i) as usize];
+                    tmp += beta * c[cj + i];
                 }
-                c[(coorcj + i) as usize] = tmp;
+                c[cj + i] = tmp;
                 i += 1;
             }
             j += 1;
@@ -305,22 +322,22 @@ pub fn gemm<T: Float + NumAssignOps>(
     } else {
         let mut j = 0;
         while j < n {
-            let coorcj = j * ldc;
+            let cj = j * ldc;
             let mut i = 0;
             while i < m {
-                let coorai = i * lda;
+                let ai = i * lda;
                 let mut tmp = Complex::zero();
                 let mut l = 0;
                 while l < k {
-                    let coorbl = l * ldb;
-                    tmp += a[(coorai + l) as usize] * b[(coorbl + j) as usize];
+                    let bl = l * ldb;
+                    tmp += a[ai + l] * b[bl + j];
                     l += 1;
                 }
                 tmp *= alpha;
                 if !beta_is_zero {
-                    tmp += beta * c[(coorcj + i) as usize];
+                    tmp += beta * c[cj + i];
                 }
-                c[(coorcj + i) as usize] = tmp;
+                c[cj + i] = tmp;
                 i += 1;
             }
             j += 1;
@@ -337,16 +354,16 @@ pub fn gemm<T: Float + NumAssignOps>(
 pub fn symm<T: Float + NumAssignOps>(
     side: char,
     uplo: char,
-    m: isize,
-    n: isize,
+    m: usize,
+    n: usize,
     alpha: Complex<T>,
     a: &[Complex<T>],
-    lda: isize,
+    lda: usize,
     b: &[Complex<T>],
-    ldb: isize,
+    ldb: usize,
     beta: Complex<T>,
     c: &mut [Complex<T>],
-    ldc: isize,
+    ldc: usize,
 ) {
     let nrowa = if side == 'l' || side == 'L' { m } else { n };
     let upper = uplo == 'u' || uplo == 'U';
@@ -355,10 +372,6 @@ pub fn symm<T: Float + NumAssignOps>(
         info = 1;
     } else if uplo != 'l' && uplo != 'L' && uplo != 'u' && uplo != 'U' {
         info = 2;
-    } else if m < 0 {
-        info = 3;
-    } else if n < 0 {
-        info = 4;
     } else if lda < max(1, nrowa) {
         info = 7;
     } else if ldb < max(1, m) {
@@ -379,20 +392,7 @@ pub fn symm<T: Float + NumAssignOps>(
     }
 
     if alpha_is_zero {
-        let mut j = 0;
-        while j < n {
-            let coorcj = j * ldc;
-            let mut i = 0;
-            while i < m {
-                if beta_is_zero {
-                    c[(coorcj + i) as usize] = Complex::zero();
-                } else {
-                    c[(coorcj + i) as usize] *= beta;
-                }
-                i += 1;
-            }
-            j += 1;
-        }
+        multiply(c, beta, ldc, n, m);
         return;
     }
 
@@ -400,24 +400,24 @@ pub fn symm<T: Float + NumAssignOps>(
         if upper {
             let mut j = 0;
             while j < n {
-                let coord_bj = j * ldb;
-                let coord_cj = j * ldc;
+                let bj = j * ldb;
+                let cj = j * ldc;
                 let mut i = 0;
                 while i < m {
-                    let coord_ai = i * ldc;
-                    let mut tmp = alpha * b[(coord_bj + i) as usize];
+                    let ai = i * ldc;
+                    let mut tmp = alpha * b[bj + i];
                     let mut tmp2 = Complex::zero();
                     let mut k = 0;
                     while k < i {
-                        c[(coord_cj + k) as usize] += tmp * a[(coord_ai + k) as usize];
-                        tmp2 += b[(coord_bj + k) as usize] * a[(coord_ai + k) as usize];
+                        c[cj + k] += tmp * a[ai + k];
+                        tmp2 += b[bj + k] * a[ai + k];
                         k += 1
                     }
-                    tmp = tmp * a[(coord_ai + i) as usize] + alpha * tmp2;
+                    tmp = tmp * a[ai + i] + alpha * tmp2;
                     if !beta_is_zero {
-                        tmp += beta * c[(coord_cj + i) as usize];
+                        tmp += beta * c[cj + i];
                     }
-                    c[(coord_cj + i) as usize] = tmp;
+                    c[cj + i] = tmp;
                     i += 1;
                 }
                 j += 1;
@@ -425,25 +425,25 @@ pub fn symm<T: Float + NumAssignOps>(
         } else {
             let mut j = 0;
             while j < n {
-                let coord_bj = j * ldb;
-                let coord_cj = j * ldc;
-                let mut i = m - 1;
-                while i >= 0 {
-                    let coord_ai = i * lda;
-                    let mut tmp = alpha * b[(coord_bj + i) as usize];
+                let bj = j * ldb;
+                let cj = j * ldc;
+                let mut i = m;
+                while i >= 1 {
+                    i -= 1;
+                    let ai = i * lda;
+                    let mut tmp = alpha * b[bj + i];
                     let mut tmp2 = Complex::zero();
                     let mut k = i + 1;
                     while k < m {
-                        c[(coord_cj + k) as usize] += tmp * a[(coord_ai + k) as usize];
-                        tmp2 += b[(coord_bj + k) as usize] * a[(coord_ai + k) as usize];
+                        c[cj + k] += tmp * a[ai + k];
+                        tmp2 += b[bj + k] * a[ai + k];
                         k += 1
                     }
-                    tmp = tmp * a[(coord_ai + i) as usize] + alpha * tmp2;
+                    tmp = tmp * a[ai + i] + alpha * tmp2;
                     if !beta_is_zero {
-                        tmp += beta * c[(coord_cj + i) as usize];
+                        tmp += beta * c[cj + i];
                     }
-                    c[(coord_cj + i) as usize] = tmp;
-                    i -= 1
+                    c[cj + i] = tmp;
                 }
                 j += 1;
             }
@@ -451,47 +451,47 @@ pub fn symm<T: Float + NumAssignOps>(
     } else {
         let mut j = 0;
         while j < n {
-            let coord_aj = j * lda;
-            let coord_bj = j * ldb;
-            let coord_cj = j * ldc;
-            let mut tmp = alpha * a[(coord_aj + j) as usize];
+            let aj = j * lda;
+            let bj = j * ldb;
+            let cj = j * ldc;
+            let mut tmp = alpha * a[aj + j];
             let mut i = 0;
             while i < m {
-                let mut tmp2 = tmp * b[(coord_bj + i) as usize];
+                let mut tmp2 = tmp * b[bj + i];
                 if !beta_is_zero {
-                    tmp2 += beta * c[(coord_cj + i) as usize];
+                    tmp2 += beta * c[cj + i];
                 }
-                c[(coord_cj + i) as usize] = tmp2;
+                c[cj + i] = tmp2;
                 i += 1;
             }
             let mut k = 0;
             while k < j {
-                let coor_ak = k * lda;
-                let coor_bk = k * ldb;
+                let ak = k * lda;
+                let bk = k * ldb;
                 if upper {
-                    tmp = alpha * a[(coord_aj + k) as usize];
+                    tmp = alpha * a[aj + k];
                 } else {
-                    tmp = alpha * a[(coor_ak + j) as usize];
+                    tmp = alpha * a[ak + j];
                 }
                 let mut i = 0;
                 while i < m {
-                    c[(coord_cj + i) as usize] += tmp * b[(coor_bk + i) as usize];
+                    c[cj + i] += tmp * b[bk + i];
                     i += 1;
                 }
                 k += 1;
             }
             let mut k = j + 1;
             while k < n {
-                let coor_ak = k * lda;
-                let coor_bk = k * ldb;
+                let ak = k * lda;
+                let bk = k * ldb;
                 if upper {
-                    tmp = alpha * a[(coor_ak + j) as usize];
+                    tmp = alpha * a[ak + j];
                 } else {
-                    tmp = alpha * a[(coord_aj + k) as usize];
+                    tmp = alpha * a[aj + k];
                 }
                 let mut i = 0;
                 while i < m {
-                    c[(coord_cj + i) as usize] += tmp * b[(coor_bk + i) as usize];
+                    c[cj + i] += tmp * b[bk + i];
                     i += 1;
                 }
                 k += 1;
@@ -510,16 +510,16 @@ pub fn symm<T: Float + NumAssignOps>(
 pub fn syr2k<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
-    n: isize,
-    k: isize,
+    n: usize,
+    k: usize,
     alpha: Complex<T>,
     a: &[Complex<T>],
-    lda: isize,
+    lda: usize,
     b: &[Complex<T>],
-    ldb: isize,
+    ldb: usize,
     beta: Complex<T>,
     c: &mut [Complex<T>],
-    ldc: isize,
+    ldc: usize,
 ) {
     let nrowa = if trans == 'n' || trans == 'N' { n } else { k };
     let upper = uplo == 'u' || uplo == 'U';
@@ -534,10 +534,6 @@ pub fn syr2k<T: Float + NumAssignOps>(
         && trans != 'T'
     {
         info = 2;
-    } else if n < 0 {
-        info = 3;
-    } else if k < 0 {
-        info = 4;
     } else if lda < max(1, nrowa) {
         info = 7;
     } else if ldb < max(1, nrowa) {
@@ -561,15 +557,15 @@ pub fn syr2k<T: Float + NumAssignOps>(
     if alpha_is_zero {
         let mut j = 0;
         while j < n {
-            let coorcj = j * ldc;
+            let cj = j * ldc;
             let start = if upper { 0 } else { j };
-            let stop = if upper { j } else { n - 1 };
+            let stop = if upper { j + 1 } else { n };
             let mut i = start;
-            while i <= stop {
+            while i < stop {
                 if beta_is_zero {
-                    c[(coorcj + i) as usize] = Complex::zero();
+                    c[cj + i] = Complex::zero();
                 } else {
-                    c[(coorcj + i) as usize] *= beta;
+                    c[cj + i] *= beta;
                 }
                 i += 1;
             }
@@ -581,35 +577,35 @@ pub fn syr2k<T: Float + NumAssignOps>(
     if trans == 'n' || trans == 'N' {
         let mut j = 0;
         while j < n {
-            let coord_cj = j * ldc;
+            let cj = j * ldc;
             let start = if upper { 0 } else { j };
-            let stop = if upper { j } else { n - 1 };
+            let stop = if upper { j + 1 } else { n };
             if beta_is_zero {
                 let mut i = start;
-                while i <= stop {
-                    c[(coord_cj + i) as usize] = Complex::zero();
+                while i < stop {
+                    c[cj + i] = Complex::zero();
                     i += 1;
                 }
             } else if !beta_is_one {
                 let mut i = start;
-                while i <= stop {
-                    c[(coord_cj + i) as usize] = beta * c[(coord_cj + i) as usize];
+                while i < stop {
+                    c[cj + i] = beta * c[cj + i];
                     i += 1;
                 }
             }
             let mut l = 0;
             while l < k {
-                let coord_al = l * lda;
-                let coord_bl = l * ldb;
-                let mut tmp = b[(coord_bl + j) as usize];
-                let mut tmp2 = a[(coord_al + j) as usize];
+                let al = l * lda;
+                let bl = l * ldb;
+                let mut tmp = b[bl + j];
+                let mut tmp2 = a[al + j];
                 if !tmp.is_zero() || !tmp2.is_zero() {
                     tmp *= alpha;
                     tmp2 *= alpha;
                     let mut i = start;
-                    while i <= stop {
-                        c[(coord_cj + i) as usize] +=
-                            a[(coord_al + i) as usize] * tmp + b[(coord_bl + i) as usize] * tmp2;
+                    while i < stop {
+                        c[cj + i] +=
+                            a[al + i] * tmp + b[bl + i] * tmp2;
                         i += 1;
                     }
                 }
@@ -620,28 +616,28 @@ pub fn syr2k<T: Float + NumAssignOps>(
     } else {
         let mut j = 0;
         while j < n {
-            let coord_aj = j * lda;
-            let coord_bj = j * ldb;
-            let coord_cj = j * ldc;
+            let aj = j * lda;
+            let bj = j * ldb;
+            let cj = j * ldc;
             let start = if upper { 0 } else { j };
-            let stop = if upper { j } else { n - 1 };
+            let stop = if upper { j + 1 } else { n };
             let mut i = start;
-            while i <= stop {
-                let coor_ai = i * lda;
-                let coor_bi = i * ldb;
+            while i < stop {
+                let ai = i * lda;
+                let bi = i * ldb;
                 let mut tmp = Complex::zero();
                 let mut tmp2 = Complex::zero();
                 let mut l = 0;
                 while l < k {
-                    tmp += a[(coor_ai + l) as usize] * b[(coord_bj + l) as usize];
-                    tmp2 += a[(coord_aj + l) as usize] * b[(coor_bi + l) as usize];
+                    tmp += a[ai + l] * b[bj + l];
+                    tmp2 += a[aj + l] * b[bi + l];
                     l += 1;
                 }
                 tmp = alpha * tmp + alpha * tmp2;
                 if !beta_is_zero {
-                    tmp += beta * c[(coord_cj + i) as usize];
+                    tmp += beta * c[cj + i];
                 }
-                c[(coord_cj + i) as usize] = tmp;
+                c[cj + i] = tmp;
                 i += 1;
             }
             j += 1;
@@ -658,14 +654,14 @@ pub fn syr2k<T: Float + NumAssignOps>(
 pub fn syrk<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
-    n: isize,
-    k: isize,
+    n: usize,
+    k: usize,
     alpha: Complex<T>,
     a: &[Complex<T>],
-    lda: isize,
+    lda: usize,
     beta: Complex<T>,
     c: &mut [Complex<T>],
-    ldc: isize,
+    ldc: usize,
 ) {
     let upper = uplo == 'u' || uplo == 'U';
     let nrowa = if trans == 'n' || trans == 'N' { n } else { k };
@@ -680,10 +676,6 @@ pub fn syrk<T: Float + NumAssignOps>(
         && trans != 'T'
     {
         info = 2;
-    } else if n < 0 {
-        info = 3;
-    } else if k < 0 {
-        info = 4;
     } else if lda < max(1, nrowa) {
         info = 7;
     } else if ldc < max(1, n) {
@@ -705,15 +697,15 @@ pub fn syrk<T: Float + NumAssignOps>(
     if alpha_is_zero {
         let mut j = 0;
         while j < n {
-            let coorcj = j * ldc;
+            let cj = j * ldc;
             let start = if upper { 0 } else { j };
-            let stop = if upper { j } else { n - 1 };
+            let stop = if upper { j + 1 } else { n };
             let mut i = start;
-            while i <= stop {
+            while i < stop {
                 if beta_is_zero {
-                    c[(coorcj + i) as usize] = Complex::zero();
+                    c[cj + i] = Complex::zero();
                 } else {
-                    c[(coorcj + i) as usize] *= beta;
+                    c[cj + i] *= beta;
                 }
                 i += 1;
             }
@@ -725,31 +717,31 @@ pub fn syrk<T: Float + NumAssignOps>(
     if trans == 'n' || trans == 'N' {
         let mut j = 0;
         while j < n {
-            let coord_cj = j * ldc;
+            let cj = j * ldc;
             let start = if upper { 0 } else { j };
-            let stop = if upper { j } else { n - 1 };
+            let stop = if upper { j + 1 } else { n };
             if beta_is_zero {
                 let mut i = start;
-                while i <= stop {
-                    c[(coord_cj + i) as usize] = Complex::zero();
+                while i < stop {
+                    c[cj + i] = Complex::zero();
                     i += 1;
                 }
             } else if !beta_is_one {
                 let mut i = start;
-                while i <= stop {
-                    c[(coord_cj + i) as usize] *= beta;
+                while i < stop {
+                    c[cj + i] *= beta;
                     i += 1;
                 }
             }
             let mut l = 0;
             while l < k {
-                let coord_al = l * lda;
-                let mut tmp = a[(coord_al + j) as usize];
+                let al = l * lda;
+                let mut tmp = a[al + j];
                 if !tmp.is_zero() {
                     tmp *= alpha;
                     let mut i = start;
-                    while i <= stop {
-                        c[(coord_cj + i) as usize] += tmp * a[(coord_al + i) as usize];
+                    while i < stop {
+                        c[cj + i] += tmp * a[al + i];
                         i += 1;
                     }
                 }
@@ -761,23 +753,23 @@ pub fn syrk<T: Float + NumAssignOps>(
         let mut j = 0;
         while j < n {
             let start = if upper { 0 } else { j };
-            let stop = if upper { j } else { n - 1 };
-            let coord_aj = j * lda;
-            let coord_cj = j * ldc;
+            let stop = if upper { j + 1 } else { n };
+            let aj = j * lda;
+            let cj = j * ldc;
             let mut i = start;
-            while i <= stop {
+            while i < stop {
                 let mut tmp = Complex::zero();
-                let coord_ai = i * lda;
+                let ai = i * lda;
                 let mut l = 0;
                 while l < k {
-                    tmp += a[(coord_ai + l) as usize] * a[(coord_aj + l) as usize];
+                    tmp += a[ai + l] * a[aj + l];
                     l += 1;
                 }
                 tmp *= alpha;
                 if !beta_is_zero {
-                    tmp += beta * c[(coord_cj + i) as usize];
+                    tmp += beta * c[cj + i];
                 }
-                c[(coord_cj + i) as usize] = tmp;
+                c[cj + i] = tmp;
                 i += 1;
             }
             j += 1;
@@ -796,13 +788,13 @@ pub fn trmm<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
     diag: char,
-    m: isize,
-    n: isize,
+    m: usize,
+    n: usize,
     alpha: Complex<T>,
     a: &[Complex<T>],
-    lda: isize,
+    lda: usize,
     b: &mut [Complex<T>],
-    ldb: isize,
+    ldb: usize,
 ) {
     let lside = side == 'l' || side == 'L';
 
@@ -825,10 +817,6 @@ pub fn trmm<T: Float + NumAssignOps>(
         info = 3;
     } else if diag != 'n' && diag != 'N' && diag != 'u' && diag != 'U' {
         info = 4;
-    } else if m < 0 {
-        info = 5;
-    } else if n < 0 {
-        info = 6;
     } else if lda < max(1, nrowa) {
         info = 9;
     } else if ldb < max(1, m) {
@@ -845,16 +833,7 @@ pub fn trmm<T: Float + NumAssignOps>(
     let noconj = trans == 't' || trans == 'T';
 
     if alpha_is_zero {
-        let mut j = 0;
-        while j < n {
-            let coorbj = j * ldb;
-            let mut i = 0;
-            while i < m {
-                b[(coorbj + i) as usize] = Complex::zero();
-                i += 1;
-            }
-            j += 1;
-        }
+        zero(b, ldb, n, m);
         return;
     }
 
@@ -862,22 +841,22 @@ pub fn trmm<T: Float + NumAssignOps>(
         if upper {
             let mut j = 0;
             while j < n {
-                let coorbj = j * ldb;
+                let bj = j * ldb;
                 let mut k = 0;
                 while k < m {
-                    let mut tmp = b[(coorbj + k) as usize];
+                    let mut tmp = b[bj + k];
                     if !tmp.is_zero() {
-                        let coorak = k * lda;
+                        let ak = k * lda;
                         tmp *= alpha;
                         let mut i = 0;
                         while i < k {
-                            b[(coorbj + i) as usize] += tmp * a[(coorak + i) as usize];
+                            b[bj + i] += tmp * a[ak + i];
                             i += 1;
                         }
                         if nounit {
-                            tmp *= a[(coorak + k) as usize];
+                            tmp *= a[ak + k];
                         }
-                        b[(coorbj + k) as usize] = tmp;
+                        b[bj + k] = tmp;
                     }
                     k += 1;
                 }
@@ -886,24 +865,24 @@ pub fn trmm<T: Float + NumAssignOps>(
         } else {
             let mut j = 0;
             while j < n {
-                let coorbj = j * ldb;
-                let mut k = m - 1;
-                while k >= 0 {
-                    let mut tmp = b[(coorbj + k) as usize];
+                let bj = j * ldb;
+                let mut k = m;
+                while k >= 1 {
+                    k -= 1;
+                    let mut tmp = b[bj + k];
                     if !tmp.is_zero() {
-                        let coorak = k * lda;
+                        let ak = k * lda;
                         tmp *= alpha;
-                        b[(coorbj + k) as usize] = tmp;
+                        b[bj + k] = tmp;
                         if nounit {
-                            b[(coorbj + k) as usize] *= a[(coorak + k) as usize];
+                            b[bj + k] *= a[ak + k];
                         }
                         let mut i = k + 1;
                         while i < m {
-                            b[(coorbj + i) as usize] += tmp * a[(coorak + i) as usize];
+                            b[bj + i] += tmp * a[ak + i];
                             i += 1;
                         }
                     }
-                    k -= 1;
                 }
                 j += 1;
             }
@@ -915,57 +894,57 @@ pub fn trmm<T: Float + NumAssignOps>(
         if upper {
             let mut j = 0;
             while j < n {
-                let coorbj = j * ldb;
-                let mut i = m - 1;
-                while i >= 0 {
-                    let coorai = i * lda;
-                    let mut tmp = b[(coorbj + i) as usize];
+                let bj = j * ldb;
+                let mut i = m;
+                while i >= 1 {
+                    i -= 1;
+                    let ai = i * lda;
+                    let mut tmp = b[bj + i];
                     if nounit {
                         if noconj {
-                            tmp *= a[(coorai + i) as usize];
+                            tmp *= a[ai + i];
                         } else {
-                            tmp *= a[(coorai + i) as usize].conj();
+                            tmp *= a[ai + i].conj();
                         }
                     }
                     let mut k = 0;
                     while k < i {
                         if noconj {
-                            tmp += a[(coorai + k) as usize] * b[(coorbj + k) as usize];
+                            tmp += a[ai + k] * b[bj + k];
                         } else {
-                            tmp += a[(coorai + k) as usize].conj() * b[(coorbj + k) as usize];
+                            tmp += a[ai + k].conj() * b[bj + k];
                         }
                         k += 1;
                     }
-                    b[(coorbj + i) as usize] = alpha * tmp;
-                    i -= 1;
+                    b[bj + i] = alpha * tmp;
                 }
                 j += 1;
             }
         } else {
             let mut j = 0;
             while j < n {
-                let coorbj = j * ldb;
+                let bj = j * ldb;
                 let mut i = 0;
                 while i < m {
-                    let coorai = i * lda;
-                    let mut tmp = b[(coorbj + i) as usize];
+                    let ai = i * lda;
+                    let mut tmp = b[bj + i];
                     if nounit {
                         if noconj {
-                            tmp *= a[(coorai + i) as usize];
+                            tmp *= a[ai + i];
                         } else {
-                            tmp *= a[(coorai + i) as usize].conj();
+                            tmp *= a[ai + i].conj();
                         }
                     }
                     let mut k = i + 1;
                     while k < m {
                         if noconj {
-                            tmp += a[(coorai + k) as usize] * b[(coorbj + k) as usize];
+                            tmp += a[ai + k] * b[bj + k];
                         } else {
-                            tmp += a[(coorai + k) as usize].conj() * b[(coorbj + k) as usize];
+                            tmp += a[ai + k].conj() * b[bj + k];
                         }
                         k += 1;
                     }
-                    b[(coorbj + i) as usize] = alpha * tmp;
+                    b[bj + i] = alpha * tmp;
 
                     i += 1;
                 }
@@ -975,58 +954,58 @@ pub fn trmm<T: Float + NumAssignOps>(
         return;
     } else if (side == 'r' || side == 'R') && (trans == 'n' || trans == 'N') {
         if upper {
-            let mut j = n - 1;
-            while j >= 0 {
-                let cooraj = j * lda;
-                let coorbj = j * ldb;
+            let mut j = n;
+            while j >= 1 {
+                j -= 1;
+                let aj = j * lda;
+                let bj = j * ldb;
                 let mut tmp = alpha;
                 if nounit {
-                    tmp *= a[(cooraj + j) as usize];
+                    tmp *= a[aj + j];
                 }
                 let mut i = 0;
                 while i < m {
-                    b[(coorbj + i) as usize] *= tmp;
+                    b[bj + i] *= tmp;
                     i += 1;
                 }
                 let mut k = 0;
                 while k < j {
-                    let coorbk = k * ldb;
-                    let mut tmp = a[(cooraj + k) as usize];
+                    let bk = k * ldb;
+                    let mut tmp = a[aj + k];
                     if !tmp.is_zero() {
                         tmp *= alpha;
                         let mut i = 0;
                         while i < m {
-                            b[(coorbj + i) as usize] += tmp * b[(coorbk + i) as usize];
+                            b[bj + i] += tmp * b[bk + i];
                             i += 1;
                         }
                     }
                     k += 1;
                 }
-                j -= 1;
             }
         } else {
             let mut j = 0;
             while j < n {
-                let coorbj = j * ldb;
-                let cooraj = j * lda;
+                let bj = j * ldb;
+                let aj = j * lda;
                 let mut tmp = alpha;
                 if nounit {
-                    tmp *= a[(cooraj + j) as usize];
+                    tmp *= a[aj + j];
                 }
                 let mut i = 0;
                 while i < m {
-                    b[(coorbj + i) as usize] *= tmp;
+                    b[bj + i] *= tmp;
                     i += 1;
                 }
                 let mut k = j + 1;
                 while k < n {
-                    let coorbk = k * ldb;
-                    let tmp2 = a[(cooraj + k) as usize];
+                    let bk = k * ldb;
+                    let tmp2 = a[aj + k];
                     if !tmp2.is_zero() {
                         tmp = alpha * tmp2;
                         let mut i = 0;
                         while i < m {
-                            b[(coorbj + i) as usize] += tmp * b[(coorbk + i) as usize];
+                            b[bj + i] += tmp * b[bk + i];
                             i += 1;
                         }
                     }
@@ -1040,12 +1019,12 @@ pub fn trmm<T: Float + NumAssignOps>(
         if upper {
             let mut k = 0;
             while k < n {
-                let coorak = k * lda;
-                let coorbk = k * ldb;
+                let ak = k * lda;
+                let bk = k * ldb;
                 let mut j = 0;
                 while j < k {
-                    let coorbj = j * ldb;
-                    let mut tmp = a[(coorak + j) as usize];
+                    let bj = j * ldb;
+                    let mut tmp = a[ak + j];
                     if !tmp.is_zero() {
                         if noconj {
                             tmp *= alpha;
@@ -1054,7 +1033,7 @@ pub fn trmm<T: Float + NumAssignOps>(
                         }
                         let mut i = 0;
                         while i < m {
-                            b[(coorbj + i) as usize] += tmp * b[(coorbk + i) as usize];
+                            b[bj + i] += tmp * b[bk + i];
                             i += 1;
                         }
                     }
@@ -1063,29 +1042,30 @@ pub fn trmm<T: Float + NumAssignOps>(
                 let mut tmp = alpha;
                 if nounit {
                     if noconj {
-                        tmp *= a[(coorak + k) as usize];
+                        tmp *= a[ak + k];
                     } else {
-                        tmp *= a[(coorak + k) as usize].conj();
+                        tmp *= a[ak + k].conj();
                     }
                 }
                 if !tmp.is_one() {
                     let mut i = 0;
                     while i < m {
-                        b[(coorbk + i) as usize] = tmp * b[(coorbk + i) as usize];
+                        b[bk + i] = tmp * b[bk + i];
                         i += 1;
                     }
                 }
                 k += 1;
             }
         } else {
-            let mut k = n - 1;
-            while k >= 0 {
-                let coorak = k * lda;
-                let coorbk = k * ldb;
+            let mut k = n;
+            while k >= 1 {
+                k -= 1;
+                let ak = k * lda;
+                let bk = k * ldb;
                 let mut j = k + 1;
                 while j < n {
-                    let coorbj = j * lda;
-                    let mut tmp = a[(coorak + j) as usize];
+                    let bj = j * lda;
+                    let mut tmp = a[ak + j];
                     if !tmp.is_zero() {
                         if noconj {
                             tmp *= alpha;
@@ -1094,7 +1074,7 @@ pub fn trmm<T: Float + NumAssignOps>(
                         };
                         let mut i = 0;
                         while i < m {
-                            b[(coorbj + i) as usize] += tmp * b[(coorbk + i) as usize];
+                            b[bj + i] += tmp * b[bk + i];
                             i += 1;
                         }
                     }
@@ -1103,19 +1083,18 @@ pub fn trmm<T: Float + NumAssignOps>(
                 let mut tmp = alpha;
                 if nounit {
                     if noconj {
-                        tmp *= a[(coorak + k) as usize];
+                        tmp *= a[ak + k];
                     } else {
-                        tmp *= a[(coorak + k) as usize].conj();
+                        tmp *= a[ak + k].conj();
                     };
                 }
                 if !tmp.is_one() {
                     let mut i = 0;
                     while i < m {
-                        b[(coorbk + i) as usize] = tmp * b[(coorbk + i) as usize];
+                        b[bk + i] = tmp * b[bk + i];
                         i += 1;
                     }
                 }
-                k -= 1;
             }
         }
         return;
@@ -1134,13 +1113,13 @@ pub fn trsm<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
     diag: char,
-    m: isize,
-    n: isize,
+    m: usize,
+    n: usize,
     alpha: Complex<T>,
     a: &[Complex<T>],
-    lda: isize,
+    lda: usize,
     b: &mut [Complex<T>],
-    ldb: isize,
+    ldb: usize,
 ) {
     let lside = side == 'l' || side == 'L';
 
@@ -1165,10 +1144,6 @@ pub fn trsm<T: Float + NumAssignOps>(
         info = 3;
     } else if diag != 'n' && diag != 'N' && diag != 'u' && diag != 'U' {
         info = 4;
-    } else if m < 0 {
-        info = 5;
-    } else if n < 0 {
-        info = 6;
     } else if lda < max(1, nrowa) {
         info = 9;
     } else if ldb < max(1, m) {
@@ -1183,16 +1158,7 @@ pub fn trsm<T: Float + NumAssignOps>(
     }
 
     if alpha_is_zero {
-        let mut j = 0;
-        while j < n {
-            let coorbj = j * ldb;
-            let mut i = 0;
-            while i < m {
-                b[(coorbj + i) as usize] = Complex::zero();
-                i += 1;
-            }
-            j += 1;
-        }
+        zero(b, ldb, n, m);
         return;
     }
 
@@ -1200,56 +1166,56 @@ pub fn trsm<T: Float + NumAssignOps>(
         if upper {
             let mut j = 0;
             while j < n {
-                let coorbj = j * ldb;
+                let bj = j * ldb;
                 if !alpha_is_one {
                     let mut i = 0;
                     while i < m {
-                        b[(coorbj + i) as usize] = alpha * b[(coorbj + i) as usize];
+                        b[bj + i] = alpha * b[bj + i];
                         i += 1;
                     }
                 }
-                let mut k = m - 1;
-                while k >= 0 {
-                    let coorak = k * lda;
-                    let tmp = b[(coorbj + k) as usize];
+                let mut k = m;
+                while k >= 1 {
+                    k -= 1;
+                    let ak = k * lda;
+                    let tmp = b[bj + k];
                     if !tmp.is_zero() {
                         if nounit {
-                            b[(coorbj + k) as usize] = tmp / a[(coorak + k) as usize];
+                            b[bj + k] = tmp / a[ak + k];
                         }
-                        let tmp = b[(coorbj + k) as usize];
+                        let tmp = b[bj + k];
                         let mut i = 0;
                         while i < k {
-                            b[(coorbj + i) as usize] -= tmp * a[(coorak + i) as usize];
+                            b[bj + i] -= tmp * a[ak + i];
                             i += 1;
                         }
                     }
-                    k -= 1;
                 }
                 j += 1;
             }
         } else {
             let mut j = 0;
             while j < n {
-                let coorbj = j * ldb;
+                let bj = j * ldb;
                 if !alpha_is_one {
                     let mut i = 0;
                     while i < m {
-                        b[(coorbj + i) as usize] = alpha * b[(coorbj + i) as usize];
+                        b[bj + i] = alpha * b[bj + i];
                         i += 1;
                     }
                 }
                 let mut k = 0;
                 while k < m {
-                    let coorak = k * lda;
-                    let tmp = b[(coorbj + k) as usize];
+                    let ak = k * lda;
+                    let tmp = b[bj + k];
                     if !tmp.is_zero() {
                         if nounit {
-                            b[(coorbj + k) as usize] = tmp / a[(coorak + k) as usize];
+                            b[bj + k] = tmp / a[ak + k];
                         }
-                        let tmp = b[(coorbj + k) as usize];
+                        let tmp = b[bj + k];
                         let mut i = k + 1;
                         while i < m {
-                            b[(coorbj + i) as usize] -= tmp * a[(coorak + i) as usize];
+                            b[bj + i] -= tmp * a[ak + i];
                             i += 1;
                         }
                     }
@@ -1265,24 +1231,24 @@ pub fn trsm<T: Float + NumAssignOps>(
         if upper {
             let mut j = 0;
             while j < n {
-                let coorbj = j * ldb;
+                let bj = j * ldb;
                 let mut i = 0;
                 while i < m {
-                    let coorai = i * lda;
-                    let mut tmp = alpha * b[(coorbj + i) as usize];
+                    let ai = i * lda;
+                    let mut tmp = alpha * b[bj + i];
                     let mut k = 0;
                     while k < i {
                         if noconj {
-                            tmp -= a[(coorai + k) as usize] * b[(coorbj + k) as usize];
+                            tmp -= a[ai + k] * b[bj + k];
                         } else {
-                            tmp -= a[(coorai + k) as usize].conj() * b[(coorbj + k) as usize];
+                            tmp -= a[ai + k].conj() * b[bj + k];
                         }
                         k += 1;
                     }
                     if nounit {
-                        tmp /= a[(coorai + i) as usize];
+                        tmp /= a[ai + i];
                     }
-                    b[(coorbj + i) as usize] = tmp;
+                    b[bj + i] = tmp;
                     i += 1;
                 }
                 j += 1;
@@ -1290,30 +1256,30 @@ pub fn trsm<T: Float + NumAssignOps>(
         } else {
             let mut j = 0;
             while j < n {
-                let coorbj = j * ldb;
-                let mut i = m - 1;
-                while i >= 0 {
-                    let coorai = i * lda;
-                    let mut tmp = alpha * b[(coorbj + i) as usize];
+                let bj = j * ldb;
+                let mut i = m;
+                while i >= 1 {
+                    i -= 1;
+                    let ai = i * lda;
+                    let mut tmp = alpha * b[bj + i];
                     let mut k = i + 1;
                     while k < m {
                         if noconj {
-                            tmp -= a[(coorai + k) as usize] * b[(coorbj + k) as usize];
+                            tmp -= a[ai + k] * b[bj + k];
                         } else {
-                            tmp -= a[(coorai + k) as usize].conj() * b[(coorbj + k) as usize];
+                            tmp -= a[ai + k].conj() * b[bj + k];
                         }
 
                         k += 1;
                     }
                     if nounit {
                         if noconj {
-                            tmp /= a[(coorai + i) as usize];
+                            tmp /= a[ai + i];
                         } else {
-                            tmp /= a[(coorai + i) as usize].conj();
+                            tmp /= a[ai + i].conj();
                         }
                     }
-                    b[(coorbj + i) as usize] = tmp;
-                    i -= 1;
+                    b[bj + i] = tmp;
                 }
                 j += 1;
             }
@@ -1325,106 +1291,107 @@ pub fn trsm<T: Float + NumAssignOps>(
         if upper {
             let mut j = 0;
             while j < n {
-                let coorbj = j * ldb;
-                let cooraj = j * lda;
+                let bj = j * ldb;
+                let aj = j * lda;
                 if !alpha_is_one {
                     let mut i = 0;
                     while i < m {
-                        b[(coorbj + i) as usize] = alpha * b[(coorbj + i) as usize];
+                        b[bj + i] = alpha * b[bj + i];
                         i += 1;
                     }
                 }
                 let mut k = 0;
                 while k < j {
-                    let coorbk = k * ldb;
-                    let tmp = a[(cooraj + k) as usize];
+                    let bk = k * ldb;
+                    let tmp = a[aj + k];
                     if !tmp.is_zero() {
                         let mut i = 0;
                         while i < m {
-                            b[(coorbj + i) as usize] -= tmp * b[(coorbk + i) as usize];
+                            b[bj + i] -= tmp * b[bk + i];
                             i += 1;
                         }
                     }
                     k += 1;
                 }
                 if nounit {
-                    let tmp = Complex::new(T::one(), T::zero()) / a[(cooraj + j) as usize];
+                    let tmp = Complex::new(T::one(), T::zero()) / a[aj + j];
                     let mut i = 0;
                     while i < m {
-                        b[(coorbj + i) as usize] *= tmp;
+                        b[bj + i] *= tmp;
                         i += 1;
                     }
                 }
                 j += 1;
             }
         } else {
-            let mut j = n - 1;
-            while j >= 0 {
-                let coorbj = j * ldb;
-                let cooraj = j * lda;
+            let mut j = n;
+            while j >= 1 {
+                j -= 1;
+                let bj = j * ldb;
+                let aj = j * lda;
                 if !alpha_is_one {
                     let mut i = 0;
                     while i < m {
-                        b[(coorbj + i) as usize] = alpha * b[(coorbj + i) as usize];
+                        b[bj + i] = alpha * b[bj + i];
                         i += 1;
                     }
                 }
                 let mut k = j + 1;
                 while k < n {
-                    let coorbk = k * ldb;
-                    let tmp = a[(cooraj + k) as usize];
+                    let bk = k * ldb;
+                    let tmp = a[aj + k];
                     if !tmp.is_zero() {
                         let mut i = 0;
                         while i < m {
-                            b[(coorbj + i) as usize] -= tmp * b[(coorbk + i) as usize];
+                            b[bj + i] -= tmp * b[bk + i];
                             i += 1;
                         }
                     }
                     k += 1;
                 }
                 if nounit {
-                    let tmp = Complex::new(T::one(), T::zero()) / a[(cooraj + j) as usize];
+                    let tmp = Complex::new(T::one(), T::zero()) / a[aj + j];
                     let mut i = 0;
                     while i < m {
-                        b[(coorbj + i) as usize] *= tmp;
+                        b[bj + i] *= tmp;
                         i += 1;
                     }
                 }
-                j -= 1;
             }
         }
         return;
     }
 
     if upper {
-        let mut k = n - 1;
-        while k >= 0 {
-            let coorak = k * lda;
-            let coorbk = k * ldb;
+        let mut k = n;
+        while k >= 1 {
+            k -= 1;
+            let ak = k * lda;
+            let bk = k * ldb;
             if nounit {
                 let mut tmp = Complex::new(T::one(), T::zero());
                 if noconj {
-                    tmp /= a[(coorak + k) as usize];
+                    tmp /= a[ak + k];
                 } else {
-                    tmp /= a[(coorak + k) as usize].conj();
+                    tmp /= a[ak + k].conj();
                 }
                 let mut i = 0;
                 while i < m {
-                    b[(coorbk + i) as usize] = tmp * b[(coorbk + i) as usize];
+                    b[bk + i] = tmp * b[bk + i];
                     i += 1;
                 }
             }
             let mut j = 0;
             while j < k {
-                let coorbj = j * ldb;
-                let mut tmp = a[(coorak + j) as usize];
+                let bj = j * ldb;
+                let mut tmp = a[ak + j];
                 if !tmp.is_zero() {
                     if !noconj {
                         tmp = tmp.conj()
                     }
                     let mut i = 0;
                     while i < m {
-                        b[(coorbj + i) as usize] -= tmp * b[(coorbk + i) as usize];
+                        b[bj + i] -= tmp * b[bk + i];
                         i += 1;
                     }
                 }
@@ -1433,42 +1400,41 @@ pub fn trsm<T: Float + NumAssignOps>(
             if !alpha_is_one {
                 let mut i = 0;
                 while i < m {
-                    b[(coorbk + i) as usize] = alpha * b[(coorbk + i) as usize];
+                    b[bk + i] = alpha * b[bk + i];
                     i += 1;
                 }
             }
-            k -= 1;
         }
         return;
     } else {
         let mut k = 0;
         while k < n {
-            let coorak = k * lda;
-            let coorbk = k * ldb;
+            let ak = k * lda;
+            let bk = k * ldb;
             if nounit {
                 let mut tmp = Complex::new(T::one(), T::zero());
                 if noconj {
-                    tmp /= a[(coorak + k) as usize];
+                    tmp /= a[ak + k];
                 } else {
-                    tmp /= a[(coorak + k) as usize].conj();
+                    tmp /= a[ak + k].conj();
                 }
                 let mut i = 0;
                 while i < m {
-                    b[(coorbk + i) as usize] = tmp * b[(coorbk + i) as usize];
+                    b[bk + i] = tmp * b[bk + i];
                     i += 1;
                 }
             }
             let mut j = k + 1;
             while j < n {
-                let coorbj = j * ldb;
-                let mut tmp = a[(coorak + j) as usize];
+                let bj = j * ldb;
+                let mut tmp = a[ak + j];
                 if !tmp.is_zero() {
                     if !noconj {
                         tmp = tmp.conj()
                     }
                     let mut i = 0;
                     while i < m {
-                        b[(coorbj + i) as usize] -= tmp * b[(coorbk + i) as usize];
+                        b[bj + i] -= tmp * b[bk + i];
 
                         i += 1;
                     }
@@ -1478,7 +1444,7 @@ pub fn trsm<T: Float + NumAssignOps>(
             if !alpha_is_one {
                 let mut i = 0;
                 while i < m {
-                    b[(coorbk + i) as usize] = alpha * b[(coorbk + i) as usize];
+                    b[bk + i] = alpha * b[bk + i];
 
                     i += 1;
                 }
@@ -1497,16 +1463,16 @@ pub fn trsm<T: Float + NumAssignOps>(
 pub fn hemm<T: Float + NumAssignOps>(
     side: char,
     uplo: char,
-    m: isize,
-    n: isize,
+    m: usize,
+    n: usize,
     alpha: Complex<T>,
     a: &[Complex<T>],
-    lda: isize,
+    lda: usize,
     b: &[Complex<T>],
-    ldb: isize,
+    ldb: usize,
     beta: Complex<T>,
     c: &mut [Complex<T>],
-    ldc: isize,
+    ldc: usize,
 ) {
     let beta_is_zero = beta.is_zero();
     let beta_is_one = beta.is_one();
@@ -1518,10 +1484,6 @@ pub fn hemm<T: Float + NumAssignOps>(
         info = 1;
     } else if uplo != 'l' && uplo != 'L' && uplo != 'u' && uplo != 'U' {
         info = 2;
-    } else if m < 0 {
-        info = 3;
-    } else if n < 0 {
-        info = 4;
     } else if lda < max(1, nrowa) {
         info = 7;
     } else if ldb < max(1, m) {
@@ -1538,20 +1500,7 @@ pub fn hemm<T: Float + NumAssignOps>(
     }
 
     if alpha_is_zero {
-        let mut j = 0;
-        while j < n {
-            let coorcj = j * ldc;
-            let mut i = 0;
-            while i < m {
-                if beta_is_zero {
-                    c[(coorcj + i) as usize] = Complex::zero();
-                } else {
-                    c[(coorcj + i) as usize] *= beta;
-                }
-                i += 1;
-            }
-            j += 1;
-        }
+        multiply(c, beta, ldc as usize, n as usize, m as usize);
         return;
     }
 
@@ -1559,24 +1508,24 @@ pub fn hemm<T: Float + NumAssignOps>(
         if upper {
             let mut j = 0;
             while j < n {
-                let coorbj = j * ldb;
-                let coorcj = j * ldc;
+                let bj = j * ldb;
+                let cj = j * ldc;
                 let mut i = 0;
                 while i < m {
-                    let coorai = i * lda;
-                    let mut tmp = alpha * b[(coorbj + i) as usize];
+                    let ai = i * lda;
+                    let mut tmp = alpha * b[bj + i];
                     let mut tmp2 = Complex::zero();
                     let mut k = 0;
                     while k < i {
-                        c[(coorcj + k) as usize] += tmp * a[(coorai + k) as usize];
-                        tmp2 += b[(coorbj + k) as usize] * a[(coorai + k) as usize].conj();
+                        c[cj + k] += tmp * a[ai + k];
+                        tmp2 += b[bj + k] * a[ai + k].conj();
                         k += 1;
                     }
-                    tmp = tmp * a[(coorai + i) as usize].re + (alpha * tmp2);
+                    tmp = tmp * a[ai + i].re + (alpha * tmp2);
                     if !beta_is_zero {
-                        tmp += beta * c[(coorcj + i) as usize];
+                        tmp += beta * c[cj + i];
                     }
-                    c[(coorcj + i) as usize] = tmp;
+                    c[cj + i] = tmp;
                     i += 1;
                 }
                 j += 1;
@@ -1584,25 +1533,25 @@ pub fn hemm<T: Float + NumAssignOps>(
         } else {
             let mut j = 0;
             while j < n {
-                let coorbj = j * ldb;
-                let coorcj = j * ldc;
-                let mut i = m - 1;
-                while i >= 0 {
-                    let coorai = i * lda;
-                    let mut tmp = alpha * b[(coorbj + i) as usize];
+                let bj = j * ldb;
+                let cj = j * ldc;
+                let mut i = m;
+                while i >= 1 {
+                    i -= 1;
+                    let ai = i * lda;
+                    let mut tmp = alpha * b[bj + i];
                     let mut tmp2 = Complex::zero();
                     let mut k = i + 1;
                     while k < m {
-                        c[(coorcj + k) as usize] += tmp * a[(coorai + k) as usize];
-                        tmp2 += b[(coorbj + k) as usize] * a[(coorai + k) as usize].conj();
+                        c[cj + k] += tmp * a[ai + k];
+                        tmp2 += b[bj + k] * a[ai + k].conj();
                         k += 1;
                     }
-                    tmp = tmp * a[(coorai + i) as usize].re + (alpha * tmp2);
+                    tmp = tmp * a[ai + i].re + (alpha * tmp2);
                     if !beta_is_zero {
-                        tmp += beta * c[(coorcj + i) as usize];
+                        tmp += beta * c[cj + i];
                     }
-                    c[(coorcj + i) as usize] = tmp;
-                    i -= 1;
+                    c[cj + i] = tmp;
                 }
                 j += 1;
             }
@@ -1610,47 +1559,47 @@ pub fn hemm<T: Float + NumAssignOps>(
     } else {
         let mut j = 0;
         while j < n {
-            let cooraj = j * lda;
-            let coorbj = j * ldb;
-            let coorcj = j * ldc;
-            let mut tmp = alpha * a[(cooraj + j) as usize].re;
+            let aj = j * lda;
+            let bj = j * ldb;
+            let cj = j * ldc;
+            let mut tmp = alpha * a[aj + j].re;
             let mut i = 0;
             while i < m {
-                let mut tmp2 = tmp * b[(coorbj + i) as usize];
+                let mut tmp2 = tmp * b[bj + i];
                 if !beta_is_zero {
-                    tmp2 += beta * c[(coorcj + i) as usize];
+                    tmp2 += beta * c[cj + i];
                 }
-                c[(coorcj + i) as usize] = tmp2;
+                c[cj + i] = tmp2;
                 i += 1;
             }
             let mut k = 0;
             while k < j {
-                let coorbk = k * ldb;
-                let coorak = k * lda;
+                let bk = k * ldb;
+                let ak = k * lda;
                 if upper {
-                    tmp = alpha * a[(cooraj + k) as usize];
+                    tmp = alpha * a[aj + k];
                 } else {
-                    tmp = alpha * a[(coorak + j) as usize].conj();
+                    tmp = alpha * a[ak + j].conj();
                 };
                 let mut i = 0;
                 while i < m {
-                    c[(coorcj + i) as usize] += tmp * b[(coorbk + i) as usize];
+                    c[cj + i] += tmp * b[bk + i];
                     i += 1;
                 }
                 k += 1;
             }
             let mut k = j + 1;
             while k < n {
-                let coorbk = k * ldb;
-                let coorak = k * lda;
+                let bk = k * ldb;
+                let ak = k * lda;
                 if upper {
-                    tmp = alpha * a[(coorak + j) as usize].conj();
+                    tmp = alpha * a[ak + j].conj();
                 } else {
-                    tmp = alpha * a[(cooraj + k) as usize];
+                    tmp = alpha * a[aj + k];
                 };
                 let mut i = 0;
                 while i < m {
-                    c[(coorcj + i) as usize] += tmp * b[(coorbk + i) as usize];
+                    c[cj + i] += tmp * b[bk + i];
                     i += 1;
                 }
                 k += 1;
@@ -1669,16 +1618,16 @@ pub fn hemm<T: Float + NumAssignOps>(
 pub fn her2k<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
-    n: isize,
-    k: isize,
+    n: usize,
+    k: usize,
     alpha: Complex<T>,
     a: &[Complex<T>],
-    lda: isize,
+    lda: usize,
     b: &[Complex<T>],
-    ldb: isize,
+    ldb: usize,
     beta: T,
     c: &mut [Complex<T>],
-    ldc: isize,
+    ldc: usize,
 ) {
     let nrowa = if trans == 'n' || trans == 'N' { n } else { k };
     let upper = uplo == 'u' || uplo == 'U';
@@ -1688,10 +1637,6 @@ pub fn her2k<T: Float + NumAssignOps>(
         info = 1;
     } else if trans != 'n' && trans != 'N' && trans != 'c' && trans != 'C' {
         info = 2;
-    } else if n < 0 {
-        info = 3;
-    } else if k < 0 {
-        info = 4;
     } else if lda < max(1, nrowa) {
         info = 7;
     } else if ldb < max(1, nrowa) {
@@ -1711,26 +1656,26 @@ pub fn her2k<T: Float + NumAssignOps>(
     if alpha_is_zero {
         let mut j = 0;
         while j < n {
-            let coorcj = j * ldc;
+            let cj = j * ldc;
             let f1 = if upper { 0 } else { j };
-            let f2 = if upper { j } else { n - 1 };
+            let f2 = if upper { j + 1 } else { n };
             if beta.is_zero() {
                 let mut i = f1;
-                while i <= f2 {
-                    c[(coorcj + i) as usize] = Complex::zero();
+                while i < f2 {
+                    c[cj + i] = Complex::zero();
                     i += 1;
                 }
             }
-            let start = if upper { 0 } else { j + 1 };
-            let stop = if upper { j - 1 } else { n - 1 };
+            let start = if upper { 0 as isize } else { j as isize + 1 };
+            let stop = if upper { j as isize - 1 } else { n as isize - 1 };
             let mut i = start;
             while i <= stop {
-                c[(coorcj + i) as usize] *= beta;
+                c[(cj as isize + i) as usize] *= beta;
                 i += 1;
             }
-            let mut ct = c[(coorcj + j) as usize] * beta;
+            let mut ct = c[cj + j] * beta;
             ct.im = T::zero();
-            c[(coorcj + j) as usize] = ct;
+            c[cj + j] = ct;
             j += 1;
         }
         return;
@@ -1740,45 +1685,45 @@ pub fn her2k<T: Float + NumAssignOps>(
         if upper {
             let mut j = 0;
             while j < n {
-                let coorcj = j * ldc;
+                let cj = j * ldc;
                 if beta.is_zero() {
                     let mut i = 0;
                     while i <= j {
-                        c[(coorcj + i) as usize] = Complex::zero();
+                        c[cj + i] = Complex::zero();
                         i += 1;
                     }
                 } else if !beta.is_one() {
                     let mut i = 0;
                     while i < j {
-                        c[(coorcj + i) as usize] *= beta;
+                        c[cj + i] *= beta;
                         i += 1;
                     }
-                    let mut ct = c[(coorcj + j) as usize] * beta;
+                    let mut ct = c[cj + j] * beta;
                     ct.im = T::zero();
-                    c[(coorcj + j) as usize] = ct;
+                    c[cj + j] = ct;
                 } else {
-                    let mut ct = c[(coorcj + j) as usize];
+                    let mut ct = c[cj + j];
                     ct.im = T::zero();
-                    c[(coorcj + j) as usize] = ct;
+                    c[cj + j] = ct;
                 }
                 let mut l = 0;
                 while l < k {
-                    let cooral = l * lda;
-                    let coorbl = l * ldb;
-                    let tmp = b[(coorbl + j) as usize];
-                    let tmp2 = a[(cooral + j) as usize];
+                    let al = l * lda;
+                    let bl = l * ldb;
+                    let tmp = b[bl + j];
+                    let tmp2 = a[al + j];
                     if !tmp.is_zero() || !tmp2.is_zero() {
                         let tmp = alpha * tmp.conj();
                         let tmp2 = (alpha * tmp2).conj();
                         let mut i = 0;
                         while i <= j {
-                            c[(coorcj + i) as usize] +=
-                                a[(cooral + i) as usize] * tmp + b[(coorbl + i) as usize] * tmp2;
+                            c[cj + i] +=
+                                a[al + i] * tmp + b[bl + i] * tmp2;
                             i += 1;
                         }
-                        let mut ct = c[(coorcj + j) as usize];
+                        let mut ct = c[cj + j];
                         ct.im = T::zero();
-                        c[(coorcj + j) as usize] = ct;
+                        c[cj + j] = ct;
                     }
                     l += 1;
                 }
@@ -1787,47 +1732,47 @@ pub fn her2k<T: Float + NumAssignOps>(
         } else {
             let mut j = 0;
             while j < n {
-                let coorcj = j * ldc;
+                let cj = j * ldc;
                 if beta.is_zero() {
                     let mut i = j;
                     while i < n {
-                        c[(coorcj + i) as usize] = Complex::zero();
+                        c[cj + i] = Complex::zero();
                         i += 1;
                     }
                 } else if !beta.is_one() {
                     let mut i = j + 1;
                     while i < n {
-                        c[(coorcj + i) as usize] *= beta;
+                        c[cj + i] *= beta;
                         i += 1;
                     }
-                    let mut ct = c[(coorcj + j) as usize] * beta;
+                    let mut ct = c[cj + j] * beta;
                     ct.im = T::zero();
-                    c[(coorcj + j) as usize] = ct;
+                    c[cj + j] = ct;
                 } else {
-                    let mut ct = c[(coorcj + j) as usize];
+                    let mut ct = c[cj + j];
                     ct.im = T::zero();
-                    c[(coorcj + j) as usize] = ct;
+                    c[cj + j] = ct;
                 }
                 let mut l = 0;
                 while l < k {
-                    let cooral = l * lda;
-                    let coorbl = l * ldb;
-                    let mut tmp = b[(coorbl + j) as usize];
-                    let mut tmp2 = a[(cooral + j) as usize];
+                    let al = l * lda;
+                    let bl = l * ldb;
+                    let mut tmp = b[bl + j];
+                    let mut tmp2 = a[al + j];
                     if !tmp.is_zero() || !tmp2.is_zero() {
                         tmp = alpha * tmp.conj();
                         tmp2 = (alpha * tmp2).conj();
                         let mut i = j + 1;
                         while i < n {
-                            c[(coorcj + i) as usize] +=
-                                a[(cooral + i) as usize] * tmp + b[(coorbl + i) as usize] * tmp2;
+                            c[cj + i] +=
+                                a[al + i] * tmp + b[bl + i] * tmp2;
                             i += 1;
                         }
-                        let mut ct = c[(coorcj + j) as usize]
-                            + (a[(cooral + j) as usize] * tmp)
-                            + (b[(coorbl + j) as usize] * tmp2);
+                        let mut ct = c[cj + j]
+                            + (a[al + j] * tmp)
+                            + (b[bl + j] * tmp2);
                         ct.im = T::zero();
-                        c[(coorcj + j) as usize] = ct
+                        c[cj + j] = ct
                     }
                     l += 1;
                 }
@@ -1837,21 +1782,21 @@ pub fn her2k<T: Float + NumAssignOps>(
     } else {
         let mut j = 0;
         while j < n {
-            let coorbj = j * ldb;
-            let cooraj = j * lda;
-            let coorcj = j * ldc;
+            let bj = j * ldb;
+            let aj = j * lda;
+            let cj = j * ldc;
             let start = if upper { 0 } else { j };
-            let stop = if upper { j } else { n - 1 };
+            let stop = if upper { j + 1 } else { n };
             let mut i = start;
-            while i <= stop {
-                let coorai = i * lda;
-                let coorbi = i * ldb;
+            while i < stop {
+                let ai = i * lda;
+                let bi = i * ldb;
                 let mut tmp = Complex::zero();
                 let mut tmp2 = Complex::zero();
                 let mut l = 0;
                 while l < k {
-                    tmp += a[(coorai + l) as usize].conj() * b[(coorbj + l) as usize];
-                    tmp2 += b[(coorbi + l) as usize].conj() * a[(cooraj + l) as usize];
+                    tmp += a[ai + l].conj() * b[bj + l];
+                    tmp2 += b[bi + l].conj() * a[aj + l];
                     l += 1;
                 }
 
@@ -1859,17 +1804,17 @@ pub fn her2k<T: Float + NumAssignOps>(
                 if i == j {
                     tmp.im = T::zero();
                     if beta.is_zero() {
-                        c[(coorcj + i) as usize] = tmp;
+                        c[cj + i] = tmp;
                     } else {
-                        let mut ct = c[(coorcj + i) as usize];
+                        let mut ct = c[cj + i];
                         ct.im = T::zero();
                         ct *= beta;
-                        c[(coorcj + i) as usize] = ct + tmp;
+                        c[cj + i] = ct + tmp;
                     }
                 } else if beta.is_zero() {
-                    c[(coorcj + i) as usize] = tmp;
+                    c[cj + i] = tmp;
                 } else {
-                    c[(coorcj + i) as usize] = c[(coorcj + i) as usize] * beta + tmp;
+                    c[cj + i] = c[cj + i] * beta + tmp;
                 }
                 i += 1;
             }
@@ -1887,14 +1832,14 @@ pub fn her2k<T: Float + NumAssignOps>(
 pub fn herk<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
-    n: isize,
-    k: isize,
+    n: usize,
+    k: usize,
     alpha: T,
     a: &[Complex<T>],
-    lda: isize,
+    lda: usize,
     beta: T,
     c: &mut [Complex<T>],
-    ldc: isize,
+    ldc: usize,
 ) {
     let nrowa = if trans == 'n' || trans == 'N' { n } else { k };
     let upper = uplo == 'u' || uplo == 'U';
@@ -1903,10 +1848,6 @@ pub fn herk<T: Float + NumAssignOps>(
         info = 1;
     } else if trans != 'n' && trans != 'N' && trans != 'c' && trans != 'C' {
         info = 2;
-    } else if n < 0 {
-        info = 3;
-    } else if k < 0 {
-        info = 4;
     } else if lda < max(1, nrowa) {
         info = 7;
     } else if ldc < max(1, n) {
@@ -1924,20 +1865,20 @@ pub fn herk<T: Float + NumAssignOps>(
     if alpha.is_zero() {
         let mut j = 0;
         while j < n {
-            let coorcj = j * ldc;
+            let cj = j * ldc;
             let start = if upper { 0 } else { j };
-            let stop = if upper { j } else { n - 1 };
+            let stop = if upper { j + 1 } else { n };
             let mut i = start;
-            while i <= stop {
+            while i < stop {
                 if beta.is_zero() {
-                    c[(coorcj + i) as usize] = Complex::zero();
+                    c[cj + i] = Complex::zero();
                 } else if j == i {
                     // FIXME remove this line if test passes?
-                    let mut ct = c[(coorcj + i) as usize] * beta;
+                    let mut ct = c[cj + i] * beta;
                     ct.im = T::zero();
-                    c[(coorcj + i) as usize] = ct;
+                    c[cj + i] = ct;
                 } else {
-                    c[(coorcj + i) as usize] *= beta;
+                    c[cj + i] *= beta;
                 }
                 i += 1;
             }
@@ -1950,45 +1891,45 @@ pub fn herk<T: Float + NumAssignOps>(
         let mut j = 0;
         while j < n {
             let fs = if upper { 0 } else { j };
-            let fe = if upper { j } else { n - 1 };
-            let start = if upper { 0 } else { j + 1 };
-            let stop = if upper { j - 1 } else { n - 1 };
-            let coorcj = j * ldc;
+            let fe = if upper { j + 1 } else { n };
+            let start = if upper { 0 } else { j as isize + 1 };
+            let stop = if upper { j as isize - 1 } else { n as isize - 1 };
+            let cj = j * ldc;
             if beta.is_zero() {
                 let mut i = fs;
-                while i <= fe {
-                    c[(coorcj + i) as usize] = Complex::zero();
+                while i < fe {
+                    c[cj + i] = Complex::zero();
                     i += 1;
                 }
             } else if !beta.is_one() {
                 let mut i = start;
                 while i <= stop {
-                    c[(coorcj + i) as usize] *= beta;
+                    c[(cj as isize + i) as usize] *= beta;
                     i += 1
                 }
                 // FIXME only calculate real part.
-                let mut ct = c[(coorcj + j) as usize] * beta;
+                let mut ct = c[cj + j] * beta;
                 ct.im = T::zero();
-                c[(coorcj + j) as usize] = ct;
+                c[cj + j] = ct;
             } else {
-                let mut ct = c[(coorcj + j) as usize];
+                let mut ct = c[cj + j];
                 ct.im = T::zero();
-                c[(coorcj + j) as usize] = ct;
+                c[cj + j] = ct;
             }
             let mut l = 0;
             while l < k {
-                let cooral = l * lda;
-                let mut tmp = a[(cooral + j) as usize];
+                let al = l * lda;
+                let mut tmp = a[al + j];
                 if !tmp.is_zero() {
                     tmp = tmp.conj() * alpha;
                     let mut i = start;
                     while i <= stop {
-                        c[(coorcj + i) as usize] += tmp * a[(cooral + i) as usize];
+                        c[(cj as isize + i) as usize] += tmp * a[(al as isize + i) as usize];
                         i += 1;
                     }
-                    let mut ct = c[(coorcj + j) as usize] + tmp * a[(cooral + j) as usize];;
+                    let mut ct = c[cj + j] + tmp * a[al + j];;
                     ct.im = T::zero();
-                    c[(coorcj + j) as usize] = ct;
+                    c[cj + j] = ct;
                 }
                 l += 1;
             }
@@ -1997,69 +1938,69 @@ pub fn herk<T: Float + NumAssignOps>(
     } else if upper {
         let mut j = 0;
         while j < n {
-            let cooraj = j * lda;
-            let coorcj = j * ldc;
+            let aj = j * lda;
+            let cj = j * ldc;
             let mut i = 0;
             while i < j {
-                let coorai = i * lda;
+                let ai = i * lda;
                 let mut tmp = Complex::zero();
                 let mut l = 0;
                 while l < k {
-                    tmp += a[(coorai + l) as usize].conj() * a[(cooraj + l) as usize];
+                    tmp += a[ai + l].conj() * a[aj + l];
                     l += 1;
                 }
                 let mut tmp2 = tmp * alpha;
                 if !beta.is_zero() {
-                    tmp2 += c[(coorcj + i) as usize] * beta;
+                    tmp2 += c[cj + i] * beta;
                 }
-                c[(coorcj + i) as usize] = tmp2;
+                c[cj + i] = tmp2;
                 i += 1;
             }
             let mut rtmp = Complex::zero();
             let mut l = 0;
             while l < k {
-                rtmp += a[(cooraj + l) as usize].conj() * a[(cooraj + l) as usize];
+                rtmp += a[aj + l].conj() * a[aj + l];
                 l += 1;
             }
             let mut tmp3: Complex<T> = rtmp * alpha;
             if !beta.is_zero() {
-                let re = tmp3.re + beta * c[(coorcj + j) as usize].re;
+                let re = tmp3.re + beta * c[cj + j].re;
                 tmp3.re = re;
             }
-            c[(coorcj + j) as usize] = tmp3;
+            c[cj + j] = tmp3;
             j += 1;
         }
     } else {
         let mut j = 0;
         while j < n {
             let mut rtmp = T::zero();
-            let cooraj = j * lda;
-            let coorcj = j * ldc;
+            let aj = j * lda;
+            let cj = j * ldc;
             let mut l = 0;
             while l < k {
-                rtmp += a[(cooraj + l) as usize].norm_sqr();
+                rtmp += a[aj + l].norm_sqr();
                 l += 1;
             }
             rtmp *= alpha;
             if !beta.is_zero() {
-                rtmp += beta * c[(coorcj + j) as usize].re
+                rtmp += beta * c[cj + j].re
             }
-            c[(coorcj + j) as usize].re = rtmp;
-            c[(coorcj + j) as usize].im = T::zero();
+            c[cj + j].re = rtmp;
+            c[cj + j].im = T::zero();
             let mut i = j + 1;
             while i < n {
-                let coorai = i * lda;
+                let ai = i * lda;
                 let mut tmp = Complex::zero();
                 let mut l = 0;
                 while l < k {
-                    tmp += a[(coorai + l) as usize].conj() * a[(cooraj + l) as usize];
+                    tmp += a[ai + l].conj() * a[aj + l];
                     l += 1;
                 }
                 tmp *= alpha;
                 if !beta.is_zero() {
-                    tmp += c[(coorcj + i) as usize] * beta
+                    tmp += c[cj + i] * beta
                 }
-                c[(coorcj + i) as usize] = tmp;
+                c[cj + i] = tmp;
                 i += 1;
             }
             j += 1;
