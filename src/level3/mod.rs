@@ -4,6 +4,36 @@ use std::cmp::max;
 
 pub mod complex;
 
+fn multiply<T: Float + NumAssignOps>(left: &mut [T], right: T, ld: usize, n: usize, m: usize) {
+    if right.is_zero() {
+        zero(left, ld, n, m);
+    } else {
+        let mut j = 0;
+        while j < n {
+            let coords = j * ld;
+            let mut i = 0;
+            while i < m {
+                left[coords + i] *= right;
+                i += 1;
+            }
+            j += 1;
+        }
+    }
+}
+
+fn zero<T: Float + NumAssignOps>(left: &mut [T], ld: usize, n: usize, m: usize) {
+    let mut j = 0;
+    while j < n {
+        let coords = j * ld;
+        let mut i = 0;
+        while i < m {
+            left[coords + i] = T::zero();
+            i += 1;
+        }
+        j += 1;
+    }
+}
+
 /// GEMM  performs one of the matrix-matrix operations
 ///  C := alpha*op( A )*op( B ) + beta*C, where  op( X ) is one of op( X ) = X   or   op( X ) = X**T,
 /// alpha and beta are scalars, and A, B and C are matrices, with op( A ) an m by k matrix,  op( B )  a  k by n matrix and  C an m by n matrix.
@@ -12,17 +42,17 @@ pub mod complex;
 pub fn gemm<T: Float + NumAssignOps>(
     trans_a: char,
     trans_b: char,
-    m: isize,
-    n: isize,
-    k: isize,
+    m: usize,
+    n: usize,
+    k: usize,
     alpha: T,
     a: &[T],
-    lda: isize,
+    lda: usize,
     b: &[T],
-    ldb: isize,
+    ldb: usize,
     beta: T,
     c: &mut [T],
-    ldc: isize,
+    ldc: usize,
 ) {
     let not_a = trans_a == 'n' || trans_a == 'N';
     let not_b = trans_b == 'n' || trans_b == 'N';
@@ -39,12 +69,6 @@ pub fn gemm<T: Float + NumAssignOps>(
         || trans_b == 'c')
     {
         info = 2;
-    } else if m < 0 {
-        info = 3;
-    } else if n < 0 {
-        info = 4;
-    } else if k < 0 {
-        info = 5;
     } else if lda < max(1, nrow_a) {
         info = 8;
     } else if ldb < max(1, nrow_b) {
@@ -56,36 +80,12 @@ pub fn gemm<T: Float + NumAssignOps>(
         panic!("gemm {}", info);
     }
 
-    if m == 0 || n == 0 || (alpha.is_zero() || k == 1) && beta.is_one() {
+    if m == 0 || n == 0 || (alpha.is_zero() || k == 0) && beta.is_one() {
         return;
     }
 
-    //Refactor #001
     if alpha.is_zero() {
-        if beta.is_zero() {
-            //Refactor
-            let mut j = 0;
-            while j < n {
-                let coords = j * ldc;
-                let mut i = 0;
-                while i < m {
-                    c[(coords + i) as usize] = T::zero();
-                    i += 1;
-                }
-                j += 1;
-            }
-        } else {
-            let mut j = 0;
-            while j < n {
-                let coords = j * ldc;
-                let mut i = 0;
-                while i < m {
-                    c[(coords + i) as usize] *= beta;
-                    i += 1;
-                }
-                j += 1;
-            }
-        }
+        multiply(c, beta, ldc, n, m);
         return;
     }
 
@@ -93,29 +93,29 @@ pub fn gemm<T: Float + NumAssignOps>(
         if not_a {
             let mut j = 0;
             while j < n {
-                let coords_cj = j * ldc;
-                let coords_bj = j * ldb;
+                let cj = j * ldc;
+                let bj = j * ldb;
                 if beta.is_zero() {
                     //Refactor
                     let mut i = 0;
                     while i < m {
-                        c[(coords_cj + i) as usize] = T::zero();
+                        c[cj + i] = T::zero();
                         i += 1;
                     }
                 } else if !beta.is_one() {
                     let mut i = 0;
                     while i < m {
-                        c[(coords_cj + i) as usize] *= beta;
+                        c[cj + i] *= beta;
                         i += 1;
                     }
                 }
                 let mut l = 0;
                 while l < k {
-                    let tmp = alpha * b[(coords_bj + l) as usize];
-                    let coords_aj = l * lda;
+                    let tmp = alpha * b[bj + l];
+                    let aj = l * lda;
                     let mut i = 0;
                     while i < m {
-                        c[(coords_cj + i) as usize] += tmp * a[(coords_aj + i) as usize];
+                        c[cj + i] += tmp * a[aj + i];
                         i += 1;
                     }
                     l += 1;
@@ -125,22 +125,21 @@ pub fn gemm<T: Float + NumAssignOps>(
         } else {
             let mut j = 0;
             while j < n {
-                let coords_cj = j * ldc;
-                let coords_bj = j * ldb;
+                let cj = j * ldc;
+                let bj = j * ldb;
                 let mut i = 0;
                 while i < m {
                     let mut tmp = T::zero();
                     let coords = i * lda;
                     let mut l = 0;
                     while l < k {
-                        tmp += a[(l + coords) as usize] * b[(coords_bj + l) as usize];
+                        tmp += a[l + coords] * b[bj + l];
                         l += 1;
                     }
                     if beta.is_zero() {
-                        c[(coords_cj + i) as usize] = alpha * tmp;
+                        c[cj + i] = alpha * tmp;
                     } else {
-                        c[(coords_cj + i) as usize] =
-                            alpha * tmp + beta * c[(coords_cj + i) as usize];
+                        c[cj + i] = alpha * tmp + beta * c[cj + i];
                     }
                     i += 1;
                 }
@@ -150,29 +149,29 @@ pub fn gemm<T: Float + NumAssignOps>(
     } else if not_a {
         let mut j = 0;
         while j < n {
-            let coords_cj = j * ldc;
+            let cj = j * ldc;
             if beta.is_zero() {
                 //Refactor
                 let mut i = 0;
                 while i < m {
-                    c[(coords_cj + i) as usize] = T::zero();
+                    c[cj + i] = T::zero();
                     i += 1;
                 }
             } else if !beta.is_one() {
                 let mut i = 0;
                 while i < m {
-                    c[(coords_cj + i) as usize] *= beta;
+                    c[cj + i] *= beta;
                     i += 1;
                 }
             }
             let mut l = 0;
             while l < k {
-                let coords_bj = l * ldb;
-                let tmp = alpha * b[(coords_bj + j) as usize];
-                let coords_aj = l * lda;
+                let bj = l * ldb;
+                let tmp = alpha * b[bj + j];
+                let aj = l * lda;
                 let mut i = 0;
                 while i < m {
-                    c[(coords_cj + i) as usize] += tmp * a[(coords_aj + i) as usize];
+                    c[cj + i] += tmp * a[aj + i];
                     i += 1;
                 }
                 l += 1;
@@ -185,18 +184,18 @@ pub fn gemm<T: Float + NumAssignOps>(
             let mut i = 0;
             while i < m {
                 let mut tmp = T::zero();
-                let coords_ai = i * lda;
+                let ai = i * lda;
                 let mut l = 0;
                 while l < k {
-                    let coords_bl = l * ldb;
-                    tmp += a[(coords_ai + l) as usize] * b[(coords_bl + j) as usize];
+                    let bl = l * ldb;
+                    tmp += a[ai + l] * b[bl + j];
                     l += 1;
                 }
-                let coords_cj = j * ldc;
+                let cj = j * ldc;
                 if beta.is_zero() {
-                    c[(coords_cj + i) as usize] = alpha * tmp;
+                    c[cj + i] = alpha * tmp;
                 } else {
-                    c[(coords_cj + i) as usize] = alpha * tmp + beta * c[(coords_cj + i) as usize];
+                    c[cj + i] = alpha * tmp + beta * c[cj + i];
                 }
                 i += 1;
             }
@@ -213,16 +212,16 @@ pub fn gemm<T: Float + NumAssignOps>(
 pub fn symm<T: Float + NumAssignOps>(
     side: char,
     uplo: char,
-    m: isize,
-    n: isize,
+    m: usize,
+    n: usize,
     alpha: T,
     a: &[T],
-    lda: isize,
+    lda: usize,
     b: &[T],
-    ldb: isize,
+    ldb: usize,
     beta: T,
     c: &mut [T],
-    ldc: isize,
+    ldc: usize,
 ) {
     let nrow_a = if side == 'l' || side == 'L' { m } else { n };
     let mut info = 0;
@@ -230,10 +229,6 @@ pub fn symm<T: Float + NumAssignOps>(
         info = 1;
     } else if uplo != 'l' && uplo != 'L' && uplo != 'u' && uplo != 'U' {
         info = 2;
-    } else if m < 0 {
-        info = 3;
-    } else if n < 0 {
-        info = 4;
     } else if lda < max(1, nrow_a) {
         info = 7;
     } else if ldb < max(1, m) {
@@ -249,32 +244,8 @@ pub fn symm<T: Float + NumAssignOps>(
         return;
     }
 
-    //Refactor #001
     if alpha.is_zero() {
-        if beta.is_zero() {
-            //Refactor
-            let mut j = 0;
-            while j < n {
-                let coords = j * ldc;
-                let mut i = 0;
-                while i < m {
-                    c[(coords + i) as usize] = T::zero();
-                    i += 1;
-                }
-                j += 1;
-            }
-        } else {
-            let mut j = 0;
-            while j < n {
-                let coords = j * ldc;
-                let mut i = 0;
-                while i < m {
-                    c[(coords + i) as usize] *= beta;
-                    i += 1;
-                }
-                j += 1;
-            }
-        }
+        multiply(c, beta, ldc, n, m);
         return;
     }
 
@@ -282,24 +253,24 @@ pub fn symm<T: Float + NumAssignOps>(
         if uplo == 'u' || uplo == 'U' {
             let mut j = 0;
             while j < n {
-                let coord_bj = j * ldb;
-                let coord_cj = j * ldc;
+                let bj = j * ldb;
+                let cj = j * ldc;
                 let mut i = 0;
                 while i < m {
-                    let coord_ai = i * ldc;
-                    let tmp = alpha * b[(coord_bj + i) as usize];
+                    let ai = i * ldc;
+                    let tmp = alpha * b[bj + i];
                     let mut tmp2 = T::zero();
                     let mut k = 0;
                     while k < i {
-                        c[(coord_cj + k) as usize] += tmp * a[(coord_ai + k) as usize];
-                        tmp2 += b[(coord_bj + k) as usize] * a[(coord_ai + k) as usize];
+                        c[cj + k] += tmp * a[ai + k];
+                        tmp2 += b[bj + k] * a[ai + k];
                         k += 1
                     }
-                    let mut re = tmp * a[(coord_ai + i) as usize] + alpha * tmp2;
+                    let mut re = tmp * a[ai + i] + alpha * tmp2;
                     if !beta.is_zero() {
-                        re += beta * c[(coord_cj + i) as usize];
+                        re += beta * c[cj + i];
                     }
-                    c[(coord_cj + i) as usize] = re;
+                    c[cj + i] = re;
                     i += 1
                 }
                 j += 1;
@@ -307,25 +278,25 @@ pub fn symm<T: Float + NumAssignOps>(
         } else {
             let mut j = 0;
             while j < n {
-                let coord_bj = j * ldb;
-                let coord_cj = j * ldc;
-                let mut i = m - 1;
-                while i >= 0 {
-                    let coord_ai = i * ldc;
-                    let tmp = alpha * b[(coord_bj + i) as usize];
+                let bj = j * ldb;
+                let cj = j * ldc;
+                let mut i = m;
+                while i >= 1 {
+                    i -= 1;
+                    let ai = i * ldc;
+                    let tmp = alpha * b[bj + i];
                     let mut tmp2 = T::zero();
-                    let mut k = i + 1; // 1
+                    let mut k = i + 1;
                     while k < m {
-                        c[(coord_cj + k) as usize] += tmp * a[(coord_ai + k) as usize];
-                        tmp2 += b[(coord_bj + k) as usize] * a[(coord_ai + k) as usize];
+                        c[cj + k] += tmp * a[ai + k];
+                        tmp2 += b[bj + k] * a[ai + k];
                         k += 1
                     }
-                    let mut re = tmp * a[(coord_ai + i) as usize] + alpha * tmp2;
+                    let mut re = tmp * a[ai + i] + alpha * tmp2;
                     if !beta.is_zero() {
-                        re += beta * c[(coord_cj + i) as usize];
+                        re += beta * c[cj + i];
                     }
-                    c[(coord_cj + i) as usize] = re;
-                    i -= 1
+                    c[cj + i] = re;
                 }
                 j += 1;
             }
@@ -333,52 +304,51 @@ pub fn symm<T: Float + NumAssignOps>(
     } else {
         let mut j = 0;
         while j < n {
-            let coord_aj = j * lda;
-            let coord_bj = j * ldb;
-            let coord_cj = j * ldc;
-            let tmp = alpha * a[(coord_aj + j) as usize];
+            let aj = j * lda;
+            let bj = j * ldb;
+            let cj = j * ldc;
+            let tmp = alpha * a[aj + j];
             if beta.is_zero() {
                 let mut i = 0;
                 while i < m {
-                    c[(coord_cj + i) as usize] = tmp * b[(coord_bj + i) as usize];
+                    c[cj + i] = tmp * b[bj + i];
                     i += 1;
                 }
             } else {
                 let mut i = 0;
                 while i < m {
-                    c[(coord_cj + i) as usize] =
-                        beta * c[(coord_cj + i) as usize] + tmp * b[(coord_bj + i) as usize];
+                    c[cj + i] = beta * c[cj + i] + tmp * b[bj + i];
                     i += 1;
                 }
             }
             let mut k = 0; //1
             while k < j {
-                let coor_ak = k * lda;
-                let coor_bk = k * ldb;
+                let ak = k * lda;
+                let bk = k * ldb;
                 let tmp = if uplo == 'u' || uplo == 'U' {
-                    alpha * a[(coord_aj + k) as usize]
+                    alpha * a[aj + k]
                 } else {
-                    alpha * a[(coor_ak + j) as usize]
+                    alpha * a[ak + j]
                 };
                 let mut i = 0;
                 while i < m {
-                    c[(coord_cj + i) as usize] += tmp * b[(coor_bk + i) as usize];
+                    c[cj + i] += tmp * b[bk + i];
                     i += 1;
                 }
                 k += 1;
             }
             let mut k = j + 1; //j + 1
             while k < n {
-                let coor_ak = k * lda;
-                let coor_bk = k * ldb;
+                let ak = k * lda;
+                let bk = k * ldb;
                 let tmp = if uplo == 'u' || uplo == 'U' {
-                    alpha * a[(coor_ak + j) as usize]
+                    alpha * a[ak + j]
                 } else {
-                    alpha * a[(coord_aj + k) as usize]
+                    alpha * a[aj + k]
                 };
                 let mut i = 0;
                 while i < m {
-                    c[(coord_cj + i) as usize] += tmp * b[(coor_bk + i) as usize];
+                    c[cj + i] += tmp * b[bk + i];
                     i += 1;
                 }
                 k += 1;
@@ -397,16 +367,16 @@ pub fn symm<T: Float + NumAssignOps>(
 pub fn syr2k<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
-    n: isize,
-    k: isize,
+    n: usize,
+    k: usize,
     alpha: T,
     a: &[T],
-    lda: isize,
+    lda: usize,
     b: &[T],
-    ldb: isize,
+    ldb: usize,
     beta: T,
     c: &mut [T],
-    ldc: isize,
+    ldc: usize,
 ) {
     let nrow_a = if trans == 'n' || trans == 'N' { n } else { k };
     let mut info = 0;
@@ -420,10 +390,6 @@ pub fn syr2k<T: Float + NumAssignOps>(
         && trans != 'T'
     {
         info = 2;
-    } else if n < 0 {
-        info = 3;
-    } else if k < 0 {
-        info = 4;
     } else if lda < max(1, nrow_a) {
         info = 7;
     } else if ldb < max(1, nrow_a) {
@@ -445,16 +411,16 @@ pub fn syr2k<T: Float + NumAssignOps>(
         let mut j = 0;
         while j < n {
             let mut start = if uplo == 'u' || uplo == 'U' { 0 } else { j };
-            let stop = if uplo == 'u' || uplo == 'U' { j } else { n - 1 };
-            let coords = j * ldc;
+            let stop = if uplo == 'u' || uplo == 'U' { j + 1 } else { n };
+            let cj = j * ldc;
             if beta.is_zero() {
-                while start <= stop {
-                    c[(coords + start) as usize] = T::zero();
+                while start < stop {
+                    c[cj + start] = T::zero();
                     start += 1;
                 }
             } else {
-                while start <= stop {
-                    c[(coords + start) as usize] *= beta;
+                while start < stop {
+                    c[cj + start] *= beta;
                     start += 1;
                 }
             }
@@ -467,38 +433,34 @@ pub fn syr2k<T: Float + NumAssignOps>(
         if uplo == 'u' || uplo == 'U' {
             let mut j = 0;
             while j < n {
-                let coord_cj = j * ldc;
+                let cj = j * ldc;
                 // Refactor #001
                 if beta.is_zero() {
-                    // for i in coord_cj + 0c..oord_cj + j + 1 {
-                    //   c[i as usize] = T::zero();
-                    //   // println!("{:?} {:?}", coord_cj + i, coord_cj + j..coord_cj + j + 1 );
-                    // }
                     let mut i = 0;
-                    while i <= j {
-                        c[(coord_cj + i) as usize] = T::zero();
+                    while i < j + 1 {
+                        c[cj + i] = T::zero();
                         i += 1;
                     }
                 } else if !beta.is_one() {
                     let mut i = 0;
-                    while i <= j {
-                        c[(coord_cj + i) as usize] *= beta;
+                    while i < j + 1 {
+                        c[cj + i] *= beta;
                         i += 1;
                     }
                 }
                 let mut l = 0;
                 while l < k {
-                    let coord_al = l * lda;
-                    let coord_bl = l * ldb;
-                    if !a[(coord_al + j) as usize].is_zero()
-                        || !b[(coord_bl + j) as usize].is_zero()
+                    let al = l * lda;
+                    let bl = l * ldb;
+                    if !a[al + j].is_zero()
+                        || !b[bl + j].is_zero()
                     {
-                        let tmp = alpha * b[(coord_bl + j) as usize];
-                        let tmp2 = alpha * a[(coord_al + j) as usize];
+                        let tmp = alpha * b[bl + j];
+                        let tmp2 = alpha * a[al + j];
                         let mut i = 0;
-                        while i <= j {
-                            c[(coord_cj + i) as usize] += a[(coord_al + i) as usize] * tmp
-                                + b[(coord_bl + i) as usize] * tmp2;
+                        while i < j + 1 {
+                            c[cj + i] += a[al + i] * tmp
+                                + b[bl + i] * tmp2;
                             i += 1;
                         }
                     }
@@ -509,34 +471,34 @@ pub fn syr2k<T: Float + NumAssignOps>(
         } else {
             let mut j = 0;
             while j < n {
-                let coord_cj = j * ldc;
+                let cj = j * ldc;
                 // Refactor #001
                 if beta.is_zero() {
                     let mut i = j;
                     while i < n {
-                        c[(coord_cj + i) as usize] = T::zero();
+                        c[cj + i] = T::zero();
                         i += 1;
                     }
                 } else if !beta.is_one() {
                     let mut i = j;
                     while i < n {
-                        c[(coord_cj + i) as usize] *= beta;
+                        c[cj + i] *= beta;
                         i += 1;
                     }
                 }
                 let mut l = 0;
                 while l < k {
-                    let coord_al = l * lda;
-                    let coord_bl = l * ldb;
-                    if !a[(coord_al + j) as usize].is_zero()
-                        || !b[(coord_bl + j) as usize].is_zero()
+                    let al = l * lda;
+                    let bl = l * ldb;
+                    if !a[al + j].is_zero()
+                        || !b[bl + j].is_zero()
                     {
-                        let tmp = alpha * b[(coord_bl + j) as usize];
-                        let tmp2 = alpha * a[(coord_al + j) as usize];
+                        let tmp = alpha * b[bl + j];
+                        let tmp2 = alpha * a[al + j];
                         let mut i = j;
                         while i < n {
-                            c[(coord_cj + i) as usize] += a[(coord_al + i) as usize] * tmp
-                                + b[(coord_bl + i) as usize] * tmp2;
+                            c[cj + i] += a[al + i] * tmp
+                                + b[bl + i] * tmp2;
                             i += 1;
                         }
                     }
@@ -548,25 +510,24 @@ pub fn syr2k<T: Float + NumAssignOps>(
     } else if uplo == 'u' || uplo == 'U' {
         let mut j = 0;
         while j < n {
-            let coord_bj = j * ldb;
-            let coord_cj = j * ldc;
+            let bj = j * ldb;
+            let cj = j * ldc;
             let mut i = 0;
-            while i <= j {
+            while i < j + 1 {
                 let mut tmp = T::zero();
                 let mut tmp2 = T::zero();
-                let coord_ai = i * lda;
-                let coord_bi = i * ldb;
+                let ai = i * lda;
+                let bi = i * ldb;
                 let mut l = 0;
                 while l < k {
-                    tmp += a[(coord_ai + l) as usize] * b[(coord_bj + l) as usize];
-                    tmp2 += b[(coord_bi + l) as usize] * b[(coord_bj + l) as usize];
+                    tmp += a[ai + l] * b[bj + l];
+                    tmp2 += b[bi + l] * b[bj + l];
                     l += 1;
                 }
                 if beta.is_zero() {
-                    c[(coord_cj + i) as usize] = alpha * tmp + alpha * tmp2;
+                    c[cj + i] = alpha * tmp + alpha * tmp2;
                 } else {
-                    c[(coord_cj + i) as usize] =
-                        beta * c[(coord_cj + i) as usize] + alpha * tmp + alpha * tmp2;
+                    c[cj + i] = beta * c[cj + i] + alpha * tmp + alpha * tmp2;
                 }
                 i += 1;
             }
@@ -575,27 +536,27 @@ pub fn syr2k<T: Float + NumAssignOps>(
     } else {
         let mut j = 0;
         while j < n {
-            let coord_aj = j * lda;
-            let coord_bj = j * ldb;
-            let coord_cj = j * ldc;
+            let aj = j * lda;
+            let bj = j * ldb;
+            let cj = j * ldc;
             let mut i = j;
             while i < n {
                 let mut tmp = T::zero();
                 let mut tmp2 = T::zero();
-                let coord_ai = i * lda;
-                let coord_bi = i * ldb;
+                let ai = i * lda;
+                let bi = i * ldb;
                 let mut l = 0;
                 while l < k {
-                    tmp += a[(coord_ai + l) as usize] * b[(coord_bj + l) as usize];
-                    tmp2 += b[(coord_bi + l) as usize] * a[(coord_aj + l) as usize];
+                    tmp += a[ai + l] * b[bj + l];
+                    tmp2 += b[bi + l] * a[aj + l];
                     l += 1;
                 }
                 let b = if !beta.is_zero() {
-                    beta * c[(coord_cj + i) as usize]
+                    beta * c[cj + i]
                 } else {
                     T::zero()
                 };
-                c[(coord_cj + i) as usize] = alpha * (tmp + tmp2) + b;
+                c[cj + i] = alpha * (tmp + tmp2) + b;
                 i += 1;
             }
             j += 1;
@@ -612,14 +573,14 @@ pub fn syr2k<T: Float + NumAssignOps>(
 pub fn syrk<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
-    n: isize,
-    k: isize,
+    n: usize,
+    k: usize,
     alpha: T,
     a: &[T],
-    lda: isize,
+    lda: usize,
     beta: T,
     c: &mut [T],
-    ldc: isize,
+    ldc: usize,
 ) {
     let nrow_a = if trans == 'n' || trans == 'N' { n } else { k };
     let mut info = 0;
@@ -633,10 +594,6 @@ pub fn syrk<T: Float + NumAssignOps>(
         && trans != 'T'
     {
         info = 2;
-    } else if n < 0 {
-        info = 3;
-    } else if k < 0 {
-        info = 4;
     } else if lda < max(1, nrow_a) {
         info = 7;
     } else if ldc < max(1, n) {
@@ -655,15 +612,15 @@ pub fn syrk<T: Float + NumAssignOps>(
     if alpha.is_zero() {
         let mut j = 0;
         while j < n {
-            let coords = j * ldc;
+            let cj = j * ldc;
             let start = if uplo == 'u' || uplo == 'U' { 0 } else { j };
-            let stop = if uplo == 'u' || uplo == 'U' { j } else { n - 1 };
+            let stop = if uplo == 'u' || uplo == 'U' { j + 1 } else { n };
             let mut i = start;
-            while i <= stop {
-                c[(coords + i) as usize] = if beta.is_zero() {
+            while i < stop {
+                c[cj + i] = if beta.is_zero() {
                     T::zero()
                 } else {
-                    beta * c[(coords + i) as usize]
+                    beta * c[cj + i]
                 };
                 i += 1;
             }
@@ -675,30 +632,30 @@ pub fn syrk<T: Float + NumAssignOps>(
     if trans == 'n' || trans == 'N' {
         let mut j = 0;
         while j < n {
-            let coord_cj = j * ldc;
+            let cj = j * ldc;
             let start = if uplo == 'u' || uplo == 'U' { 0 } else { j };
-            let stop = if uplo == 'u' || uplo == 'U' { j } else { n - 1 };
+            let stop = if uplo == 'u' || uplo == 'U' { j + 1 } else { n };
             // Refactor #001
             if beta.is_zero() {
-                for i in coord_cj + start..=coord_cj + stop {
-                    // for i in coord_cj + start..coord_cj + stop + 1 {
-                    c[i as usize] = T::zero();
+                for i in cj + start..cj + stop {
+                    // for i in cj + start..cj + stop + 1 {
+                    c[i] = T::zero();
                 }
             } else if !beta.is_one() {
                 let mut i = start;
-                while i <= stop {
-                    c[(coord_cj + i) as usize] *= beta;
+                while i < stop {
+                    c[cj + i] *= beta;
                     i += 1;
                 }
             }
             let mut l = 0;
             while l < k {
-                let coord_al = l * lda;
-                if !a[(coord_al + j) as usize].is_zero() {
-                    let tmp = alpha * a[(coord_al + j) as usize];
+                let al = l * lda;
+                if !a[al + j].is_zero() {
+                    let tmp = alpha * a[al + j];
                     let mut i = start;
-                    while i <= stop {
-                        c[(coord_cj + i) as usize] += tmp * a[(coord_al + i) as usize];
+                    while i < stop {
+                        c[cj + i] += tmp * a[al + i];
                         i += 1;
                     }
                 }
@@ -710,23 +667,23 @@ pub fn syrk<T: Float + NumAssignOps>(
         let mut j = 0;
         while j < n {
             let start = if uplo == 'u' || uplo == 'U' { 0 } else { j };
-            let stop = if uplo == 'u' || uplo == 'U' { j } else { n - 1 };
-            let coord_aj = j * lda;
-            let coord_cj = j * ldc;
+            let stop = if uplo == 'u' || uplo == 'U' { j + 1 } else { n };
+            let aj = j * lda;
+            let cj = j * ldc;
             let mut i = start;
-            while i <= stop {
+            while i < stop {
                 let mut tmp = T::zero();
-                let coord_ai = i * lda;
+                let ai = i * lda;
                 let mut l = 0;
                 while l < k {
-                    tmp += a[(coord_ai + l) as usize] * a[(coord_aj + l) as usize];
+                    tmp += a[ai + l] * a[aj + l];
                     l += 1;
                 }
                 let mut re = alpha * tmp;
                 if !beta.is_zero() {
-                    re += beta * c[(coord_cj + i) as usize];
+                    re += beta * c[cj + i];
                 }
-                c[(coord_cj + i) as usize] = re;
+                c[cj + i] = re;
                 i += 1;
             }
             j += 1;
@@ -745,13 +702,13 @@ pub fn trmm<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
     diag: char,
-    m: isize,
-    n: isize,
+    m: usize,
+    n: usize,
     alpha: T,
     a: &[T],
-    lda: isize,
+    lda: usize,
     b: &mut [T],
-    ldb: isize,
+    ldb: usize,
 ) {
     let lside = side == 'l' || side == 'L';
     let nrowa = if lside { m } else { n };
@@ -772,10 +729,6 @@ pub fn trmm<T: Float + NumAssignOps>(
         info = 3;
     } else if diag != 'n' && diag != 'N' && diag != 'u' && diag != 'U' {
         info = 4;
-    } else if m < 0 {
-        info = 5;
-    } else if n < 0 {
-        info = 6;
     } else if lda < max(1, nrowa) {
         info = 9;
     } else if ldb < max(1, m) {
@@ -789,18 +742,8 @@ pub fn trmm<T: Float + NumAssignOps>(
         return;
     }
 
-    // Refactor #001
     if alpha.is_zero() {
-        let mut j = 0;
-        while j < n {
-            let coords = j * ldb;
-            let mut i = 0;
-            while i < m {
-                b[(coords + i) as usize] = T::zero();
-                i += 1;
-            }
-            j += 1;
-        }
+        zero(b, ldb, n, m);
         return;
     }
 
@@ -809,21 +752,21 @@ pub fn trmm<T: Float + NumAssignOps>(
             if upper {
                 let mut j = 0;
                 while j < n {
-                    let coord_bj = j * ldb;
+                    let bj = j * ldb;
                     let mut k = 0;
                     while k < m {
-                        let coord_ak = k * lda;
-                        if !b[(coord_bj + k) as usize].is_zero() {
-                            let mut tmp = alpha * b[(coord_bj + k) as usize];
+                        let ak = k * lda;
+                        if !b[bj + k].is_zero() {
+                            let mut tmp = alpha * b[bj + k];
                             let mut i = 0;
                             while i < k {
-                                b[(coord_bj + i) as usize] += tmp * a[(coord_ak + i) as usize];
+                                b[bj + i] += tmp * a[ak + i];
                                 i += 1;
                             }
                             if nounit {
-                                tmp *= a[(coord_ak + k) as usize]
+                                tmp *= a[ak + k]
                             };
-                            b[(coord_bj + k) as usize] = tmp;
+                            b[bj + k] = tmp;
                         }
                         k += 1;
                     }
@@ -832,23 +775,23 @@ pub fn trmm<T: Float + NumAssignOps>(
             } else {
                 let mut j = 0;
                 while j < n {
-                    let coord_bj = j * ldb;
-                    let mut k = m - 1;
-                    while k >= 0 {
-                        let coord_ak = k * lda;
-                        if !b[(coord_bj + k) as usize].is_zero() {
-                            let tmp = alpha * b[(coord_bj + k) as usize];
-                            b[(coord_bj + k) as usize] = tmp;
+                    let bj = j * ldb;
+                    let mut k = m;
+                    while k >= 1 {
+                        k -= 1;
+                        let ak = k * lda;
+                        if !b[bj + k].is_zero() {
+                            let tmp = alpha * b[bj + k];
+                            b[bj + k] = tmp;
                             if nounit {
-                                b[(coord_bj + k) as usize] *= a[(coord_ak + k) as usize]
+                                b[bj + k] *= a[ak + k]
                             };
                             let mut i = k + 1;
                             while i < m {
-                                b[(coord_bj + i) as usize] += tmp * a[(coord_ak + i) as usize];
+                                b[bj + i] += tmp * a[ak + i];
                                 i += 1;
                             }
                         }
-                        k -= 1;
                     }
                     j += 1;
                 }
@@ -856,41 +799,41 @@ pub fn trmm<T: Float + NumAssignOps>(
         } else if upper {
             let mut j = 0;
             while j < n {
-                let coord_bj = j * ldb;
-                let mut i = m - 1;
-                while i >= 0 {
-                    let mut tmp = b[(coord_bj + i) as usize];
-                    let coord_ai = i * lda;
+                let bj = j * ldb;
+                let mut i = m;
+                while i >= 1 {
+                    i -= 1;
+                    let mut tmp = b[bj + i];
+                    let ai = i * lda;
                     if nounit {
-                        tmp *= a[(coord_ai + i) as usize]
+                        tmp *= a[ai + i]
                     };
                     let mut k = 0;
                     while k < i {
-                        tmp += a[(coord_ai + k) as usize] * b[(coord_bj + k) as usize];
+                        tmp += a[ai + k] * b[bj + k];
                         k += 1;
                     }
-                    b[(coord_bj + i) as usize] = alpha * tmp;
-                    i -= 1;
+                    b[bj + i] = alpha * tmp;
                 }
                 j += 1;
             }
         } else {
             let mut j = 0;
             while j < n {
-                let coord_bj = j * ldb;
+                let bj = j * ldb;
                 let mut i = 0;
                 while i < m {
-                    let coord_ai = i * lda;
-                    let mut tmp = b[(coord_bj + i) as usize];
+                    let ai = i * lda;
+                    let mut tmp = b[bj + i];
                     if nounit {
-                        tmp *= a[(coord_ai + i) as usize]
+                        tmp *= a[ai + i]
                     }
                     let mut k = i + 1;
                     while k < m {
-                        tmp += a[(coord_ai + k) as usize] * b[(coord_bj + k) as usize];
+                        tmp += a[ai + k] * b[bj + k];
                         k += 1;
                     }
-                    b[(coord_bj + i) as usize] = alpha * tmp;
+                    b[bj + i] = alpha * tmp;
                     i += 1;
                 }
                 j += 1;
@@ -898,58 +841,58 @@ pub fn trmm<T: Float + NumAssignOps>(
         }
     } else if trans == 'n' || trans == 'N' {
         if upper {
-            let mut j = n - 1;
-            while j >= 0 {
+            let mut j = n;
+            while j >= 1 {
+                j -= 1;
                 let mut tmp = alpha;
-                let coord_aj = j * lda;
-                let coord_bj = j * ldb;
+                let aj = j * lda;
+                let bj = j * ldb;
                 if nounit {
-                    tmp *= a[(coord_aj + j) as usize]
+                    tmp *= a[aj + j]
                 };
                 let mut i = 0;
                 while i < m {
-                    b[(coord_bj + i) as usize] *= tmp;
+                    b[bj + i] *= tmp;
                     i += 1;
                 }
                 let mut k = 0;
                 while k < j {
-                    let coord_bk = k * ldb;
-                    if !a[(coord_aj + k) as usize].is_zero() {
-                        tmp = alpha * a[(coord_aj + k) as usize];
+                    let bk = k * ldb;
+                    if !a[aj + k].is_zero() {
+                        tmp = alpha * a[aj + k];
                         let mut i = 0;
                         while i < m {
-                            let tmp2 = tmp * b[(coord_bk + i) as usize];
-                            b[(coord_bj + i) as usize] += tmp2;
+                            let tmp2 = tmp * b[bk + i];
+                            b[bj + i] += tmp2;
                             i += 1;
                         }
                     }
                     k += 1;
                 }
-                j -= 1;
             }
         } else {
             let mut j = 0;
             while j < n {
-                let coord_aj = j * lda;
-                let coord_bj = j * ldb;
+                let aj = j * lda;
+                let bj = j * ldb;
                 let mut tmp = alpha;
                 if nounit {
-                    tmp *= a[(coord_aj + j) as usize]
+                    tmp *= a[aj + j]
                 };
                 let mut i = 0;
                 while i < m {
-                    b[(coord_bj + i) as usize] *= tmp;
+                    b[bj + i] *= tmp;
                     i += 1;
                 }
                 let mut k = j + 1;
                 while k < n {
-                    let coord_bk = k * ldb;
-                    if !a[(coord_aj + k) as usize].is_zero() {
-                        tmp = alpha * a[(coord_aj + k) as usize];
+                    let bk = k * ldb;
+                    if !a[aj + k].is_zero() {
+                        tmp = alpha * a[aj + k];
                         let mut i = 0;
                         while i < m {
-                            let tmp2 = tmp * b[(coord_bk + i) as usize];
-                            b[(coord_bj + i) as usize] += tmp2;
+                            let tmp2 = tmp * b[bk + i];
+                            b[bj + i] += tmp2;
                             i += 1;
                         }
                     }
@@ -961,17 +904,17 @@ pub fn trmm<T: Float + NumAssignOps>(
     } else if upper {
         let mut k = 0;
         while k < n {
-            let coord_ak = k * lda;
-            let coord_bk = k * ldb;
+            let ak = k * lda;
+            let bk = k * ldb;
             let mut j = 0;
             while j < k {
-                let coord_bj = j * ldb;
-                if !a[(coord_ak + j) as usize].is_zero() {
-                    let tmp = alpha * a[(coord_ak + j) as usize];
+                let bj = j * ldb;
+                if !a[ak + j].is_zero() {
+                    let tmp = alpha * a[ak + j];
                     let mut i = 0;
                     while i < m {
-                        let tmp2 = tmp * b[(coord_bk + i) as usize];
-                        b[(coord_bj + i) as usize] += tmp2;
+                        let tmp2 = tmp * b[bk + i];
+                        b[bj + i] += tmp2;
                         i += 1;
                     }
                 }
@@ -979,32 +922,33 @@ pub fn trmm<T: Float + NumAssignOps>(
             }
             let mut tmp = alpha;
             if nounit {
-                tmp *= a[(coord_ak + k) as usize]
+                tmp *= a[ak + k]
             };
             if tmp != T::one() {
                 let mut i = 0;
                 while i < m {
-                    let tmp2 = tmp * b[(coord_bk + i) as usize];
-                    b[(coord_bk + i) as usize] = tmp2;
+                    let tmp2 = tmp * b[bk + i];
+                    b[bk + i] = tmp2;
                     i += 1;
                 }
             }
             k += 1;
         }
     } else {
-        let mut k = n - 1;
-        while k >= 0 {
-            let coord_ak = k * lda;
-            let coord_bk = k * ldb;
+        let mut k = n;
+        while k >= 1 {
+            k -= 1;
+            let ak = k * lda;
+            let bk = k * ldb;
             let mut j = k + 1;
             while j < n {
-                let coord_bj = j * ldb;
-                if !a[(coord_ak + j) as usize].is_zero() {
-                    let tmp = alpha * a[(coord_ak + j) as usize];
+                let bj = j * ldb;
+                if !a[ak + j].is_zero() {
+                    let tmp = alpha * a[ak + j];
                     let mut i = 0;
                     while i < m {
-                        let tmp2 = tmp * b[(coord_bk + i) as usize];
-                        b[(coord_bj + i) as usize] += tmp2;
+                        let tmp2 = tmp * b[bk + i];
+                        b[bj + i] += tmp2;
                         i += 1;
                     }
                 }
@@ -1012,16 +956,15 @@ pub fn trmm<T: Float + NumAssignOps>(
             }
             let mut tmp = alpha;
             if nounit {
-                tmp *= a[(coord_ak + k) as usize]
+                tmp *= a[ak + k]
             };
             if !tmp.is_zero() {
                 let mut i = 0;
                 while i < m {
-                    b[(coord_bk + i) as usize] *= tmp;
+                    b[bk + i] *= tmp;
                     i += 1
                 }
             }
-            k -= 1;
         }
     }
 }
@@ -1037,13 +980,13 @@ pub fn trsm<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
     diag: char,
-    m: isize,
-    n: isize,
+    m: usize,
+    n: usize,
     alpha: T,
     a: &[T],
-    lda: isize,
+    lda: usize,
     b: &mut [T],
-    ldb: isize,
+    ldb: usize,
 ) {
     let lside = side == 'l' || side == 'L';
     let nrowa = if lside { m } else { n };
@@ -1064,10 +1007,6 @@ pub fn trsm<T: Float + NumAssignOps>(
         info = 3;
     } else if diag != 'n' && diag != 'N' && diag != 'u' && diag != 'U' {
         info = 4;
-    } else if m < 0 {
-        info = 5;
-    } else if n < 0 {
-        info = 6;
     } else if lda < max(1, nrowa) {
         info = 9;
     } else if ldb < max(1, m) {
@@ -1081,18 +1020,8 @@ pub fn trsm<T: Float + NumAssignOps>(
         return;
     }
 
-    // Refactor #001
     if alpha.is_zero() {
-        let mut j = 0;
-        while j < n {
-            let coords = j * ldb;
-            let mut i = 0;
-            while i < m {
-                b[(coords + i) as usize] = T::zero();
-                i += 1;
-            }
-            j += 1;
-        }
+        zero(b, ldb, n, m);
         return;
     }
 
@@ -1101,54 +1030,54 @@ pub fn trsm<T: Float + NumAssignOps>(
             if upper {
                 let mut j = 0;
                 while j < n {
-                    let coord_bj = j * ldb;
+                    let bj = j * ldb;
                     if !alpha.is_one() {
                         let mut i = 0;
                         while i < m {
-                            b[(coord_bj + i) as usize] *= alpha;
+                            b[bj + i] *= alpha;
                             i += 1;
                         }
                     }
-                    let mut k = m - 1;
-                    while k >= 0 {
-                        let coord_ak = k * lda;
-                        if !b[(coord_bj + k) as usize].is_zero() {
+                    let mut k = m;
+                    while k >= 1 {
+                        k -= 1;
+                        let ak = k * lda;
+                        if !b[bj + k].is_zero() {
                             if nounit {
-                                b[(coord_bj + k) as usize] /= a[(coord_ak + k) as usize]
+                                b[bj + k] /= a[ak + k]
                             };
                             let mut i = 0;
                             while i < k {
-                                let tmp = b[(coord_bj + k) as usize] * a[(coord_ak + i) as usize];
-                                b[(coord_bj + i) as usize] -= tmp;
+                                let tmp = b[bj + k] * a[ak + i];
+                                b[bj + i] -= tmp;
                                 i += 1;
                             }
                         }
-                        k -= 1;
                     }
                     j += 1;
                 }
             } else {
                 let mut j = 0;
                 while j < n {
-                    let coord_bj = j * ldb;
+                    let bj = j * ldb;
                     if !alpha.is_one() {
                         let mut i = 0;
                         while i < m {
-                            b[(coord_bj + i) as usize] *= alpha;
+                            b[bj + i] *= alpha;
                             i += 1;
                         }
                     }
                     let mut k = 0;
                     while k < m {
-                        let coord_ak = k * lda;
-                        if !b[(coord_bj + k) as usize].is_zero() {
+                        let ak = k * lda;
+                        if !b[bj + k].is_zero() {
                             if nounit {
-                                b[(coord_bj + k) as usize] /= a[(coord_ak + k) as usize]
+                                b[bj + k] /= a[ak + k]
                             };
                             let mut i = k + 1;
                             while i < m {
-                                let tmp = b[(coord_bj + k) as usize] * a[(coord_ak + i) as usize];
-                                b[(coord_bj + i) as usize] -= tmp;
+                                let tmp = b[bj + k] * a[ak + i];
+                                b[bj + i] -= tmp;
                                 i += 1;
                             }
                         }
@@ -1160,20 +1089,20 @@ pub fn trsm<T: Float + NumAssignOps>(
         } else if upper {
             let mut j = 0;
             while j < n {
-                let coord_bj = j * ldb;
+                let bj = j * ldb;
                 let mut i = 0;
                 while i < m {
-                    let coord_ai = i * lda;
-                    let mut tmp = alpha * b[(coord_bj + i) as usize];
+                    let ai = i * lda;
+                    let mut tmp = alpha * b[bj + i];
                     let mut k = 0;
                     while k < i {
-                        tmp -= a[(coord_ai + k) as usize] * b[(coord_bj + k) as usize];
+                        tmp -= a[ai + k] * b[bj + k];
                         k += 1;
                     }
                     if nounit {
-                        tmp /= a[(coord_ai + i) as usize]
+                        tmp /= a[ai + i]
                     };
-                    b[(coord_bj + i) as usize] = tmp;
+                    b[bj + i] = tmp;
                     i += 1;
                 }
                 j += 1;
@@ -1181,21 +1110,21 @@ pub fn trsm<T: Float + NumAssignOps>(
         } else {
             let mut j = 0;
             while j < n {
-                let coord_bj = j * ldb;
-                let mut i = m - 1;
-                while i >= 0 {
-                    let coord_ai = i * lda;
-                    let mut tmp = alpha * b[(coord_bj + i) as usize];
+                let bj = j * ldb;
+                let mut i = m;
+                while i >= 1 {
+                    i -= 1;
+                    let ai = i * lda;
+                    let mut tmp = alpha * b[bj + i];
                     let mut k = i + 1;
                     while k < m {
-                        tmp -= a[(coord_ai + k) as usize] * b[(coord_bj + k) as usize];
+                        tmp -= a[ai + k] * b[bj + k];
                         k += 1;
                     }
                     if nounit {
-                        tmp /= a[(coord_ai + i) as usize]
+                        tmp /= a[ai + i]
                     };
-                    b[(coord_bj + i) as usize] = tmp;
-                    i -= 1;
+                    b[bj + i] = tmp;
                 }
                 j += 1;
             }
@@ -1204,97 +1133,98 @@ pub fn trsm<T: Float + NumAssignOps>(
         if upper {
             let mut j = 0;
             while j < n {
-                let coord_aj = j * lda;
-                let coord_bj = j * ldb;
+                let aj = j * lda;
+                let bj = j * ldb;
                 if !alpha.is_one() {
                     let mut i = 0;
                     while i < m {
-                        let tmp = alpha * b[(coord_bj + i) as usize];
-                        b[(coord_bj + i) as usize] = tmp;
+                        let tmp = alpha * b[bj + i];
+                        b[bj + i] = tmp;
                         i += 1;
                     }
                 }
                 let mut k = 0;
                 while k < j {
-                    let coord_bk = k * lda;
-                    if !a[(coord_aj + k) as usize].is_zero() {
+                    let bk = k * lda;
+                    if !a[aj + k].is_zero() {
                         let mut i = 0;
                         while i < m {
-                            let tmp = a[(coord_aj + k) as usize] * b[(coord_bk + i) as usize];
-                            b[(coord_bj + i) as usize] -= tmp;
+                            let tmp = a[aj + k] * b[bk + i];
+                            b[bj + i] -= tmp;
                             i += 1;
                         }
                     }
                     k += 1;
                 }
                 if nounit {
-                    let tmp = T::one() / a[(coord_aj + j) as usize];
+                    let tmp = T::one() / a[aj + j];
                     let mut i = 0;
                     while i < m {
-                        b[(coord_bj + i) as usize] *= tmp;
+                        b[bj + i] *= tmp;
                         i += 1;
                     }
                 };
                 j += 1;
             }
         } else {
-            let mut j = n - 1;
-            while j >= 0 {
-                let coord_aj = j * ldb;
-                let coord_bj = j * ldb;
+            let mut j = n;
+            while j >= 1 {
+                j -= 1;
+                let aj = j * ldb;
+                let bj = j * ldb;
                 if !alpha.is_one() {
                     let mut i = 0;
                     while i < m {
-                        b[(coord_bj + i) as usize] *= alpha;
+                        b[bj + i] *= alpha;
                         i += 1;
                     }
                 }
                 let mut k = j + 1;
                 while k < n {
-                    let coord_bk = k * ldb;
-                    if !a[(coord_aj + k) as usize].is_zero() {
+                    let bk = k * ldb;
+                    if !a[aj + k].is_zero() {
                         let mut i = 0;
                         while i < m {
-                            let tmp = a[(coord_aj + k) as usize] * b[(coord_bk + i) as usize];
-                            b[(coord_bj + i) as usize] -= tmp;
+                            let tmp = a[aj + k] * b[bk + i];
+                            b[bj + i] -= tmp;
                             i += 1;
                         }
                     }
                     k += 1;
                 }
                 if nounit {
-                    let tmp = T::one() / a[(coord_aj + j) as usize];
+                    let tmp = T::one() / a[aj + j];
                     let mut i = 0;
                     while i < m {
-                        b[(coord_bj + i) as usize] *= tmp;
+                        b[bj + i] *= tmp;
                         i += 1;
                     }
                 };
-                j -= 1;
             }
         }
     } else if upper {
-        let mut k = n - 1;
-        while k >= 0 {
-            let coord_ak = k * lda;
-            let coord_bk = k * ldb;
+        let mut k = n;
+        while k >= 1 {
+            k -= 1;
+            let ak = k * lda;
+            let bk = k * ldb;
             if nounit {
-                let tmp = T::one() / a[(coord_ak + k) as usize];
+                let tmp = T::one() / a[ak + k];
                 let mut i = 0;
                 while i < m {
-                    b[(coord_bk + i) as usize] *= tmp;
+                    b[bk + i] *= tmp;
                     i += 1;
                 }
             };
             let mut j = 0;
             while j < k {
-                let coord_bj = j * lda;
-                if !a[(coord_ak + j) as usize].is_zero() {
-                    let tmp = a[(coord_ak + j) as usize];
+                let bj = j * lda;
+                if !a[ak + j].is_zero() {
+                    let tmp = a[ak + j];
                     let mut i = 0;
                     while i < m {
-                        let tmp2 = tmp * b[(coord_bk + i) as usize];
-                        b[(coord_bj + i) as usize] -= tmp2;
+                        let tmp2 = tmp * b[bk + i];
+                        b[bj + i] -= tmp2;
                         i += 1;
                     }
                 }
@@ -1303,34 +1233,33 @@ pub fn trsm<T: Float + NumAssignOps>(
             if !alpha.is_one() {
                 let mut i = 0;
                 while i < m {
-                    b[(coord_bk + i) as usize] *= alpha;
+                    b[bk + i] *= alpha;
                     i += 1;
                 }
             }
-            k -= 1;
         }
     } else {
         let mut k = 0;
         while k < n {
-            let coord_ak = k * lda;
-            let coord_bk = k * ldb;
+            let ak = k * lda;
+            let bk = k * ldb;
             if nounit {
-                let tmp = T::one() / a[(coord_ak + k) as usize];
+                let tmp = T::one() / a[ak + k];
                 let mut i = 0;
                 while i < m {
-                    b[(coord_bk + i) as usize] *= tmp;
+                    b[bk + i] *= tmp;
                     i += 1;
                 }
             };
             let mut j = k + 1;
             while j < n {
-                let coord_bj = j * ldb;
-                if !a[(coord_ak + j) as usize].is_zero() {
-                    let tmp = a[(coord_ak + j) as usize];
+                let bj = j * ldb;
+                if !a[ak + j].is_zero() {
+                    let tmp = a[ak + j];
                     let mut i = 0;
                     while i < m {
-                        let tmp2 = tmp * b[(coord_bk + i) as usize];
-                        b[(coord_bj + i) as usize] -= tmp2;
+                        let tmp2 = tmp * b[bk + i];
+                        b[bj + i] -= tmp2;
                         i += 1;
                     }
                 }
@@ -1339,7 +1268,7 @@ pub fn trsm<T: Float + NumAssignOps>(
             if !alpha.is_one() {
                 let mut i = 0;
                 while i < m {
-                    b[(coord_bk + i) as usize] *= alpha;
+                    b[bk + i] *= alpha;
                     i += 1
                 }
             }

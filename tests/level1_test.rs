@@ -5,7 +5,6 @@ mod utils;
 fn iamax() {
     assert_eq!(level1::iamax(6, &vec![1.0, 0.0, 3.0, 4.0, 5.0, 6.0], 1), 6);
     assert_eq!(level1::iamax(3, &vec![1.0, 0.0, 3.0, 4.0, 5.0, 6.0], 2), 3);
-    // assert_eq!(level1::iamax(5, &vec![1.0, 0.0, 3.0, 4.0, 5.0, 6.0], -1), 0); // This is not possible
     assert_eq!(level1::iamax(0, &vec![1.0, 0.0, 3.0, 4.0, 5.0, 6.0], 0), 0);
     assert_eq!(level1::iamax(1, &vec![1.0, 0.0, 3.0, 4.0, 5.0, 6.0], 1), 1);
 }

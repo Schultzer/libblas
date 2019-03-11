@@ -8,7 +8,7 @@ pub mod complex;
 #[inline]
 pub fn iamax<T: Float + NumAssignOps>(n: usize, x: &[T], incx: usize) -> usize {
     let mut iamax = 0;
-    if n < 1 || incx <= 0 {
+    if n == 0 || incx == 0 {
         return iamax;
     }
 
@@ -126,12 +126,11 @@ pub fn nrm2<T: Float + NumAssignOps>(n: usize, x: &[T], incx: usize) -> T {
     if n == 1 {
         return x[0].abs();
     }
-    //
+
     //  The following loop is equivalent to this call to the LAPACK auxiliary routine:
     //  CALL SLASSQ( N, X, INCX, SCALE, SSQ )
-    //
     let mut ix = 0;
-    while ix < (n - 1) * incx {
+    while ix < n * incx {
         let r = x[ix];
         if r != T::zero() {
             let tmp = r.abs();
@@ -271,7 +270,7 @@ pub fn ddot<T: Float + NumAssignOps>(
     if n == 0 {
         return dot;
     }
-    //
+
     let mut ix = 0;
     let mut iy = 0;
     let mut i = 0;
@@ -598,7 +597,7 @@ pub fn rotmg<T: Float + NumAssignOps + num_traits::cast::FromPrimitive>(
 /// This is [SSCAL](http://www.netlib.org/lapack/explore-html/d9/d04/sscal_8f.html) and [DSCAL](http://www.netlib.org/lapack/explore-html/d4/dd0/dscal_8f.html) comined in one function.
 #[inline]
 pub fn scal<T: Float + NumAssignOps>(n: usize, a: T, x: &mut [T], incx: usize) {
-    if n <= 0 || incx <= 0 {
+    if n == 0 || incx == 0 {
         return;
     };
     if a.is_one() {
@@ -642,7 +641,7 @@ pub fn scal<T: Float + NumAssignOps>(n: usize, a: T, x: &mut [T], incx: usize) {
 /// This is [SSWAP](http://www.netlib.org/lapack/explore-html/d9/da9/sswap_8f.html) and [DSWAP](http://www.netlib.org/lapack/explore-html/db/dd4/dswap_8f.html) comined in one function.
 #[inline]
 pub fn swap<T: Float + NumAssignOps>(n: usize, x: &mut [T], incx: isize, y: &mut [T], incy: isize) {
-    if n <= 0 {
+    if n == 0 {
         return;
     };
     if incx == 1 && incy == 1 {

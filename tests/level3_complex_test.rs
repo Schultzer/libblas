@@ -2192,63 +2192,6 @@ fn gemm() {
 
     let result = std::panic::catch_unwind(|| {
         complex::gemm(
-            'c',
-            'c',
-            6,
-            -8,
-            4,
-            Complex::new(0.0, 0.0),
-            &a,
-            8,
-            &b,
-            8,
-            Complex::new(0.2, 0.0),
-            &mut vec![],
-            6,
-        );
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::gemm(
-            'c',
-            'c',
-            6,
-            8,
-            -4,
-            Complex::new(0.0, 0.0),
-            &a,
-            8,
-            &b,
-            8,
-            Complex::new(0.2, 0.0),
-            &mut vec![],
-            6,
-        );
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::gemm(
-            'c',
-            'c',
-            -6,
-            8,
-            4,
-            Complex::new(0.0, 0.0),
-            &a,
-            8,
-            &b,
-            8,
-            Complex::new(0.2, 0.0),
-            &mut vec![],
-            6,
-        );
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::gemm(
             'n',
             'n',
             6,
@@ -3780,40 +3723,6 @@ fn trmm() {
             'u',
             'n',
             'n',
-            -4,
-            6,
-            Complex::new(0.2, 0.8),
-            &a,
-            6,
-            &mut vec![],
-            6,
-        );
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::trmm(
-            'l',
-            'u',
-            'n',
-            'n',
-            4,
-            -6,
-            Complex::new(0.2, 0.8),
-            &a,
-            6,
-            &mut vec![],
-            6,
-        );
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::trmm(
-            'l',
-            'u',
-            'n',
-            'n',
             4,
             6,
             Complex::new(0.2, 0.8),
@@ -5090,40 +4999,6 @@ fn trsm() {
             'u',
             'n',
             'n',
-            -4,
-            6,
-            Complex::new(0.2, 0.8),
-            &a,
-            6,
-            &mut vec![],
-            6,
-        );
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::trsm(
-            'l',
-            'u',
-            'n',
-            'n',
-            4,
-            -6,
-            Complex::new(0.2, 0.8),
-            &a,
-            6,
-            &mut vec![],
-            6,
-        );
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::trsm(
-            'l',
-            'u',
-            'n',
-            'n',
             4,
             6,
             Complex::new(0.2, 0.8),
@@ -5685,42 +5560,6 @@ fn hemm() {
             'l',
             'x',
             4,
-            6,
-            Complex::new(0.2, 0.8),
-            &a,
-            6,
-            &b,
-            6,
-            Complex::new(0.7, -0.3),
-            &mut vec![],
-            6,
-        );
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::hemm(
-            'l',
-            'u',
-            4,
-            -6,
-            Complex::new(0.2, 0.8),
-            &a,
-            6,
-            &b,
-            6,
-            Complex::new(0.7, -0.3),
-            &mut vec![],
-            6,
-        );
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::hemm(
-            'l',
-            'u',
-            -4,
             6,
             Complex::new(0.2, 0.8),
             &a,
@@ -6707,42 +6546,6 @@ fn her2k() {
     let result = std::panic::catch_unwind(|| {
         complex::her2k(
             'l',
-            'c',
-            -5,
-            4,
-            Complex::new(0.0, 0.0),
-            &a,
-            6,
-            &b,
-            6,
-            0.0,
-            &mut vec![],
-            6,
-        );
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::her2k(
-            'l',
-            'c',
-            5,
-            -4,
-            Complex::new(0.0, 0.0),
-            &a,
-            6,
-            &b,
-            6,
-            0.0,
-            &mut vec![],
-            6,
-        );
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::her2k(
-            'l',
             'n',
             5,
             4,
@@ -7337,15 +7140,6 @@ fn herk() {
     });
     assert!(result.is_err());
 
-    let result = std::panic::catch_unwind(|| {
-        complex::herk('u', 'n', -4, 5, 0.1, &a, 6, 0.3, &mut vec![], 6);
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::herk('u', 'n', 4, -6, 0.1, &a, 6, 0.3, &mut vec![], 6);
-    });
-    assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
         complex::herk('u', 'n', 4, 6, 0.1, &a, 3, 0.3, &mut vec![], 6);
@@ -7933,42 +7727,6 @@ fn symm() {
             'l',
             'u',
             4,
-            -5,
-            Complex::new(0.2, 0.8),
-            &a,
-            6,
-            &b,
-            6,
-            Complex::new(0.3, -0.7),
-            &mut vec![],
-            6,
-        );
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::symm(
-            'l',
-            'u',
-            -4,
-            5,
-            Complex::new(0.2, 0.8),
-            &a,
-            6,
-            &b,
-            6,
-            Complex::new(0.3, -0.7),
-            &mut vec![],
-            6,
-        );
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::symm(
-            'l',
-            'u',
-            4,
             5,
             Complex::new(0.2, 0.8),
             &a,
@@ -8464,42 +8222,6 @@ fn syr2k() {
             'x',
             4,
             6,
-            Complex::new(0.0, 0.0),
-            &a,
-            6,
-            &b,
-            6,
-            Complex::new(1.0, 0.0),
-            &mut vec![],
-            6,
-        );
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::syr2k(
-            'u',
-            't',
-            -4,
-            6,
-            Complex::new(0.0, 0.0),
-            &a,
-            6,
-            &b,
-            6,
-            Complex::new(1.0, 0.0),
-            &mut vec![],
-            6,
-        );
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::syr2k(
-            'u',
-            't',
-            4,
-            -6,
             Complex::new(0.0, 0.0),
             &a,
             6,
@@ -9049,38 +8771,6 @@ fn syrk() {
             'x',
             4,
             6,
-            Complex::new(0.0, 0.0),
-            &a,
-            6,
-            Complex::new(1.0, 0.0),
-            &mut vec![],
-            6,
-        );
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::syrk(
-            'u',
-            't',
-            -4,
-            6,
-            Complex::new(0.0, 0.0),
-            &a,
-            6,
-            Complex::new(1.0, 0.0),
-            &mut vec![],
-            6,
-        );
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::syrk(
-            'u',
-            't',
-            4,
-            -6,
             Complex::new(0.0, 0.0),
             &a,
             6,

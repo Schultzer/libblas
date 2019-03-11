@@ -4,6 +4,34 @@ use std::cmp::{max, min};
 
 pub mod complex;
 
+fn multiply<T: Float + NumAssignOps>(
+    left: &mut [T],
+    right: T,
+    len: isize,
+    mut index: isize,
+    inc: isize,
+) {
+    if right.is_zero() {
+        zero(left, len, index, inc);
+    } else {
+        let mut i = 0;
+        while i < len {
+            left[index as usize] *= right;
+            index += inc;
+            i += 1;
+        }
+    }
+}
+
+fn zero<T: Float + NumAssignOps>(left: &mut [T], len: isize, mut index: isize, inc: isize) {
+    let mut i = 0;
+    while i < len {
+        left[index as usize] = T::zero();
+        index += inc;
+        i += 1;
+    }
+}
+
 /// GBMV  performs one of the [T]-vector operations
 /// y := alpha*A*x + beta*y,   or   y := alpha*A**T*x + beta*y,
 /// where alpha and beta are scalars, x and y are vectors and A is an m by n band [T], with kl sub-diagonals and ku super-diagonals.
@@ -11,13 +39,13 @@ pub mod complex;
 #[inline]
 pub fn gbmv<T: Float + NumAssignOps>(
     trans: char,
-    m: isize,
-    n: isize,
-    kl: isize,
-    ku: isize,
+    m: usize,
+    n: usize,
+    kl: usize,
+    ku: usize,
     alpha: T,
     a: &[T],
-    lda: isize,
+    lda: usize,
     x: &[T],
     incx: isize,
     beta: T,
@@ -28,14 +56,6 @@ pub fn gbmv<T: Float + NumAssignOps>(
     if trans != 'c' && trans != 'C' && trans != 'n' && trans != 'N' && trans != 't' && trans != 'T'
     {
         info = 1;
-    } else if m < 0 {
-        info = 2;
-    } else if n < 0 {
-        info = 3;
-    } else if kl < 0 {
-        info = 4;
-    } else if ku < 0 {
-        info = 5;
     } else if lda < (kl + ku + 1) {
         info = 8;
     } else if incx == 0 {
@@ -58,26 +78,15 @@ pub fn gbmv<T: Float + NumAssignOps>(
     let mut kx = 0;
     let mut ky = 0;
     if incx < 0 {
-        kx = (-lenx * incx) + incx
+        kx = (-(lenx as isize) * incx) + incx
     };
     if incy < 0 {
-        ky = (-leny * incy) + incy
+        ky = (-(leny as isize) * incy) + incy
     };
 
     if !beta.is_one() {
-        let mut iy = ky;
-        let mut i = 0;
-        while i < leny {
-            y[iy as usize] = if beta.is_zero() {
-                T::zero()
-            } else {
-                beta * y[iy as usize]
-            };
-            iy += incy;
-            i += 1;
-        }
+        multiply(y, beta, leny as isize, ky, incy)
     }
-
     if alpha.is_zero() {
         return;
     }
@@ -88,11 +97,12 @@ pub fn gbmv<T: Float + NumAssignOps>(
         while j < n {
             let tmp = alpha * x[jx as usize];
             let mut iy = ky;
-            let k = ku - j;
-            let coor_aj = j * lda;
-            let mut i = max(0, j - ku);
-            while i <= min(m - 1, j + kl) {
-                y[iy as usize] += tmp * a[(coor_aj + k + i) as usize];
+            // FIXME
+            let k = ku as isize - j as isize; // apparently we want this to be negative sometimes.
+            let aj = (j * lda) as isize;
+            let mut i = j.saturating_sub(ku); // MAX(0, J-KU) using saturating_sub it will always be 0
+            while i < min(m, j + kl + 1) {
+                y[iy as usize] += tmp * a[(aj + k + i as isize) as usize];
                 iy += incy;
                 i += 1;
             }
@@ -101,6 +111,7 @@ pub fn gbmv<T: Float + NumAssignOps>(
                 ky += incy
             };
             j += 1;
+            //
         }
     } else {
         let mut jy = ky;
@@ -108,11 +119,11 @@ pub fn gbmv<T: Float + NumAssignOps>(
         while j < n {
             let mut tmp = T::zero();
             let mut ix = kx;
-            let k = ku - j;
-            let coor_aj = j * lda;
-            let mut i = max(0, j - ku);
-            while i <= min(m - 1, j + kl) {
-                tmp += a[(coor_aj + k + i) as usize] * x[ix as usize];
+            let k = ku as isize - j as isize; // apparently we want this to be negative sometimes.
+            let aj = (j * lda) as isize;
+            let mut i = j.saturating_sub(ku); // MAX(0, J-KU) using saturating_sub it will always be 0
+            while i < min(m, j + kl + 1) {
+                tmp += a[(aj + k + i as isize) as usize] * x[ix as usize];
                 ix += incx;
                 i += 1;
             }
@@ -133,11 +144,11 @@ pub fn gbmv<T: Float + NumAssignOps>(
 #[inline]
 pub fn gemv<T: Float + NumAssignOps>(
     trans: char,
-    m: isize,
-    n: isize,
+    m: usize,
+    n: usize,
     alpha: T,
     a: &[T],
-    lda: isize,
+    lda: usize,
     x: &[T],
     incx: isize,
     beta: T,
@@ -148,10 +159,6 @@ pub fn gemv<T: Float + NumAssignOps>(
     if trans != 'c' && trans != 'C' && trans != 'n' && trans != 'N' && trans != 't' && trans != 'T'
     {
         info = 1;
-    } else if m < 0 {
-        info = 2;
-    } else if n < 0 {
-        info = 3;
     } else if lda < max(1, m) {
         info = 6;
     } else if incx == 0 {
@@ -173,31 +180,17 @@ pub fn gemv<T: Float + NumAssignOps>(
     let mut kx = 0;
     let mut ky = 0;
     if incx < 0 {
-        kx = (-lenx * incx) + incx
+        kx = (-(lenx as isize) * incx) + incx
     };
     if incy < 0 {
-        ky = (-leny * incx) + incy
+        ky = (-(leny as isize) * incx) + incy
     };
 
     if !beta.is_one() {
         if incy == 1 && beta.is_zero() {
-            let mut i = 0;
-            while i < leny {
-                y[i as usize] = T::zero();
-                i += 1;
-            }
+            zero(y, leny as isize, ky, incy);
         } else {
-            let mut iy = ky;
-            let mut i = 0;
-            while i < leny {
-                y[iy as usize] = if beta.is_zero() {
-                    T::zero()
-                } else {
-                    y[iy as usize] * beta
-                };
-                iy += incy;
-                i += 1;
-            }
+            multiply(y, beta, leny as isize, ky, incy)
         }
     }
     if alpha.is_zero() {
@@ -209,10 +202,10 @@ pub fn gemv<T: Float + NumAssignOps>(
         while j < n {
             let tmp = alpha * x[jx as usize];
             let mut iy = ky;
-            let coor_aj = j * lda;
+            let aj = j * lda;
             let mut i = 0;
             while i < m {
-                y[iy as usize] += tmp * a[(coor_aj + i) as usize];
+                y[iy as usize] += tmp * a[aj + i];
                 iy += incy;
                 i += 1;
             }
@@ -225,10 +218,10 @@ pub fn gemv<T: Float + NumAssignOps>(
         while j < n {
             let mut tmp = T::zero();
             let mut ix = kx;
-            let coor_aj = j * lda;
+            let aj = j * lda;
             let mut i = 0;
             while i < m {
-                tmp += a[(coor_aj + i) as usize] * x[ix as usize];
+                tmp += a[aj + i] * x[ix as usize];
                 ix += incx;
                 i += 1;
             }
@@ -245,22 +238,18 @@ pub fn gemv<T: Float + NumAssignOps>(
 /// This is [SGER](http://www.netlib.org/lapack/explore-html/db/d5c/sger_8f.html) and [DGER](http://www.netlib.org/lapack/explore-html/dc/da8/dger_8f.html) comined in one function
 #[inline]
 pub fn ger<T: Float + NumAssignOps>(
-    m: isize,
-    n: isize,
+    m: usize,
+    n: usize,
     alpha: T,
     x: &[T],
     incx: isize,
     y: &[T],
     incy: isize,
     a: &mut [T],
-    lda: isize,
+    lda: usize,
 ) {
     let mut info = 0;
-    if m < 0 {
-        info = 1;
-    } else if n < 0 {
-        info = 2;
-    } else if incx == 0 {
+    if incx == 0 {
         info = 5;
     } else if incy == 0 {
         info = 7;
@@ -278,10 +267,10 @@ pub fn ger<T: Float + NumAssignOps>(
     let mut kx = 0;
     let mut jy = 0;
     if incx < 0 {
-        kx = (-m * incx) + incx
+        kx = (-(m as isize) * incx) + incx
     };
     if incy < 0 {
-        jy = (-n * incy) + incy
+        jy = (-(n as isize) * incy) + incy
     };
     let mut j = 0;
     while j < n {
@@ -289,10 +278,10 @@ pub fn ger<T: Float + NumAssignOps>(
         if !tmp.is_zero() {
             tmp *= alpha;
             let mut ix = kx;
-            let coords = j * lda;
+            let aj = j * lda;
             let mut i = 0;
             while i < m {
-                a[(coords + i) as usize] += x[ix as usize] * tmp;
+                a[aj + i] += x[ix as usize] * tmp;
                 ix += incx;
                 i += 1;
             }
@@ -309,11 +298,11 @@ pub fn ger<T: Float + NumAssignOps>(
 #[inline]
 pub fn sbmv<T: Float + NumAssignOps>(
     uplo: char,
-    n: isize,
-    k: isize,
+    n: usize,
+    k: usize,
     alpha: T,
     a: &[T],
-    lda: isize,
+    lda: usize,
     x: &[T],
     incx: isize,
     beta: T,
@@ -323,10 +312,6 @@ pub fn sbmv<T: Float + NumAssignOps>(
     let mut info = 0;
     if uplo != 'l' && uplo != 'L' && uplo != 'u' && uplo != 'U' {
         info = 1;
-    } else if n < 0 {
-        info = 2;
-    } else if k < 0 {
-        info = 3;
     } else if lda < k + 1 {
         info = 6;
     } else if incx == 0 {
@@ -345,24 +330,14 @@ pub fn sbmv<T: Float + NumAssignOps>(
     let mut kx = 0;
     let mut ky = 0;
     if incx < 0 {
-        kx = (-n * incx) + incx
+        kx = (-(n as isize) * incx) + incx
     };
     if incy < 0 {
-        ky = (-n * incy) + incy
+        ky = (-(n as isize) * incy) + incy
     };
 
     if !beta.is_one() {
-        let mut iy = ky;
-        let mut i = 1;
-        while i <= n {
-            y[iy as usize] = if beta.is_zero() {
-                T::zero()
-            } else {
-                beta * y[iy as usize]
-            };
-            iy += incy;
-            i += 1;
-        }
+        multiply(y, beta, n as isize, ky, incy)
     }
     if alpha.is_zero() {
         return;
@@ -376,44 +351,41 @@ pub fn sbmv<T: Float + NumAssignOps>(
             let mut tmp2 = T::zero();
             let mut ix = kx;
             let mut iy = ky;
-            let l = k - j;
-            let coor_aj = j * lda;
-            let mut i = max(0, j - k);
+            let aj = j * lda;
+            let mut i = j.saturating_sub(k); // MAX(0, j - k)
             while i < j {
-                y[iy as usize] += tmp * a[(coor_aj + l + i) as usize];
-                tmp2 += a[(coor_aj + l + i) as usize] * x[ix as usize];
+                y[iy as usize] += tmp * a[aj + k - j + i];
+                tmp2 += a[aj + k - j + i] * x[ix as usize];
                 ix += incx;
                 iy += incy;
                 i += 1;
             }
-            y[jy as usize] += tmp * a[(coor_aj + k) as usize] + alpha * tmp2;
+            y[jy as usize] += tmp * a[(aj + k) as usize] + alpha * tmp2;
             jx += incx;
             jy += incy;
-            if j > k - 1 {
+            j += 1;
+            if j > k {
                 kx += incx;
                 ky += incy;
             }
-            j += 1;
         }
     } else {
         let mut jx = kx;
         let mut jy = ky;
         let mut j = 0;
         while j < n {
-            let coor_aj = j * lda;
+            let aj = j * lda;
             let tmp = alpha * x[jx as usize];
             let mut tmp2 = T::zero();
-            y[jy as usize] += tmp * a[(coor_aj) as usize];
-            let l = 1 - j;
+            y[jy as usize] += tmp * a[aj];
             let mut ix = jx;
             let mut iy = jy;
             let mut i = j + 1;
-            while i <= min(n - 1, j + k) {
+            while i < min(n, j + k + 1) {
                 ix += incx;
                 iy += incy;
-                let index = ((coor_aj + l + i) - 1) as usize; // pretty hacky maybe there is a better way?
-                y[iy as usize] += tmp * a[index];
-                tmp2 += a[index] * x[ix as usize];
+                y[iy as usize] += tmp * a[aj - j + i];
+                tmp2 += a[aj - j + i] * x[ix as usize];
                 i += 1;
             }
             y[jy as usize] += alpha * tmp2;
@@ -431,7 +403,7 @@ pub fn sbmv<T: Float + NumAssignOps>(
 #[inline]
 pub fn spmv<T: Float + NumAssignOps>(
     uplo: char,
-    n: isize,
+    n: usize,
     alpha: T,
     ap: &[T],
     x: &[T],
@@ -443,8 +415,6 @@ pub fn spmv<T: Float + NumAssignOps>(
     let mut info = 0;
     if uplo != 'l' && uplo != 'L' && uplo != 'u' && uplo != 'U' {
         info = 1;
-    } else if n < 0 {
-        info = 2;
     } else if incx == 0 {
         info = 6;
     } else if incy == 0 {
@@ -461,24 +431,14 @@ pub fn spmv<T: Float + NumAssignOps>(
     let mut kx = 0;
     let mut ky = 0;
     if incx < 0 {
-        kx = (-n * incx) + incx
+        kx = (-(n as isize) * incx) + incx
     };
     if incy < 0 {
-        ky = (-n * incy) + incy
+        ky = (-(n as isize) * incy) + incy
     };
 
     if !beta.is_one() {
-        let mut iy = ky;
-        let mut i = 0;
-        while i < n {
-            y[iy as usize] = if beta.is_zero() {
-                T::zero()
-            } else {
-                beta * y[iy as usize]
-            };
-            iy += incy;
-            i += 1;
-        }
+        multiply(y, beta, n as isize, ky, incy)
     }
     if alpha.is_zero() {
         return;
@@ -487,49 +447,50 @@ pub fn spmv<T: Float + NumAssignOps>(
     if uplo == 'u' || uplo == 'U' {
         let mut jx = kx;
         let mut jy = ky;
-        let mut j = 1;
-        while j <= n {
+        let mut j = 0;
+        while j < n {
+            j += 1;
             let tmp = alpha * x[jx as usize];
             let mut tmp2 = T::zero();
             let mut ix = kx;
             let mut iy = ky;
             let mut k = kk;
-            while k <= kk + j - 2 {
-                y[iy as usize] += tmp * ap[k as usize];
-                tmp2 += ap[k as usize] * x[ix as usize];
+            kk += j;
+            while k < kk - 1 {
+                y[iy as usize] += tmp * ap[k];
+                tmp2 += ap[k] * x[ix as usize];
                 ix += incx;
                 iy += incy;
                 k += 1;
             }
-            y[jy as usize] += tmp * ap[(kk + j - 1) as usize] + alpha * tmp2;
+            y[jy as usize] += tmp * ap[kk - 1] + alpha * tmp2;
             jx += incx;
             jy += incy;
-            kk += j;
-            j += 1;
         }
     } else {
         let mut jx = kx;
         let mut jy = ky;
-        let mut j = 1;
-        while j <= n {
+        let mut j = 0;
+        while j < n {
+            j += 1;
             let tmp = alpha * x[jx as usize];
             let mut tmp2 = T::zero();
-            y[jy as usize] += tmp * ap[kk as usize];
+            y[jy as usize] += tmp * ap[kk];
             let mut ix = jx;
             let mut iy = jy;
-            let mut k = kk + 1;
-            while k <= kk + n - j {
+            let mut k = kk;
+            kk += n - j;
+            while k < kk {
+                k += 1;
                 ix += incx;
                 iy += incy;
-                y[iy as usize] += tmp * ap[k as usize];
-                tmp2 += ap[k as usize] * x[ix as usize];
-                k += 1;
+                y[iy as usize] += tmp * ap[k];
+                tmp2 += ap[k] * x[ix as usize];
             }
             y[jy as usize] += alpha * tmp2;
             jx += incx;
             jy += incy;
-            kk += n - j + 1;
-            j += 1;
+            kk += 1;
         }
     }
 }
@@ -541,7 +502,7 @@ pub fn spmv<T: Float + NumAssignOps>(
 #[inline]
 pub fn spr<T: Float + NumAssignOps>(
     uplo: char,
-    n: isize,
+    n: usize,
     alpha: T,
     x: &[T],
     incx: isize,
@@ -550,8 +511,6 @@ pub fn spr<T: Float + NumAssignOps>(
     let mut info = 0;
     if uplo != 'l' && uplo != 'L' && uplo != 'u' && uplo != 'U' {
         info = 1;
-    } else if n < 0 {
-        info = 2;
     } else if incx == 0 {
         info = 6;
     }
@@ -565,42 +524,43 @@ pub fn spr<T: Float + NumAssignOps>(
 
     let mut kx = 0;
     if incx < 0 {
-        kx = (-n * incx) + incx
+        kx = (-(n as isize) * incx) + incx
     };
     let mut kk = 0;
     let mut jx = kx;
     if uplo == 'u' || uplo == 'U' {
         let mut jx = kx;
-        let mut j = 1;
-        while j <= n {
-            if x[jx as usize] != T::zero() {
-                let tmp = alpha * x[jx as usize];
+        let mut j = 0;
+        while j < n {
+            j += 1;
+            let mut tmp = x[jx as usize];
+            let mut k = kk;
+            kk += j;
+            if !tmp.is_zero() {
+                tmp *= alpha;
                 let mut ix = kx;
-                let mut k = kk;
-                while k < kk + j {
-                    ap[k as usize] += x[ix as usize] * tmp;
+                while k < kk {
+                    ap[k] += x[ix as usize] * tmp;
                     ix += incx;
                     k += 1;
                 }
             }
             jx += incx;
-            kk += j;
-            j += 1;
         }
     } else {
-        let mut j = 1;
-        while j <= n {
+        let mut j = 0;
+        while j < n {
+            j += 1;
             let tmp = alpha * x[jx as usize];
             let mut ix = jx;
             let mut k = kk;
-            while k <= kk + n - j {
-                ap[k as usize] += x[ix as usize] * tmp;
+            kk += n - j + 1;
+            while k < kk {
+                ap[k] += x[ix as usize] * tmp;
                 ix += incx;
                 k += 1;
             }
             jx += incx;
-            kk += n - j + 1;
-            j += 1;
         }
     }
 }
@@ -612,7 +572,7 @@ pub fn spr<T: Float + NumAssignOps>(
 #[inline]
 pub fn spr2<T: Float + NumAssignOps>(
     uplo: char,
-    n: isize,
+    n: usize,
     alpha: T,
     x: &[T],
     incx: isize,
@@ -623,8 +583,6 @@ pub fn spr2<T: Float + NumAssignOps>(
     let mut info = 0;
     if uplo != 'l' && uplo != 'L' && uplo != 'u' && uplo != 'U' {
         info = 1;
-    } else if n < 0 {
-        info = 2;
     } else if incx == 0 {
         info = 5;
     } else if incy == 0 {
@@ -641,47 +599,49 @@ pub fn spr2<T: Float + NumAssignOps>(
     let mut kx = 0;
     let mut ky = 0;
     if incx < 0 {
-        kx = (-n * incx) + incx
+        kx = (-(n as isize) * incx) + incx
     };
     if incy < 0 {
-        ky = (-n * incy) + incy
+        ky = (-(n as isize) * incy) + incy
     };
 
     let mut jx = kx;
     let mut jy = ky;
     let mut kk = 0;
     if uplo == 'u' || uplo == 'U' {
-        let mut j = 1;
-        while j <= n {
+        let mut j = 0;
+        while j < n {
+            j += 1;
             let tmp = alpha * y[jy as usize];
             let tmp2 = alpha * x[jx as usize];
             let mut ix = kx;
             let mut iy = ky;
             let mut k = kk;
-            while k < kk + j {
-                ap[k as usize] += x[ix as usize] * tmp + y[iy as usize] * tmp2;
+            kk += j;
+            while k < kk {
+                ap[k] += x[ix as usize] * tmp + y[iy as usize] * tmp2;
                 ix += incx;
                 iy += incy;
                 k += 1;
             }
             jx += incx;
             jy += incy;
-            kk += j;
-            j += 1;
         }
     } else {
-        let mut j = 1;
-        while j <= n {
+        let mut j = 0;
+        while j < n {
+            j += 1;
             let mut tmp = y[jy as usize];
             let mut tmp2 = x[jx as usize];
+            let mut k = kk;
+            kk += n - j + 1;
             if !tmp.is_zero() || tmp2.is_zero() {
                 tmp *= alpha;
                 tmp2 *= alpha;
                 let mut ix = jx;
                 let mut iy = jy;
-                let mut k = kk;
-                while k <= kk + n - j {
-                    ap[k as usize] += x[ix as usize] * tmp + y[iy as usize] * tmp2;
+                while k < kk {
+                    ap[k] += x[ix as usize] * tmp + y[iy as usize] * tmp2;
                     ix += incx;
                     iy += incy;
                     k += 1;
@@ -689,8 +649,6 @@ pub fn spr2<T: Float + NumAssignOps>(
             }
             jx += incx;
             jy += incy;
-            kk += n - j + 1;
-            j += 1;
         }
     }
 }
@@ -702,10 +660,10 @@ pub fn spr2<T: Float + NumAssignOps>(
 #[inline]
 pub fn symv<T: Float + NumAssignOps>(
     uplo: char,
-    n: isize,
+    n: usize,
     alpha: T,
     a: &[T],
-    lda: isize,
+    lda: usize,
     x: &[T],
     incx: isize,
     beta: T,
@@ -715,8 +673,6 @@ pub fn symv<T: Float + NumAssignOps>(
     let mut info = 0;
     if uplo != 'l' && uplo != 'L' && uplo != 'u' && uplo != 'U' {
         info = 1;
-    } else if n < 0 {
-        info = 2;
     } else if lda < max(1, n) {
         info = 5;
     } else if incx == 0 {
@@ -735,24 +691,14 @@ pub fn symv<T: Float + NumAssignOps>(
     let mut kx = 0;
     let mut ky = 0;
     if incx < 0 {
-        kx = (-n * incx) + incx
+        kx = (-(n as isize) * incx) + incx
     };
     if incy < 0 {
-        ky = (-n * incy) + incy
+        ky = (-(n as isize) * incy) + incy
     };
 
     if !beta.is_one() {
-        let mut iy = ky;
-        let mut i = 1;
-        while i <= n {
-            y[iy as usize] = if beta.is_zero() {
-                T::zero()
-            } else {
-                beta * y[iy as usize]
-            };
-            iy += incy;
-            i += 1;
-        }
+        multiply(y, beta, n as isize, ky, incy)
     }
     if alpha.is_zero() {
         return;
@@ -766,17 +712,16 @@ pub fn symv<T: Float + NumAssignOps>(
             let mut tmp2 = T::zero();
             let mut ix = kx;
             let mut iy = ky;
-            let coords = j * lda;
+            let aj = j * lda;
             let mut i = 0;
             while i < j {
-                let index = (coords + i) as usize;
-                y[iy as usize] += tmp * a[index];
-                tmp2 += a[index] * x[ix as usize];
+                y[iy as usize] += tmp * a[aj + i];
+                tmp2 += a[aj + i] * x[ix as usize];
                 ix += incx;
                 iy += incy;
                 i += 1;
             }
-            y[jy as usize] += tmp * a[(coords + j) as usize] + alpha * tmp2;
+            y[jy as usize] += tmp * a[aj + j] + alpha * tmp2;
             jx += incx;
             jy += incy;
             j += 1;
@@ -785,18 +730,16 @@ pub fn symv<T: Float + NumAssignOps>(
         while j < n {
             let tmp = alpha * x[jx as usize];
             let mut tmp2 = T::zero();
-            let coords = j * lda;
-            y[jy as usize] += tmp * a[(coords + j) as usize];
-            let _l = 1 - j;
+            let aj = j * lda;
+            y[jy as usize] += tmp * a[aj + j];
             let mut ix = jx;
             let mut iy = jy;
             let mut i = j + 1;
             while i < n {
                 ix += incx;
                 iy += incy;
-                let index = (coords + i) as usize;
-                y[iy as usize] += tmp * a[index];
-                tmp2 += a[index] * x[ix as usize];
+                y[iy as usize] += tmp * a[aj + i];
+                tmp2 += a[aj + i] * x[ix as usize];
                 i += 1;
             }
             y[jy as usize] += alpha * tmp2;
@@ -814,18 +757,16 @@ pub fn symv<T: Float + NumAssignOps>(
 #[inline]
 pub fn syr<T: Float + NumAssignOps>(
     uplo: char,
-    n: isize,
+    n: usize,
     alpha: T,
     x: &[T],
     incx: isize,
     a: &mut [T],
-    lda: isize,
+    lda: usize,
 ) {
     let mut info = 0;
     if uplo != 'l' && uplo != 'L' && uplo != 'u' && uplo != 'U' {
         info = 1;
-    } else if n < 0 {
-        info = 2;
     } else if incx == 0 {
         info = 5;
     } else if lda < max(1, n) {
@@ -842,38 +783,40 @@ pub fn syr<T: Float + NumAssignOps>(
 
     let mut kx = 0;
     if incx < 0 {
-        kx = (-n * incx) + incx
+        kx = (-(n as isize) * incx) + incx
     };
     let mut jx = kx;
     let mut j = 0;
     if uplo == 'u' || uplo == 'U' {
         while j < n {
+            // FIXME check the ASM else move back into if statement
+            let aj = j * lda;
+            j += 1;
+            //
             let mut tmp = x[jx as usize];
             if !tmp.is_zero() {
                 tmp *= alpha;
                 let mut ix = kx;
-                let coords = j * lda;
                 let mut i = 0;
-                while i <= j {
-                    a[(coords + i) as usize] += x[ix as usize] * tmp;
+                while i < j { // i < j + 1
+                    a[aj + i] += x[ix as usize] * tmp;
                     ix += incx;
                     i += 1;
                 }
             }
             jx += incx;
-            j += 1;
         }
     } else {
         while j < n {
             let mut tmp = x[jx as usize];
             if !tmp.is_zero() {
                 tmp *= alpha;
-                let coords = j * lda;
+                let aj = j * lda;
                 let mut ix = jx;
                 let mut i = j;
                 while i < n {
                     let delta = x[ix as usize] * tmp;
-                    a[(coords + i) as usize] += delta;
+                    a[aj + i] += delta;
                     ix += incx;
                     i += 1;
                 }
@@ -891,20 +834,18 @@ pub fn syr<T: Float + NumAssignOps>(
 #[inline]
 pub fn syr2<T: Float + NumAssignOps>(
     uplo: char,
-    n: isize,
+    n: usize,
     alpha: T,
     x: &[T],
     incx: isize,
     y: &[T],
     incy: isize,
     a: &mut [T],
-    lda: isize,
+    lda: usize,
 ) {
     let mut info = 0;
     if uplo != 'l' && uplo != 'L' && uplo != 'u' && uplo != 'U' {
         info = 1;
-    } else if n < 0 {
-        info = 2;
     } else if incx == 0 {
         info = 3;
     } else if incy == 0 {
@@ -924,10 +865,10 @@ pub fn syr2<T: Float + NumAssignOps>(
     let mut kx = 0;
     let mut ky = 0;
     if incx < 0 {
-        kx = (-n * incx) + incx
+        kx = (-(n as isize) * incx) + incx
     };
     if incy < 0 {
-        ky = (-n * incy) + incy
+        ky = (-(n as isize) * incy) + incy
     };
     let mut jx = kx;
     let mut jy = ky;
@@ -941,10 +882,11 @@ pub fn syr2<T: Float + NumAssignOps>(
                 tmp2 *= alpha;
                 let mut ix = kx;
                 let mut iy = ky;
-                let coords = j * lda;
+                let aj = j * lda;
                 let mut i = 0;
-                while i <= j {
-                    a[(coords + i) as usize] += x[ix as usize] * tmp + y[iy as usize] * tmp2;
+                // FIXME leave this as is for now check the ASM in syr if there is anything to move j * lda out of the if statement
+                while i < j + 1 {
+                    a[aj + i] += x[ix as usize] * tmp + y[iy as usize] * tmp2;
                     ix += incx;
                     iy += incy;
                     i += 1;
@@ -961,12 +903,12 @@ pub fn syr2<T: Float + NumAssignOps>(
             if !tmp2.is_zero() || !tmp.is_zero() {
                 tmp *= alpha;
                 tmp2 *= alpha;
-                let coords = j * lda;
+                let aj = j * lda;
                 let mut ix = jx;
                 let mut iy = jy;
                 let mut i = j;
                 while i < n {
-                    a[(coords + i) as usize] += x[ix as usize] * tmp + y[iy as usize] * tmp2;
+                    a[aj + i] += x[ix as usize] * tmp + y[iy as usize] * tmp2;
                     ix += incx;
                     iy += incy;
                     i += 1;
@@ -988,10 +930,10 @@ pub fn tbmv<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
     diag: char,
-    n: isize,
-    k: isize,
+    n: usize,
+    k: usize,
     a: &[T],
-    lda: isize,
+    lda: usize,
     x: &mut [T],
     incx: isize,
 ) {
@@ -1008,10 +950,6 @@ pub fn tbmv<T: Float + NumAssignOps>(
         info = 2;
     } else if diag != 'n' && diag != 'N' && diag != 'u' && diag != 'U' {
         info = 3;
-    } else if n < 0 {
-        info = 4;
-    } else if k < 0 {
-        info = 5;
     } else if lda < k + 1 {
         info = 7;
     } else if incx == 0 {
@@ -1027,7 +965,7 @@ pub fn tbmv<T: Float + NumAssignOps>(
     let nounit = diag == 'n' || diag == 'N';
     let mut kx = 0;
     if incx < 0 {
-        kx = (-n * incx) + incx
+        kx = (-(n as isize) * incx) + incx
     };
 
     if trans == 'n' || trans == 'N' {
@@ -1038,90 +976,86 @@ pub fn tbmv<T: Float + NumAssignOps>(
                 let tmp = x[jx as usize];
                 if !tmp.is_zero() {
                     let mut ix = kx;
-                    let l = k - j;
-                    let coords = j * lda;
-                    let mut i = max(0, j - k);
+                    let aj = j * lda;
+                    let mut i = j.saturating_sub(k);
                     while i < j {
-                        x[ix as usize] += tmp * a[(coords + l + i) as usize];
+                        x[ix as usize] += tmp * a[aj + k - j + i];
                         ix += incx;
                         i += 1;
                     }
                     if nounit {
-                        x[jx as usize] *= a[(coords + k) as usize];
+                        x[jx as usize] *= a[aj + k];
                     }
                 }
                 jx += incx;
-                if j > k - 1 {
+                j += 1;
+                if j > k {
                     kx += incx;
                 }
-                j += 1;
             }
         } else {
-            kx += (n - 1) * incx;
+            kx += (n as isize - 1) * incx;
             let mut jx = kx;
-            let mut j = n - 1;
-            while j >= 0 {
+            let mut j = n;
+            while j >= 1 {
+                j -= 1;
                 let tmp = x[jx as usize];
                 if !tmp.is_zero() {
                     let mut ix = kx;
-                    let l = 1 - j;
-                    let coor_aj = j * lda;
-                    let mut i = min(n - 1, j + k);
-                    while i > j {
-                        x[ix as usize] += tmp * a[((coor_aj + l + i) - 1) as usize]; // pretty hacky maybe there is a better way?
-                        ix -= incx;
+                    let aj = j * lda;
+                    let mut i = min(n, j + k + 1);
+                    while i > j + 1 {
                         i -= 1;
+                        x[ix as usize] += tmp * a[aj - j + i];
+                        ix -= incx;
                     }
                     if nounit {
-                        x[jx as usize] *= a[coor_aj as usize];
+                        x[jx as usize] *= a[aj];
                     }
                 }
                 jx -= incx;
                 if (n - 1) - j >= k {
                     kx -= incx;
                 }
-                j -= 1;
             }
         }
     } else if uplo == 'u' || uplo == 'U' {
-        kx += (n - 1) * incx;
+        kx += (n as isize - 1) * incx;
         let mut jx = kx;
-        let mut j = n - 1;
-        while j >= 0 {
-            let coor_aj = j * lda;
+        let mut j = n;
+        while j >= 1 {
+            j -= 1;
+            let aj = j * lda;
             let mut tmp = x[jx as usize];
             kx -= incx;
             let mut ix = kx;
-            let l = k - j;
             if nounit {
-                tmp *= a[(k + coor_aj) as usize];
+                tmp *= a[aj + k];
             }
-            let mut i = j - 1;
-            while i >= max(0, j - k) {
-                tmp += a[(l + i + coor_aj) as usize] * x[ix as usize];
-                ix -= incx;
+            let mut i = j;
+            // FIXME figure out if there is a better way
+            while i >= max(1, j.saturating_sub(k) + 1) {
                 i -= 1;
+                tmp += a[aj + i + k - j] * x[ix as usize];
+                ix -= incx;
             }
             x[jx as usize] = tmp;
             jx -= incx;
-            j -= 1;
         }
     } else {
         let mut jx = kx;
         let mut j = 0;
         while j < n {
-            let coor_aj = j * lda;
+            let aj = j * lda;
             let mut tmp = x[jx as usize];
             kx += incx;
             let mut ix = kx;
-            let l = 1 - j;
             if nounit {
-                tmp *= a[(coor_aj) as usize];
+                tmp *= a[(aj) as usize];
             }
             let mut i = j + 1;
-            while i <= min(n - 1, j + k) {
-                let index = (l + i + coor_aj - 1) as usize; // pretty hacky maybe there is a better way?
-                tmp += a[index] * x[ix as usize];
+            while i < min(n, j + k + 1) {
+                tmp += a[aj - j + i] * x[ix as usize];
                 ix += incx;
                 i += 1;
             }
@@ -1143,10 +1077,10 @@ pub fn tbsv<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
     diag: char,
-    n: isize,
-    k: isize,
+    n: usize,
+    k: usize,
     a: &[T],
-    lda: isize,
+    lda: usize,
     x: &mut [T],
     incx: isize,
 ) {
@@ -1163,10 +1097,6 @@ pub fn tbsv<T: Float + NumAssignOps>(
         info = 2;
     } else if diag != 'n' && diag != 'N' && diag != 'u' && diag != 'U' {
         info = 3;
-    } else if n < 0 {
-        info = 4;
-    } else if k < 0 {
-        info = 5;
     } else if lda < k + 1 {
         info = 7;
     } else if incx == 0 {
@@ -1181,33 +1111,32 @@ pub fn tbsv<T: Float + NumAssignOps>(
     }
     let mut kx = 0;
     if incx < 0 {
-        kx = (-n * incx) + incx
+        kx = (-(n as isize) * incx) + incx
     };
 
     if trans == 'n' || trans == 'N' {
         if uplo == 'u' || uplo == 'U' {
-            kx += (n - 1) * incx;
+            kx += (n as isize - 1) * incx;
             let mut jx = kx;
-            let mut j = n - 1;
-            while j >= 0 {
+            let mut j = n;
+            while j >= 1 {
+                j -= 1;
                 kx -= incx;
                 if !x[jx as usize].is_zero() {
                     let mut ix = kx;
-                    let l = k - j;
-                    let coords = j * lda;
+                    let aj = j * lda;
                     if diag == 'n' || diag == 'N' {
-                        x[jx as usize] /= a[(k + coords) as usize];
+                        x[jx as usize] /= a[aj + k];
                     }
                     let tmp = x[jx as usize];
-                    let mut i = j - 1;
-                    while i >= max(0, j - k) {
-                        x[ix as usize] -= tmp * a[(coords + l + i) as usize];
-                        ix -= incx;
+                    let mut i = j;
+                    while i > j.saturating_sub(k) {
                         i -= 1;
+                        x[ix as usize] -= tmp * a[aj + k - j + i];
+                        ix -= incx;
                     }
                 }
                 jx -= incx;
-                j -= 1;
             }
         } else {
             let mut jx = kx;
@@ -1216,16 +1145,14 @@ pub fn tbsv<T: Float + NumAssignOps>(
                 kx += incx;
                 if !x[jx as usize].is_zero() {
                     let mut ix = kx;
-                    let l = 1 - j;
-                    let coords = j * lda;
+                    let aj = j * lda;
                     if diag == 'n' || diag == 'N' {
-                        x[jx as usize] /= a[(coords) as usize];
+                        x[jx as usize] /= a[aj];
                     }
                     let mut i = j + 1;
                     let tmp = x[jx as usize];
-                    while i <= min(n - 1, j + k) {
-                        let index = ((coords + l + i) - 1) as usize; // Pretty hacky maybe there is a better way?
-                        x[ix as usize] -= tmp * a[index];
+                    while i < min(n, j + k + 1) {
+                        x[ix as usize] -= tmp * a[aj - j + i];
                         ix += incx;
                         i += 1;
                     }
@@ -1240,49 +1167,48 @@ pub fn tbsv<T: Float + NumAssignOps>(
         while j < n {
             let mut tmp = x[jx as usize];
             let mut ix = kx;
-            let l = k - j;
-            let coords = j * lda;
-            let mut i = max(0, j - k);
+            let aj = j * lda;
+            let mut i = j.saturating_sub(k);
             while i < j {
-                tmp -= a[(coords + l + i) as usize] * x[ix as usize];
+                tmp -= a[aj + k - j + i] * x[ix as usize];
                 ix += incx;
                 i += 1;
             }
             if diag == 'n' || diag == 'N' {
-                tmp /= a[(coords + k) as usize];
+                tmp /= a[aj + k];
             }
             x[jx as usize] = tmp;
             jx += incx;
-            if j > k - 1 {
+            j += 1;
+            if j > k {
                 kx += incx;
             }
-            j += 1;
         }
     } else {
-        kx += (n - 1) * incx;
+        kx += (n as isize - 1) * incx;
         let mut jx = kx;
-        let mut j = n - 1;
-        while j >= 0 {
+        let mut j = n;
+        while j >= 1 {
+            j -= 1;
             let mut tmp = x[jx as usize];
             let mut ix = kx;
-            let l = 1 - j;
-            let coords = j * lda;
+            let aj = j * lda;
+            //FIXME Maybe we could do this in a diffrent way
             let mut i = min(n - 1, j + k);
             while i > j {
-                let index = ((l + i + coords) - 1) as usize; // Pretty hacky maybe there is a better way?
-                tmp -= a[index] * x[ix as usize];
+                tmp -= a[aj - j + i] * x[ix as usize];
                 ix -= incx;
                 i -= 1;
             }
+            //FIXME
             if diag == 'n' || diag == 'N' {
-                tmp /= a[(coords) as usize];
+                tmp /= a[aj];
             }
             x[jx as usize] = tmp;
             jx -= incx;
             if (n - 1) - j >= k {
                 kx -= incx;
             }
-            j -= 1;
         }
     }
 }
@@ -1296,7 +1222,7 @@ pub fn tpmv<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
     diag: char,
-    n: isize,
+    n: usize,
     ap: &[T],
     x: &mut [T],
     incx: isize,
@@ -1314,8 +1240,6 @@ pub fn tpmv<T: Float + NumAssignOps>(
         info = 2;
     } else if diag != 'n' && diag != 'N' && diag != 'u' && diag != 'U' {
         info = 3;
-    } else if n < 0 {
-        info = 4;
     } else if incx == 0 {
         info = 7;
     }
@@ -1329,97 +1253,100 @@ pub fn tpmv<T: Float + NumAssignOps>(
     let nounit = diag == 'n' || diag == 'N';
     let mut kx = 0;
     if incx < 0 {
-        kx = (-n * incx) + incx
+        kx = (-(n as isize) * incx) + incx
     };
 
     if trans == 'n' || trans == 'N' {
         if uplo == 'u' || uplo == 'U' {
             let mut kk = 0;
             let mut jx = kx;
-            let mut j = 1;
-            while j <= n {
+            let mut j = 0;
+            while j < n {
+                j += 1;
+                let mut k = kk;
+                kk += j;
                 if !x[jx as usize].is_zero() {
                     let tmp = x[jx as usize];
                     let mut ix = kx;
-                    let mut k = kk;
-                    while k <= kk + j - 2 {
-                        x[ix as usize] += tmp * ap[k as usize];
+                    while k < kk - 1 {
+                        x[ix as usize] += tmp * ap[k];
                         ix += incx;
                         k += 1;
                     }
                     if nounit {
-                        x[jx as usize] *= ap[(kk + j - 1) as usize];
+                        x[jx as usize] *= ap[kk - 1];
                     }
                 }
                 jx += incx;
-                kk += j;
-                j += 1;
             }
         } else {
-            let mut kk = (n * (n + 1) / 2) - 1;
-            kx += (n - 1) * incx;
+            let mut kk = n * (n + 1) / 2;
+            kx += (n as isize - 1) * incx;
             let mut jx = kx;
             let mut j = n;
             while j >= 1 {
+                j -= 1;
+                //FIXME figure out a better way
                 if !x[jx as usize].is_zero() {
                     let tmp = x[jx as usize];
                     let mut ix = kx;
-                    let mut k = kk;
-                    while k >= kk - (n - (j + 1)) {
-                        x[ix as usize] += tmp * ap[k as usize];
+                    let mut k = kk - 1;
+                    while k > kk - (n - j) {
+                        x[ix as usize] += tmp * ap[k];
                         ix -= incx;
                         k -= 1;
                     }
                     if nounit {
-                        x[jx as usize] *= ap[(kk - n + j) as usize];
+                        x[jx as usize] *= ap[kk - n + j];
                     }
                 }
                 jx -= incx;
-                kk -= n - j + 1;
-                j -= 1;
+                kk -= n - j;
+                //
             }
         }
     } else if uplo == 'u' || uplo == 'U' {
-        let mut kk = ((n * (n + 1)) / 2) - 1;
-        let mut jx = kx + (n - 1) * incx;
+        let mut kk = n * (n + 1) / 2;
+        let mut jx = kx + (n as isize - 1) * incx;
         let mut j = n;
         while j >= 1 {
+            kk -= j;
+            j -= 1;
             let mut tmp = x[jx as usize];
             let mut ix = jx;
+            let mut k = kk + j;
             if nounit {
-                tmp *= ap[kk as usize];
+                tmp *= ap[k];
             }
-            let mut k = kk - 1;
-            while k > kk - j {
+            while k > kk {
                 ix -= incx;
-                tmp += ap[k as usize] * x[ix as usize];
                 k -= 1;
+                tmp += ap[k] * x[ix as usize];
             }
             x[jx as usize] = tmp;
             jx -= incx;
-            kk -= j;
-            j -= 1;
         }
     } else {
         let mut kk = 0;
         let mut jx = kx;
-        let mut j = 1;
-        while j <= n {
+        let mut j = 0;
+        while j < n {
+            j += 1;
             let mut tmp = x[jx as usize];
             let mut ix = jx;
+            let mut k = kk;
+            kk += n - j;
             if nounit {
-                tmp *= ap[kk as usize];
+                tmp *= ap[k];
             }
-            let mut k = kk + 1;
-            while k <= kk + n - j {
+            while k < kk {
                 ix += incx;
-                tmp += ap[k as usize] * x[ix as usize];
                 k += 1;
+                tmp += ap[k] * x[ix as usize];
             }
             x[jx as usize] = tmp;
             jx += incx;
-            kk += n - j + 1;
-            j += 1;
+            kk += 1;
         }
     }
 }
@@ -1433,7 +1360,7 @@ pub fn tpsv<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
     diag: char,
-    n: isize,
+    n: usize,
     ap: &[T],
     x: &mut [T],
     incx: isize,
@@ -1451,8 +1378,6 @@ pub fn tpsv<T: Float + NumAssignOps>(
         info = 2;
     } else if diag != 'n' && diag != 'N' && diag != 'u' && diag != 'U' {
         info = 3;
-    } else if n < 0 {
-        info = 4;
     } else if incx == 0 {
         info = 7;
     }
@@ -1466,97 +1391,100 @@ pub fn tpsv<T: Float + NumAssignOps>(
     let nounit = diag == 'n' || diag == 'N';
     let mut kx = 0;
     if incx < 0 {
-        kx = (-n * incx) + incx
+        kx = (-(n as isize) * incx) + incx
     };
 
     if trans == 'n' || trans == 'N' {
         if uplo == 'u' || uplo == 'U' {
-            let mut kk = ((n * (n + 1)) / 2) - 1;
-            let mut jx = kx + (n - 1) * incx;
+            let mut kk = n * (n + 1) / 2;
+            let mut jx = kx + (n as isize - 1) * incx;
             let mut j = n;
             while j >= 1 {
+                kk -= j;
+                j -= 1;
                 if !x[jx as usize].is_zero() {
+                    let mut k = kk + j;
                     if nounit {
-                        x[jx as usize] /= ap[kk as usize];
+                        x[jx as usize] /= ap[k];
                     }
                     let tmp = x[jx as usize];
                     let mut ix = jx;
-                    let mut k = kk - 1;
-                    while k > kk - j {
+                    while k > kk {
                         ix -= incx;
-                        x[ix as usize] -= tmp * ap[k as usize];
                         k -= 1;
+                        x[ix as usize] -= tmp * ap[k];
                     }
                 }
                 jx -= incx;
-                kk -= j;
-                j -= 1;
             }
         } else {
             let mut kk = 0;
             let mut jx = kx;
-            let mut j = 1;
-            while j <= n {
+            let mut j = 0;
+            while j < n {
+                j += 1;
+                let mut k = kk;
+                 kk += n - j;
                 if !x[jx as usize].is_zero() {
                     if nounit {
-                        x[jx as usize] /= ap[kk as usize];
+                        x[jx as usize] /= ap[k];
                     }
                     let tmp = x[jx as usize];
                     let mut ix = jx;
-                    let mut k = kk + 1;
-                    while k <= kk + n - j {
-                        ix += incx;
-                        x[ix as usize] -= tmp * ap[k as usize];
+                    while k < kk {
                         k += 1;
+                        ix += incx;
+                        x[ix as usize] -= tmp * ap[k];
                     }
                 }
                 jx += incx;
-                kk += n - j + 1;
-                j += 1;
+                kk += 1;
             }
         }
     } else if uplo == 'u' || uplo == 'U' {
         let mut kk = 0;
         let mut jx = kx;
-        let mut j = 1;
-        while j <= n {
+        let mut j = 0;
+        while j < n {
+            j += 1;
             let mut tmp = x[jx as usize];
             let mut ix = kx;
             let mut k = kk;
-            while k <= kk + j - 2 {
-                tmp -= ap[k as usize] * x[ix as usize];
+            while k < kk + j - 1 {
+                tmp -= ap[k] * x[ix as usize];
                 ix += incx;
                 k += 1;
             }
             if nounit {
-                tmp /= ap[(kk + j - 1) as usize];
+                // NOTE k == kk + j - 1
+                tmp /= ap[k];
             }
             x[jx as usize] = tmp;
             jx += incx;
             kk += j;
-            j += 1;
         }
     } else {
-        let mut kk = (n * (n + 1) / 2) - 1;
-        kx += (n - 1) * incx;
+        let mut kk = n * (n + 1) / 2;
+        kx += (n as isize - 1) * incx;
         let mut jx = kx;
         let mut j = n;
         while j >= 1 {
+            j -= 1;
             let mut tmp = x[jx as usize];
             let mut ix = kx;
-            let mut k = kk;
-            while k >= kk - (n - (j + 1)) {
-                tmp -= ap[k as usize] * x[ix as usize];
+            let mut k = kk - 1;
+            kk -= n - j;
+            while k > kk {
+                tmp -= ap[k] * x[ix as usize];
                 ix -= incx;
                 k -= 1;
             }
             if nounit {
-                tmp /= ap[(kk - n + j) as usize];
+                // NOTE k == kk - n + j
+                tmp /= ap[k];
             }
             x[jx as usize] = tmp;
             jx -= incx;
-            kk -= n - j + 1;
-            j -= 1;
         }
     }
 }
@@ -1570,9 +1498,9 @@ pub fn trmv<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
     diag: char,
-    n: isize,
+    n: usize,
     a: &[T],
-    lda: isize,
+    lda: usize,
     x: &mut [T],
     incx: isize,
 ) {
@@ -1589,8 +1517,6 @@ pub fn trmv<T: Float + NumAssignOps>(
         info = 2;
     } else if diag != 'n' && diag != 'N' && diag != 'u' && diag != 'U' {
         info = 3;
-    } else if n < 0 {
-        info = 4;
     } else if lda < max(1, n) {
         info = 6;
     } else if incx == 0 {
@@ -1606,7 +1532,7 @@ pub fn trmv<T: Float + NumAssignOps>(
     let nounit = diag == 'n' || diag == 'N';
     let mut kx = 0;
     if incx < 0 {
-        kx = (-n * incx) + incx
+        kx = (-(n as isize) * incx) + incx
     };
 
     if trans == 'n' || trans == 'N' {
@@ -1617,62 +1543,62 @@ pub fn trmv<T: Float + NumAssignOps>(
                 let tmp = x[jx as usize];
                 if !tmp.is_zero() {
                     let mut ix = kx;
-                    let coords = j * lda;
+                    let aj = j * lda;
                     let mut i = 0;
                     while i < j {
-                        x[ix as usize] += tmp * a[(coords + i) as usize];
+                        x[ix as usize] += tmp * a[aj + i];
                         ix += incx;
                         i += 1;
                     }
                     if nounit {
-                        x[jx as usize] *= a[(coords + j) as usize];
+                        x[jx as usize] *= a[aj + j];
                     }
                 }
                 jx += incx;
                 j += 1;
             }
         } else {
-            kx += (n - 1) * incx;
+            kx += (n as isize - 1) * incx;
             let mut jx = kx;
-            let mut j = n - 1;
-            while j >= 0 {
+            let mut j = n;
+            while j >= 1 {
+                j -= 1;
                 let tmp = x[jx as usize];
                 if !tmp.is_zero() {
-                    let coords = j * lda;
+                    let aj = j * lda;
                     let mut ix = kx;
-                    let mut i = n - 1;
-                    while i > j {
-                        x[ix as usize] += tmp * a[(coords + i) as usize];
-                        ix -= incx;
+                    let mut i = n;
+                    while i > j + 1 {
                         i -= 1;
+                        x[ix as usize] += tmp * a[aj + i];
+                        ix -= incx;
                     }
                     if nounit {
-                        x[jx as usize] *= a[(coords + j) as usize];
+                        x[jx as usize] *= a[aj + j];
                     }
                 }
                 jx -= incx;
-                j -= 1;
             }
         }
     } else if uplo == 'u' || uplo == 'U' {
-        let mut jx = kx + (n - 1) * incx;
-        let mut j = n - 1;
-        while j >= 0 {
+        let mut jx = kx + (n as isize - 1) * incx;
+        let mut j = n;
+        while j >= 1 {
+            j -= 1;
             let mut tmp = x[jx as usize];
             let mut ix = jx;
-            let coords = j * lda;
-            let mut i = j - 1;
+            let aj = j * lda;
+            let mut i = j;
             if nounit {
-                tmp *= a[(coords + j) as usize];
+                tmp *= a[aj + j];
             }
-            while i >= 0 {
-                ix -= incx;
-                tmp += a[(coords + i) as usize] * x[ix as usize];
+            while i >= 1 {
                 i -= 1;
+                ix -= incx;
+                tmp += a[aj + i] * x[ix as usize];
             }
             x[jx as usize] = tmp;
             jx -= incx;
-            j -= 1;
         }
     } else {
         let mut jx = kx;
@@ -1680,14 +1606,14 @@ pub fn trmv<T: Float + NumAssignOps>(
         while j < n {
             let mut tmp = x[jx as usize];
             let mut ix = jx;
-            let coords = j * lda;
+            let aj = j * lda;
             if nounit {
-                tmp *= a[(coords + j) as usize];
+                tmp *= a[aj + j];
             }
             let mut i = j + 1;
             while i < n {
                 ix += incx;
-                tmp += a[(coords + i) as usize] * x[ix as usize];
+                tmp += a[aj + i] * x[ix as usize];
                 i += 1;
             }
             x[jx as usize] = tmp;
@@ -1707,9 +1633,9 @@ pub fn trsv<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
     diag: char,
-    n: isize,
+    n: usize,
     a: &[T],
-    lda: isize,
+    lda: usize,
     x: &mut [T],
     incx: isize,
 ) {
@@ -1726,8 +1652,6 @@ pub fn trsv<T: Float + NumAssignOps>(
         info = 2;
     } else if diag != 'n' && diag != 'N' && diag != 'u' && diag != 'U' {
         info = 3;
-    } else if n < 0 {
-        info = 4;
     } else if lda < max(1, n) {
         info = 6;
     } else if incx == 0 {
@@ -1743,46 +1667,46 @@ pub fn trsv<T: Float + NumAssignOps>(
     let nounit = diag == 'n' || diag == 'N';
     let mut kx = 0;
     if incx < 0 {
-        kx = (-n * incx) + incx
+        kx = (-(n as isize) * incx) + incx
     };
 
     if trans == 'n' || trans == 'N' {
         if uplo == 'u' || uplo == 'U' {
-            let mut jx = kx + (n - 1) * incx;
-            let mut j = n - 1;
-            while j >= 0 {
+            let mut jx = kx + (n as isize - 1) * incx;
+            let mut j = n;
+            while j >= 1 {
+                j -= 1;
                 if !x[jx as usize].is_zero() {
-                    let coords = j * lda;
+                    let aj = j * lda;
                     if nounit {
-                        x[jx as usize] /= a[(coords + j) as usize];
+                        x[jx as usize] /= a[aj + j];
                     }
                     let tmp = x[jx as usize];
                     let mut ix = jx;
-                    let mut i = j - 1;
-                    while i >= 0 {
-                        ix -= incx;
-                        x[ix as usize] -= tmp * a[(coords + i) as usize];
+                    let mut i = j;
+                    while i >= 1 {
                         i -= 1;
+                        ix -= incx;
+                        x[ix as usize] -= tmp * a[aj + i];
                     }
                 }
                 jx -= incx;
-                j -= 1;
             }
         } else {
             let mut jx = kx;
             let mut j = 0;
             while j < n {
                 if !x[jx as usize].is_zero() {
-                    let coords = j * lda;
+                    let aj = j * lda;
                     if nounit {
-                        x[jx as usize] /= a[(coords + j) as usize];
+                        x[jx as usize] /= a[aj + j];
                     }
                     let tmp = x[jx as usize];
                     let mut ix = jx;
                     let mut i = j + 1;
                     while i < n {
                         ix += incx;
-                        x[ix as usize] -= tmp * a[(coords + i) as usize];
+                        x[ix as usize] -= tmp * a[aj + i];
                         i += 1;
                     }
                 }
@@ -1796,40 +1720,40 @@ pub fn trsv<T: Float + NumAssignOps>(
         while j < n {
             let mut tmp = x[jx as usize];
             let mut ix = kx;
-            let coords = j * lda;
+            let aj = j * lda;
             let mut i = 0;
             while i < j {
-                tmp -= a[(coords + i) as usize] * x[ix as usize];
+                tmp -= a[aj + i] * x[ix as usize];
                 ix += incx;
                 i += 1;
             }
             if nounit {
-                tmp /= a[(coords + i) as usize];
+                tmp /= a[aj + i];
             }
             x[jx as usize] = tmp;
             jx += incx;
             j += 1;
         }
     } else {
-        kx += (n - 1) * incx;
+        kx += (n as isize - 1) * incx;
         let mut jx = kx;
-        let mut j = n - 1;
-        while j >= 0 {
+        let mut j = n;
+        while j >= 1 {
+            j -= 1;
             let mut tmp = x[jx as usize];
             let mut ix = kx;
-            let coords = j * lda;
-            let mut i = n - 1;
-            while i > j {
-                tmp -= a[(coords + i) as usize] * x[ix as usize];
-                ix -= incx;
+            let aj = j * lda;
+            let mut i = n;
+            while i > j + 1 {
                 i -= 1;
+                tmp -= a[aj + i] * x[ix as usize];
+                ix -= incx;
             }
             if nounit {
-                tmp /= a[(coords + i) as usize];
+                tmp /= a[aj + j];
             }
             x[jx as usize] = tmp;
             jx -= incx;
-            j -= 1;
         }
     }
 }
