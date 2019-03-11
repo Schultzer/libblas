@@ -24,8 +24,17 @@ extern crate blas_rs;
 ## Releases
 [releases]: #releases
 
-
 Release notes are available in [RELEASES.md](RELEASES.md).
+
+## Conformance
+[conformance]: #conformance
+
+Conformance testing is done by generating fixtures from [REFERENCE BLAS Version 3.8.0](http://www.netlib.org/blas/) and run against blas-rs.
+To generate the fixture you need to have [json-fortran](https://github.com/jacobwilliams/json-fortran) installed.
+
+then run `sh ./script/conformance.sh && cargo test conformance`
+
+NOTE: only `double precision` and `complex*16` fixtures are genereated.
 
 
 ## Acknowledgement
