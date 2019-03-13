@@ -14,6 +14,8 @@ jobs:
             sudo apt-get install build-essential curl file git cmake make gfortran python-pip
             curl -o rustup-init.sh https://sh.rustup.rs
             sh rustup-init.sh -y
+            rustup install nightly
+            rustup install stable
       - run:
           name: json-fortran
           command: |
@@ -29,30 +31,27 @@ jobs:
             chmod -R a+r,a+w,a+x ./
             mkdir -p ./tests/fixtures/{level1/complex,level2/complex,level3/complex,matrix}
             sh ./scripts/conformance.sh
-            cargo test
+            cargo test --test conformance
       - run:
           name: Check formatting
           command: |
             rustup component add rustfmt
             cargo fmt --all -- --check
-      # - run:
-      #     name: Nightly Build
-      #     command: |
-      #       rustup run nightly rustc --version --verbose
-      #       rustup run nightly cargo --version --verbose
-      #       rustup run nightly cargo build
-      # - run:
-      #     name: Stable Build
-      #     command: |
-      #       rustup run stable rustc --version --verbose
-      #       rustup run stable cargo --version --verbose
-      #       rustup run stable cargo build
-      # - run:
-      #     name: Test
-      #     command: rustup run stable cargo test
+      - run:
+          name: Nightly Build
+          command: |
+            rustup run nightly rustc --version --verbose
+            rustup run nightly cargo --version --verbose
+            rustup run nightly cargo build
+      - run:
+          name: Stable Build
+          command: |
+            rustup run stable rustc --version --verbose
+            rustup run stable cargo --version --verbose
+            rustup run stable cargo build
       - run:
           name: Test
-          command: cargo test
+          command: rustup run stable cargo test
       - run:
           name: Upload Coverage
           command: sh ./scripts/codecov.sh
