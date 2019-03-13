@@ -53,4 +53,4 @@ test_script:
   - bash -c "./scripts/conformance.sh"
   - dir tests\fixtures\level1
   - cargo build
-  - cargo test
+  - cargo test --test conformance
