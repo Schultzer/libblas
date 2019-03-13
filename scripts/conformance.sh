@@ -2,7 +2,8 @@
 DCABS1=./tests/conformance/_shared/dcabs1.f
 XERBLA=./tests/conformance/_shared/xerbla.f
 LSAME=./tests/conformance/_shared/lsame.f
-
+test -d ./jsonfortran-gnu-7.0.0 && L=./jsonfortran-gnu-7.0.0/lib/libjsonfortran.a
+test -d ./jsonfortran-gnu-7.0.0 && I=-I./jsonfortran-gnu-7.0.0/lib
 test -d $HOME/json-fortran/build/lib  && L=$HOME/json-fortran/build/lib/libjsonfortran.a || L=/usr/local/Cellar/json-fortran/6.10.0/lib/libjsonfortran.a
 test -d $HOME/json-fortran/build/include  && I=-I$HOME/json-fortran/build/include || I=-I/usr/local/Cellar/json-fortran/6.10.0/include
 LIB=-ljsonfortran

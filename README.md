@@ -1,6 +1,7 @@
 # blas-rs
 [![documentation](https://docs.rs/blas-rs/badge.svg)](https://docs.rs/blas-rs)
 [![CircleCI](https://circleci.com/gh/Schultzer/blas-rs.svg?style=svg)](https://circleci.com/gh/Schultzer/blas-rs)
+[![Build status](https://ci.appveyor.com/api/projects/status/6tywgu4a035iqeqn/branch/master?svg=true)](https://ci.appveyor.com/project/Schultzer/blas-rs/branch/master)
 
 
 [BLAS](https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms)for Rust.
