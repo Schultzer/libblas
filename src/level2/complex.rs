@@ -826,7 +826,8 @@ pub fn hpmv<T: Float + NumAssignOps>(
             let mut iy = ky;
             let mut k = kk;
             kk += j;
-            while k < kk - 1 { // KK + J - 2
+            while k < kk - 1 {
+                // KK + J - 2
                 y[iy as usize] += tmp * ap[k];
                 tmp2 += ap[k].conj() * x[ix as usize];
                 ix += incx;
@@ -1297,7 +1298,7 @@ pub fn tbsv<T: Float + NumAssignOps>(
                     let mut i = j;
                     while i > j.saturating_sub(k) {
                         i -= 1;
-                        x[ix as usize] -= tmp * a[aj +  k - j + i];
+                        x[ix as usize] -= tmp * a[aj + k - j + i];
                         ix -= incx;
                     }
                 }

@@ -798,7 +798,8 @@ pub fn syr<T: Float + NumAssignOps>(
                 tmp *= alpha;
                 let mut ix = kx;
                 let mut i = 0;
-                while i < j { // i < j + 1
+                while i < j {
+                    // i < j + 1
                     a[aj + i] += x[ix as usize] * tmp;
                     ix += incx;
                     i += 1;
@@ -1424,7 +1425,7 @@ pub fn tpsv<T: Float + NumAssignOps>(
             while j < n {
                 j += 1;
                 let mut k = kk;
-                 kk += n - j;
+                kk += n - j;
                 if !x[jx as usize].is_zero() {
                     if nounit {
                         x[jx as usize] /= ap[k];

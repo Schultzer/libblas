@@ -176,7 +176,6 @@ pub fn rotmg<T: Float + NumAssignOps + num_traits::cast::FromPrimitive>(
     return;
 }
 
-
 #[test]
 fn test_rotmg() {
     let mut d1 = -4.0;
@@ -348,5 +347,3 @@ fn test_rotmg() {
         [-1.0, 4096.0, -0.66666666666666663, 1365.3333333333333, 1.0]
     );
 }
-
-
