@@ -4,7 +4,6 @@ jobs:
   build:
     docker:
       - image: circleci/rust:latest
-
     steps:
       - checkout
       - restore_cache:
@@ -13,6 +12,8 @@ jobs:
           name: Setup
           command: |
             sudo apt-get install build-essential curl file git cmake make gfortran python-pip
+            curl -o rustup-init.sh https://sh.rustup.rs
+            sh rustup-init.sh -y
       - run:
           name: json-fortran
           command: |
@@ -20,7 +21,7 @@ jobs:
             git clone https://github.com/jacobwilliams/json-fortran $HOME/json-fortran
             mkdir $HOME/json-fortran/build
             cd $HOME/json-fortran/build
-            cmake $HOME/json-fortran -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=$HOME/json-fortran -DCMAKE_C_FLAGS_RELEASE=-DNDEBUG -DCMAKE_CXX_FLAGS_RELEASE=-DNDEBUG -DCMAKE_BUILD_TYPE=Release -DCMAKE_FIND_FRAMEWORK=LAST -DCMAKE_VERBOSE_MAKEFILE=ON -Wno-dev -DUSE_GNU_INSTALL_CONVENTION:BOOL=TRUE -DENABLE_UNICODE:BOOL=TRUE
+            cmake $HOME/json-fortran -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=$HOME/json-fortran -DCMAKE_C_FLAGS_RELEASE=-DNDEBUG -DCMAKE_CXX_FLAGS_RELEASE=-DNDEBUG -DCMAKE_FIND_FRAMEWORK=LAST -DCMAKE_VERBOSE_MAKEFILE=ON -Wno-dev -DUSE_GNU_INSTALL_CONVENTION:BOOL=TRUE -DENABLE_UNICODE:BOOL=TRUE
             make install
       - run:
           name: Conformace test
@@ -29,12 +30,11 @@ jobs:
             mkdir -p ./tests/fixtures/{level1/complex,level2/complex,level3/complex,matrix}
             sh ./scripts/conformance.sh
             cargo test
-      # - run:
-      #     name: Check formatting
-      #     command: |
-      #       rustup component add rustfmt
-      #       rustfmt --version
-      #       cargo fmt -- --write-mode=diff
+      - run:
+          name: Check formatting
+          command: |
+            rustup component add rustfmt
+            cargo fmt --all -- --check
       # - run:
       #     name: Nightly Build
       #     command: |

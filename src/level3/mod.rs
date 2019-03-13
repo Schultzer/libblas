@@ -452,15 +452,12 @@ pub fn syr2k<T: Float + NumAssignOps>(
                 while l < k {
                     let al = l * lda;
                     let bl = l * ldb;
-                    if !a[al + j].is_zero()
-                        || !b[bl + j].is_zero()
-                    {
+                    if !a[al + j].is_zero() || !b[bl + j].is_zero() {
                         let tmp = alpha * b[bl + j];
                         let tmp2 = alpha * a[al + j];
                         let mut i = 0;
                         while i < j + 1 {
-                            c[cj + i] += a[al + i] * tmp
-                                + b[bl + i] * tmp2;
+                            c[cj + i] += a[al + i] * tmp + b[bl + i] * tmp2;
                             i += 1;
                         }
                     }
@@ -490,15 +487,12 @@ pub fn syr2k<T: Float + NumAssignOps>(
                 while l < k {
                     let al = l * lda;
                     let bl = l * ldb;
-                    if !a[al + j].is_zero()
-                        || !b[bl + j].is_zero()
-                    {
+                    if !a[al + j].is_zero() || !b[bl + j].is_zero() {
                         let tmp = alpha * b[bl + j];
                         let tmp2 = alpha * a[al + j];
                         let mut i = j;
                         while i < n {
-                            c[cj + i] += a[al + i] * tmp
-                                + b[bl + i] * tmp2;
+                            c[cj + i] += a[al + i] * tmp + b[bl + i] * tmp2;
                             i += 1;
                         }
                     }

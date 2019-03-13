@@ -7140,7 +7140,6 @@ fn herk() {
     });
     assert!(result.is_err());
 
-
     let result = std::panic::catch_unwind(|| {
         complex::herk('u', 'n', 4, 6, 0.1, &a, 3, 0.3, &mut vec![], 6);
     });

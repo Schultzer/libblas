@@ -604,8 +604,7 @@ pub fn syr2k<T: Float + NumAssignOps>(
                     tmp2 *= alpha;
                     let mut i = start;
                     while i < stop {
-                        c[cj + i] +=
-                            a[al + i] * tmp + b[bl + i] * tmp2;
+                        c[cj + i] += a[al + i] * tmp + b[bl + i] * tmp2;
                         i += 1;
                     }
                 }
@@ -1667,7 +1666,11 @@ pub fn her2k<T: Float + NumAssignOps>(
                 }
             }
             let start = if upper { 0 as isize } else { j as isize + 1 };
-            let stop = if upper { j as isize - 1 } else { n as isize - 1 };
+            let stop = if upper {
+                j as isize - 1
+            } else {
+                n as isize - 1
+            };
             let mut i = start;
             while i <= stop {
                 c[(cj as isize + i) as usize] *= beta;
@@ -1717,8 +1720,7 @@ pub fn her2k<T: Float + NumAssignOps>(
                         let tmp2 = (alpha * tmp2).conj();
                         let mut i = 0;
                         while i <= j {
-                            c[cj + i] +=
-                                a[al + i] * tmp + b[bl + i] * tmp2;
+                            c[cj + i] += a[al + i] * tmp + b[bl + i] * tmp2;
                             i += 1;
                         }
                         let mut ct = c[cj + j];
@@ -1764,13 +1766,10 @@ pub fn her2k<T: Float + NumAssignOps>(
                         tmp2 = (alpha * tmp2).conj();
                         let mut i = j + 1;
                         while i < n {
-                            c[cj + i] +=
-                                a[al + i] * tmp + b[bl + i] * tmp2;
+                            c[cj + i] += a[al + i] * tmp + b[bl + i] * tmp2;
                             i += 1;
                         }
-                        let mut ct = c[cj + j]
-                            + (a[al + j] * tmp)
-                            + (b[bl + j] * tmp2);
+                        let mut ct = c[cj + j] + (a[al + j] * tmp) + (b[bl + j] * tmp2);
                         ct.im = T::zero();
                         c[cj + j] = ct
                     }
@@ -1893,7 +1892,11 @@ pub fn herk<T: Float + NumAssignOps>(
             let fs = if upper { 0 } else { j };
             let fe = if upper { j + 1 } else { n };
             let start = if upper { 0 } else { j as isize + 1 };
-            let stop = if upper { j as isize - 1 } else { n as isize - 1 };
+            let stop = if upper {
+                j as isize - 1
+            } else {
+                n as isize - 1
+            };
             let cj = j * ldc;
             if beta.is_zero() {
                 let mut i = fs;
