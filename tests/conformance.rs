@@ -211,10 +211,10 @@ fn rotg() {
         let mut c = t.c;
         let mut s = t.s;
         level1::complex::rotg(&mut a, &mut b, &mut c, &mut s);
-        assert_eq!(a, t.expect.a);
+        assert_approx_eq_cplx!(a, t.expect.a);
         assert_eq!(b, t.expect.b);
-        assert_eq!(c, t.expect.c);
-        assert_eq!(s, t.expect.s)
+        assert_approx_eq!(c, t.expect.c);
+        assert_approx_eq_cplx!(s, t.expect.s)
     }
 }
 

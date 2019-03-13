@@ -75,26 +75,43 @@ macro_rules! assert_approx_eq {
         let eps = 1.0e-6;
         let (a, b) = (&$a, &$b);
         assert!(
-            (*a - *b).abs() < eps,
+            ((*a - *b) as f64).abs() < eps,
             "assertion failed: `(left !== right)` \
              (left: `{:?}`, right: `{:?}`, expect diff: `{:?}`, real diff: `{:?}`)",
             *a,
             *b,
             eps,
-            (*a - *b).abs()
+            ((*a - *b) as f64).abs()
         );
     }};
     ($a:expr, $b:expr, $eps:expr) => {{
         let (a, b) = (&$a, &$b);
         let eps = $eps;
         assert!(
-            (*a - *b).abs() < eps,
+            ((*a - *b) as f64).abs() < eps,
             "assertion failed: `(left !== right)` \
              (left: `{:?}`, right: `{:?}`, expect diff: `{:?}`, real diff: `{:?}`)",
             *a,
             *b,
             eps,
-            (*a - *b).abs()
+            ((*a - *b) as f64).abs()
         );
     }};
 }
+
+#[macro_export]
+macro_rules! assert_approx_eq_cplx {
+    ($a:expr, $b:expr) => {{
+        let eps = 1.0e-6;
+        let (a, b) = (&$a, &$b);
+        assert!(((a.re - b.re) as f64).abs() <= eps, "{} is not approximately equal to {}", a.re, b.re);
+        assert!(((a.im - b.im) as f64).abs() <= eps, "{} is not approximately equal to {}", a.im, b.im);
+    }};
+    ($a:expr, $b:expr, $eps:expr) => {{
+        let (a, b) = (&$a, &$b);
+        let eps = $eps;
+        assert!(((a.re - b.re) as f64).abs() <= eps, "{} is not approximately equal to {}", a.re, b.re);
+        assert!(((a.im - b.im) as f64).abs() <= eps, "{} is not approximately equal to {}", a.im, b.im);
+    }};
+}
+

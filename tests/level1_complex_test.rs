@@ -318,10 +318,10 @@ fn rotg() {
     let mut c = 0.0;
     let mut s = Complex::new(0.0, 0.0);
     complex::rotg(&mut a, &mut b, &mut c, &mut s);
-    assert_eq!(a, Complex::new(23.323763103564644, 40.286499906157111));
+    assert_approx_eq_cplx!(a, Complex::new(23.323763103564644, 40.286499906157111));
     assert_eq!(b, Complex::new(34.000000, 23.0000000));
-    assert_eq!(c, 0.47162200847078728);
-    assert_eq!(s, Complex::new(0.79353827566350310, 0.38453827661622281));
+    assert_approx_eq!(c, 0.47162200847078728);
+    assert_approx_eq_cplx!(s, Complex::new(0.79353827566350310, 0.38453827661622281));
 
     let mut a = Complex::new(0.0, 0.0);
     let mut b = Complex::new(-1.0, -1.0);

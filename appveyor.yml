@@ -1,0 +1,56 @@
+os: Visual Studio 2013
+
+environment:
+  global:
+    MINGW_32: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin
+    MINGW_64: C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin
+    MINGW: C:\MinGW\bin
+    JSON_FORTRAN: https://github.com/jacobwilliams/json-fortran
+    VS: C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE
+    SH: C:\Program Files\Git\usr\bin
+  matrix:
+### MSVC Toolchains ###
+  # Nightly 64-bit MSVC
+    - channel: nightly
+      target: x86_64-pc-windows-msvc
+  # Nightly 32-bit MSVC
+    - channel: nightly
+      target: i686-pc-windows-msvc
+
+### GNU Toolchains ###
+  # Nightly 64-bit GNU
+    - channel: nightly
+      target: x86_64-pc-windows-gnu
+  # Nightly 32-bit GNU
+    - channel: nightly
+      target: i686-pc-windows-gnu
+
+install:
+  - appveyor DownloadFile https://win.rustup.rs/ -FileName rustup-init.exe
+  - rustup-init -y --default-toolchain %channel% --default-host %target%
+  - set PATH=%PATH%;%USERPROFILE%\.cargo\bin
+  - rustc -vV
+  - cargo -vV
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - "SET PATH=%MINGW_32%;%MINGW_32%\\Scripts;%PATH%"
+  - "SET PATH=%MINGW_64%;%MINGW_64%\\Scripts;%PATH%"
+  - "SET PATH=%MINGW%;%MINGW%\\Scripts;%PATH%"
+  - "SET PATH=%VS%;%VS%\\Scripts;%PATH%"
+  - python -m pip install --upgrade pip
+  - pip install FoBiS.py
+  - git clone https://github.com/jacobwilliams/json-fortran %HOMEPATH%\json-fortran
+  - mkdir -p %HOMEPATH%\json-fortran\build
+  - cd %HOMEPATH%\json-fortran\build
+  - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
+  - cmake -S %HOMEPATH%\json-fortran -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=%APPVEYOR_BUILD_FOLDER% -DENABLE_UNICODE:BOOL=TRUE
+  - mingw32-make install
+  - "set PATH=%SH%;%SH%\\Scripts;%PATH%%"
+
+build: false
+
+test_script:
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - bash -c "./scripts/conformance.sh"
+  - dir tests\fixtures\level1
+  - cargo build
+  - cargo test
