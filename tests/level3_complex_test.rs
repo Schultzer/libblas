@@ -1,4 +1,4 @@
-use blasrs::level3::complex;
+use libblas::level3::complex;
 use num_complex::Complex;
 mod fixtures;
 mod utils;

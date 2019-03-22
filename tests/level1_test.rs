@@ -1,4 +1,4 @@
-use blasrs::level1;
+use libblas::level1;
 mod utils;
 
 #[test]
