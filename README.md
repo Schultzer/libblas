@@ -73,6 +73,8 @@ NOTE: remember to have nightly installed `rustup install nightly`
 
 
 ## Acknowledgement
+[acknowledgement]: #acknowledgement
+
 libblas is implememeted following the [REFERENCE BLAS Version 3.8.0](http://www.netlib.org/blas/) and [blas-js](https://github.com/R-js/blasjs).
 
 
