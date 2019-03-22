@@ -1,21 +1,21 @@
 [package]
 authors = ["Benjamin Schultzer <benjamin@schultzer.com>"]
 description = "BLAS implementation for Rust"
-documentation = "https://crate.io/blas-rs"
+documentation = "https://crate.io/libblas"
 keywords = ["blas", "basic linear algebra subprograms", "linear algebra", "mathematics", "machine learning"]
 categories = ["algorithms", "machine learning", "science"]
 license = "MIT/Apache-2.0"
-name = "blasrs"
-repository = "https://github.com/schultzer/blas-rs"
+name = "libblas"
+repository = "https://github.com/schultzer/libblas"
 version = "0.1.0"
 readme = "README.md"
 edition = "2018"
 
-[badges]
-circle-ci = { repository = "schultzer/blas-rs", branch = "master" }
 
 [workspace]
 members = []
+[badges]
+circle-ci = { repository = "schultzer/libblas", branch = "master" }
 
 [dependencies]
 num-complex = "0.2"

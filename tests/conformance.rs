@@ -2,7 +2,7 @@
 extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
-use blasrs::{level1, level2, level3};
+use libblas::{level1, level2, level3};
 use std::fs::File;
 use std::io::BufReader;
 
@@ -981,9 +981,9 @@ fn pack() {
     let tests: Vec<case::complex::matrix> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         //FIXME add more edge cases
-        let packed = blasrs::unstable::matrix::complex::pack_upper(t.mat.clone(), t.lda, t.n, 0);
+        let packed = libblas::unstable::matrix::complex::pack_upper(t.mat.clone(), t.lda, t.n, 0);
         capproximately!(packed, t.expect);
-        let packed = blasrs::unstable::matrix::complex::pack_lower(t.mat.clone(), t.lda, t.n, 0);
+        let packed = libblas::unstable::matrix::complex::pack_lower(t.mat.clone(), t.lda, t.n, 0);
         capproximately!(packed, t.expect);
     }
 }

@@ -1,4 +1,4 @@
-use blasrs::level3;
+use libblas::level3;
 mod fixtures;
 mod utils;
 

@@ -1,4 +1,4 @@
-use blasrs::level1::complex;
+use libblas::level1::complex;
 use num_complex::Complex;
 mod utils;
 
