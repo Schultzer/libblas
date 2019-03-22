@@ -4,7 +4,33 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/6tywgu4a035iqeqn?svg=true)](https://ci.appveyor.com/project/Schultzer/libblas)
 
 
-[BLAS](https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms)for Rust.
+[BLAS](https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms) for Rust.
+
+## Why
+[why]: #why
+
+ - No special trait representing matrice or vectors
+ - Powerful generics
+ - Fully tested against [REFERENCE BLAS Version 3.8.0](http://www.netlib.org/blas/)
+ - Proformance are eqaul or faster to [Accelerate](https://developer.apple.com/documentation/accelerate) framework
+ - No hand tuned assambly
+
+## Examples
+
+```rust
+extern crate libblas;
+use libblas::level3;
+
+fn main {
+  // 3X2 matrice
+  let a = vec![1.,2.,3.,4.,5.,6.];
+  let b = vec![1.,1.,1.,1.,1.,1.];
+  let mut c = vec![2.,1.,3.,1.,4.,1.];
+  gemm('n', 'n', 2, 2, 1, 0.3, &a, 3, &b, 3, 1.3, &mut c, 3);
+  assert!(c, vec![2.9, 1.9, 3.0, 1.6, 5.8, 1.0])
+}
+```
+
 
 ## Usage
 [usage]: #usage
