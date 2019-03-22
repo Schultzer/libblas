@@ -9,6 +9,7 @@ name = "libblas"
 repository = "https://github.com/schultzer/libblas"
 version = "0.1.0"
 readme = "README.md"
+edition = "2018"
 
 [package.metadata.docs.rs]
 features = ["std"]
