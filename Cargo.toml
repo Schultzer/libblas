@@ -11,8 +11,6 @@ version = "0.1.0"
 readme = "README.md"
 
 
-[workspace]
-members = []
 [badges]
 circle-ci = { repository = "schultzer/libblas", branch = "master" }
 
