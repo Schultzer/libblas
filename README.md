@@ -63,6 +63,14 @@ then run `sh ./script/conformance.sh && cargo test --test conformance`
 
 NOTE: only `double precision` and `complex*16` fixtures are genereated.
 
+## Benchmark
+[benchmark]: #benchmark
+The benchmark suite does not benchmark against other BLAS implemations. See [libblas-bench](https://github.com/schultzer/libblas-bench).
+
+Run `cargo +nightly bench`
+
+NOTE: remember to have nightly installed `rustup install nightly`
+
 
 ## Acknowledgement
 libblas is implememeted following the [REFERENCE BLAS Version 3.8.0](http://www.netlib.org/blas/) and [blas-js](https://github.com/R-js/blasjs).
