@@ -10,6 +10,8 @@ repository = "https://github.com/schultzer/libblas"
 version = "0.1.0"
 readme = "README.md"
 
+[package.metadata.docs.rs]
+features = ["std"]
 
 [badges]
 circle-ci = { repository = "schultzer/libblas", branch = "master" }
