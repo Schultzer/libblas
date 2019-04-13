@@ -1,14 +1,12 @@
-// use std::arch::x86_64::*;
 use num_traits::{Float, NumAssignOps};
-
 pub mod complex;
 
 /// IAMAX finds the index of the first element having maximum absolute value.
 /// This is [ISAMAX](http://www.netlib.org/lapack/explore-html/d6/d44/isamax_8f.html) and [IDAMAX](http://www.netlib.org/lapack/explore-html/dd/de0/idamax_8f.html) comined in one function
 #[inline]
-pub fn iamax<T: Float + NumAssignOps>(n: usize, x: &[T], incx: usize) -> usize {
+pub fn iamax<T: Float + NumAssignOps>(n: isize, x: *const T, incx: isize) -> isize {
     let mut iamax = 0;
-    if n == 0 || incx == 0 {
+    if n <= 0 || incx <= 0 {
         return iamax;
     }
 
@@ -17,10 +15,11 @@ pub fn iamax<T: Float + NumAssignOps>(n: usize, x: &[T], incx: usize) -> usize {
         return iamax;
     }
     let mut i = 2;
-    let mut max = x[0].abs();
+    let mut max;
+    unsafe { max = x.read().abs() };
     if incx == 1 {
         while i < n {
-            let tmp = x[i].abs();
+            let tmp = unsafe { x.offset(i).read().abs() };
             i += 1;
             if tmp > max {
                 iamax = i;
@@ -30,7 +29,7 @@ pub fn iamax<T: Float + NumAssignOps>(n: usize, x: &[T], incx: usize) -> usize {
     } else {
         let mut ix = 1 + incx;
         while i < n {
-            let tmp = x[ix].abs();
+            let tmp = unsafe { x.offset(ix).read().abs() };
             ix += incx;
             i += 1;
             if tmp > max {
@@ -45,15 +44,17 @@ pub fn iamax<T: Float + NumAssignOps>(n: usize, x: &[T], incx: usize) -> usize {
 /// ASUM takes the sum of the absolute values.
 /// This is [SASUM](http://www.netlib.org/lapack/explore-html/df/d1f/sasum_8f.html) and [DASUM](http://www.netlib.org/lapack/explore-html/de/d05/dasum_8f.html) comined in one function
 #[inline]
-pub fn asum<T: Float + NumAssignOps>(n: usize, x: &[T], incx: usize) -> T {
+pub fn asum<T: Float + NumAssignOps>(n: isize, x: *const T, incx: isize) -> T {
     let mut asum = T::zero();
-    if n == 0 || incx == 0 {
+    if n <= 0 || incx <= 0 {
         return asum;
     }
     let mut i = 0;
     let nincx = n * incx;
     while i < nincx {
-        asum += x[i].abs();
+        unsafe {
+            asum += x.offset(i).read().abs();
+        }
         i += incx;
     }
     asum
@@ -63,14 +64,14 @@ pub fn asum<T: Float + NumAssignOps>(n: usize, x: &[T], incx: usize) -> T {
 /// This is [SAXPY](http://www.netlib.org/lapack/explore-html/d8/daf/saxpy_8f.html) and [DAXPY](http://www.netlib.org/lapack/explore-html/d9/dcd/daxpy_8f.html) comined in one function
 #[inline]
 pub fn axpy<T: Float + NumAssignOps>(
-    n: usize,
+    n: isize,
     a: T,
-    x: &[T],
+    x: *const T,
     incx: isize,
-    y: &mut [T],
+    y: *mut T,
     incy: isize,
 ) {
-    if n == 0 || a.is_zero() {
+    if n <= 0 || a.is_zero() {
         return;
     };
     let mut i = 0;
@@ -78,7 +79,9 @@ pub fn axpy<T: Float + NumAssignOps>(
         let m = n % 4;
         if m != 0 {
             while i < m {
-                y[i] += a * x[i];
+                unsafe {
+                    *y.offset(i) = a.mul_add(*x.offset(i), *y.offset(i));
+                }
                 i += 1;
             }
         }
@@ -87,26 +90,31 @@ pub fn axpy<T: Float + NumAssignOps>(
         };
         let mut i = m;
         while i < n {
-            y[i] += a * x[i];
-            i += 1;
-            y[i] += a * x[i];
-            i += 1;
-            y[i] += a * x[i];
-            i += 1;
-            y[i] += a * x[i];
-            i += 1;
+            unsafe {
+                *y.offset(i) = a.mul_add(*x.offset(i), *y.offset(i));
+                i += 1;
+                *y.offset(i) = a.mul_add(*x.offset(i), *y.offset(i));
+                i += 1;
+                *y.offset(i) = a.mul_add(*x.offset(i), *y.offset(i));
+                i += 1;
+                *y.offset(i) = a.mul_add(*x.offset(i), *y.offset(i));
+                i += 1;
+            }
         }
+        return;
     } else {
         let mut ix = 0;
         let mut iy = 0;
         if incx < 0 {
-            ix = (-(n as isize) * incx) + incx;
+            ix = (-n * incx) + incx;
         }
         if incy < 0 {
-            iy = (-(n as isize) * incy) + incy;
+            iy = (-n * incy) + incy;
         }
         while i < n {
-            y[iy as usize] += a * x[ix as usize];
+            unsafe {
+                *y.offset(iy) = a.mul_add(*x.offset(ix), *y.offset(iy));
+            }
             ix += incx;
             iy += incy;
             i += 1;
@@ -117,21 +125,21 @@ pub fn axpy<T: Float + NumAssignOps>(
 /// NRM2 returns the euclidean norm of a vector via the function name, so that NRM2 := sqrt( x'*x ).
 /// This is [SNRM2](http://www.netlib.org/lapack/explore-html/d7/df1/snrm2_8f.html) and [DNRM2](http://www.netlib.org/lapack/explore-html/da/d7f/dnrm2_8f.html) comined in one function
 #[inline]
-pub fn nrm2<T: Float + NumAssignOps>(n: usize, x: &[T], incx: usize) -> T {
+pub fn nrm2<T: Float + NumAssignOps>(n: isize, x: *const T, incx: isize) -> T {
     let mut scale = T::zero();
     let mut ssq = T::one();
-    if n == 0 || incx == 0 {
+    if n < 1 || incx < 1 {
         return scale;
     }
     if n == 1 {
-        return x[0].abs();
+        unsafe { return x.read().abs() };
     }
 
     //  The following loop is equivalent to this call to the LAPACK auxiliary routine:
     //  CALL SLASSQ( N, X, INCX, SCALE, SSQ )
     let mut ix = 0;
     while ix < n * incx {
-        let r = x[ix];
+        let r = unsafe { *x.offset(ix) };
         if r != T::zero() {
             let tmp = r.abs();
             let ratio = scale / tmp;
@@ -151,8 +159,8 @@ pub fn nrm2<T: Float + NumAssignOps>(n: usize, x: &[T], incx: usize) -> T {
 /// COPY copies a vector, x, to a vector, y. uses unrolled loops for increments equal to 1.
 /// This is [SCOPY](http://www.netlib.org/lapack/explore-html/de/dc0/scopy_8f.html) and [DCOPY](http://www.netlib.org/lapack/explore-html/da/d6c/dcopy_8f.html) comined in one function
 #[inline]
-pub fn copy<T: Float + NumAssignOps>(n: usize, x: &[T], incx: isize, y: &mut [T], incy: isize) {
-    if n == 0 {
+pub fn copy<T: Float + NumAssignOps>(n: isize, x: *const T, incx: isize, y: *mut T, incy: isize) {
+    if n <= 0 {
         return;
     }
     let mut i = 0;
@@ -160,7 +168,9 @@ pub fn copy<T: Float + NumAssignOps>(n: usize, x: &[T], incx: isize, y: &mut [T]
         let m = n % 7;
         if m != 0 {
             while i < m {
-                y[i] = x[i];
+                unsafe {
+                    *y.offset(i) = *x.offset(i);
+                }
                 i += 1;
             }
         }
@@ -169,32 +179,36 @@ pub fn copy<T: Float + NumAssignOps>(n: usize, x: &[T], incx: isize, y: &mut [T]
         }
         let mut i = m;
         while i < n {
-            y[i] = x[i]; // 1
-            i += 1;
-            y[i] = x[i];
-            i += 1;
-            y[i] = x[i];
-            i += 1;
-            y[i] = x[i];
-            i += 1;
-            y[i] = x[i];
-            i += 1;
-            y[i] = x[i];
-            i += 1;
-            y[i] = x[i]; // 7
-            i += 1;
+            unsafe {
+                *y.offset(i) = *x.offset(i); // 1
+                i += 1;
+                *y.offset(i) = *x.offset(i);
+                i += 1;
+                *y.offset(i) = *x.offset(i);
+                i += 1;
+                *y.offset(i) = *x.offset(i);
+                i += 1;
+                *y.offset(i) = *x.offset(i);
+                i += 1;
+                *y.offset(i) = *x.offset(i);
+                i += 1;
+                *y.offset(i) = *x.offset(i); // 7
+                i += 1;
+            }
         }
     } else {
         let mut ix = 0;
         let mut iy = 0;
         if incx < 0 {
-            ix = (-(n as isize) * incx) + incx;
+            ix = (-n * incx) + incx;
         }
         if incy < 0 {
-            iy = (-(n as isize) * incy) + incy;
+            iy = (-n * incy) + incy;
         }
         while i < n {
-            y[iy as usize] = x[ix as usize];
+            unsafe {
+                *y.offset(iy) = *x.offset(ix);
+            }
             ix += incx;
             iy += incy;
             i += 1;
@@ -205,9 +219,15 @@ pub fn copy<T: Float + NumAssignOps>(n: usize, x: &[T], incx: isize, y: &mut [T]
 /// DOT forms the dot product of two vectors. uses unrolled loops for increments equal to one.
 /// This is [SDOT](http://www.netlib.org/lapack/explore-html/d0/d16/sdot_8f.html) and [DDOT](http://www.netlib.org/lapack/explore-html/d5/df6/ddot_8f.html) comined in one function
 #[inline]
-pub fn dot<T: Float + NumAssignOps>(n: usize, x: &[T], incx: isize, y: &[T], incy: isize) -> T {
+pub fn dot<T: Float + NumAssignOps>(
+    n: isize,
+    x: *const T,
+    incx: isize,
+    y: *const T,
+    incy: isize,
+) -> T {
     let mut dot = T::zero();
-    if n == 0 {
+    if n <= 0 {
         return dot;
     }
     let mut i = 0;
@@ -215,7 +235,9 @@ pub fn dot<T: Float + NumAssignOps>(n: usize, x: &[T], incx: isize, y: &[T], inc
         let m = n % 5;
         if m != 0 {
             while i < m {
-                dot += x[i] * y[i];
+                unsafe {
+                    dot += *x.offset(i) * *y.offset(i);
+                }
                 i += 1;
             }
             if n < 5 {
@@ -224,28 +246,32 @@ pub fn dot<T: Float + NumAssignOps>(n: usize, x: &[T], incx: isize, y: &[T], inc
         }
         let mut i = m;
         while i < n {
-            dot += x[i] * y[i];
-            i += 1;
-            dot += x[i] * y[i];
-            i += 1;
-            dot += x[i] * y[i];
-            i += 1;
-            dot += x[i] * y[i];
-            i += 1;
-            dot += x[i] * y[i];
-            i += 1;
+            unsafe {
+                dot += *x.offset(i) * *y.offset(i);
+                i += 1;
+                dot += *x.offset(i) * *y.offset(i);
+                i += 1;
+                dot += *x.offset(i) * *y.offset(i);
+                i += 1;
+                dot += *x.offset(i) * *y.offset(i);
+                i += 1;
+                dot += *x.offset(i) * *y.offset(i);
+                i += 1;
+            }
         }
     } else {
         let mut ix = 0;
         let mut iy = 0;
         if incx < 0 {
-            ix = (-(n as isize) * incx) + incx;
+            ix = (-n * incx) + incx;
         }
         if incy < 0 {
-            iy = (-(n as isize) * incy) + incy;
+            iy = (-n * incy) + incy;
         }
         while i < n {
-            dot += x[ix as usize] * y[iy as usize];
+            unsafe {
+                dot += *x.offset(ix) * *y.offset(iy);
+            }
             ix += incx;
             iy += incy;
             i += 1;
@@ -259,15 +285,15 @@ pub fn dot<T: Float + NumAssignOps>(n: usize, x: &[T], incx: isize, y: &[T], inc
 /// This is [SDSDOT](http://www.netlib.org/lapack/explore-html/d9/d47/sdsdot_8f.html) and [DSDOT](http://www.netlib.org/lapack/explore-html/dc/d01/dsdot_8f.html) comined in one function
 #[inline]
 pub fn ddot<T: Float + NumAssignOps>(
-    n: usize,
+    n: isize,
     b: T,
-    x: &[T],
+    x: *const T,
     incx: isize,
-    y: &[T],
+    y: *const T,
     incy: isize,
 ) -> f64 {
     let mut dot = b.to_f64().unwrap();
-    if n == 0 {
+    if n <= 0 {
         return dot;
     }
 
@@ -275,13 +301,15 @@ pub fn ddot<T: Float + NumAssignOps>(
     let mut iy = 0;
     let mut i = 0;
     if incx < 0 {
-        ix = (-(n as isize) * incx) + incx;
+        ix = (-n * incx) + incx;
     }
     if incy < 0 {
-        iy = (-(n as isize) * incy) + incy;
+        iy = (-n * incy) + incy;
     }
     while i < n {
-        dot += (x[ix as usize] * y[iy as usize]).to_f64().unwrap();
+        unsafe {
+            dot += (*x.offset(ix) * *y.offset(iy)).to_f64().unwrap();
+        }
         ix += incx;
         iy += incy;
         i += 1;
@@ -293,30 +321,32 @@ pub fn ddot<T: Float + NumAssignOps>(
 /// This is [SROT](http://www.netlib.org/lapack/explore-html/db/d6c/srot_8f.html) and [DROT](http://www.netlib.org/lapack/explore-html/dc/d23/drot_8f.html) comined in one function
 #[inline]
 pub fn rot<T: Float + NumAssignOps>(
-    n: usize,
-    x: &mut [T],
+    n: isize,
+    x: *mut T,
     incx: isize,
-    y: &mut [T],
+    y: *mut T,
     incy: isize,
     c: T,
     s: T,
 ) {
-    if n == 0 {
+    if n <= 0 {
         return;
     }
     let mut ix = 0;
     let mut iy = 0;
     let mut i = 0;
     if incx < 0 {
-        ix = (-(n as isize) * incx) + incx;
+        ix = (-n * incx) + incx;
     }
     if incy < 0 {
-        iy = (-(n as isize) * incy) + incy;
+        iy = (-n * incy) + incy;
     }
     while i < n {
-        let rot = c * x[ix as usize] + s * y[iy as usize];
-        y[iy as usize] = -s * x[ix as usize] + c * y[iy as usize];
-        x[ix as usize] = rot;
+        unsafe {
+            let rot = c * *x.offset(ix) + s * *y.offset(iy);
+            *y.offset(iy) = -s * *x.offset(ix) + c * *y.offset(iy);
+            *x.offset(ix) = rot;
+        }
         i += 1;
         ix += incx;
         iy += incy;
@@ -358,87 +388,101 @@ pub fn rotg<T: Float + NumAssignOps>(a: &mut T, b: &mut T, c: &mut T, s: &mut T)
 /// This is [SROTM](http://www.netlib.org/lapack/explore-html/d6/d0f/srotm_8f.html) and [DROTM](http://www.netlib.org/lapack/explore-html/d8/d7b/drotm_8f.html) comined in one function.
 #[inline]
 pub fn rotm<T: Float + NumAssignOps>(
-    n: usize,
-    x: &mut [T],
+    n: isize,
+    x: *mut T,
     incx: isize,
-    y: &mut [T],
+    y: *mut T,
     incy: isize,
-    param: &[T],
+    param: *const T,
 ) {
-    let flag = param[0];
+    let flag;
+    unsafe { flag = *param };
     let mut i = 0;
-    let h11 = param[1];
-    let h12 = param[3];
-    let h21 = param[2];
-    let h22 = param[4];
+    let (h11, h12, h21, h22);
+    unsafe {
+        h11 = *param.offset(1);
+        h12 = *param.offset(3);
+        h21 = *param.offset(2);
+        h22 = *param.offset(4);
+    }
     let two = T::one() + T::one();
-    if n == 0 || flag + two == T::zero() {
+    if n <= 0 || flag + two == T::zero() {
         return;
     };
     if incx == incy && incx > 0 {
-        let nsteps = n * incx as usize;
+        let nsteps = n * incx;
         if flag < T::zero() {
             while i < nsteps {
-                let w = x[i];
-                let z = y[i];
-
-                x[i] = w * h11 + z * h12;
-                y[i] = w * h21 + z * h22;
-                i += incx as usize;
+                unsafe {
+                    let w = *x.offset(i);
+                    let z = *y.offset(i);
+                    *x.offset(i) = w * h11 + z * h12;
+                    *y.offset(i) = w * h21 + z * h22;
+                    i += incx;
+                }
             }
         } else if flag.is_zero() {
             while i < nsteps {
-                let w = x[i];
-                let z = y[i];
-                x[i] = w + z * h12;
-                y[i] = w * h21 + z;
-                i += incx as usize;
+                unsafe {
+                    let w = *x.offset(i);
+                    let z = *y.offset(i);
+                    *x.offset(i) = w + z * h12;
+                    *y.offset(i) = w * h21 + z;
+                }
+                i += incx;
             }
         } else {
             while i < nsteps {
-                let w = x[i];
-                let z = y[i];
-                x[i] = w * h11 + z;
-                y[i] = -w + h22 * z;
-                i += incx as usize;
+                unsafe {
+                    let w = *x.offset(i);
+                    let z = *y.offset(i);
+                    *x.offset(i) = w * h11 + z;
+                    *y.offset(i) = -w + h22 * z;
+                }
+                i += incx;
             }
         }
     } else {
         let mut ix = 0;
         let mut iy = 0;
         if incx < 0 {
-            ix = (-(n as isize) * incx) + incx;
+            ix = (-n * incx) + incx;
         }
         if incy < 0 {
-            iy = (-(n as isize) * incy) + incy;
+            iy = (-n * incy) + incy;
         }
         if flag < T::zero() {
             while i < n {
-                let w = x[ix as usize];
-                let z = y[iy as usize];
-
-                x[ix as usize] = w * h11 + z * h12;
-                y[iy as usize] = w * h21 + z * h22;
+                unsafe {
+                    let w = *x.offset(ix);
+                    let z = *y.offset(iy);
+                    *x.offset(ix) = w * h11 + z * h12;
+                    *y.offset(iy) = w * h21 + z * h22;
+                }
                 ix += incx;
                 iy += incy;
                 i += 1;
             }
         } else if flag.is_zero() {
             while i < n {
-                let w = x[ix as usize];
-                let z = y[iy as usize];
-                x[ix as usize] = w + z * h12;
-                y[iy as usize] = w * h21 + z;
+                unsafe {
+                    let w = *x.offset(ix);
+                    let z = *y.offset(iy);
+                    *x.offset(ix) = w + z * h12;
+                    *y.offset(iy) = w * h21 + z;
+                }
                 ix += incx;
                 iy += incy;
                 i += 1;
             }
         } else {
             while i < n {
-                let w = x[ix as usize];
-                let z = y[iy as usize];
-                x[ix as usize] = w * h11 + z;
-                y[iy as usize] = -w + h22 * z;
+                unsafe {
+                    let w = *x.offset(ix);
+                    let z = *y.offset(iy);
+                    *x.offset(ix) = w * h11 + z;
+                    *y.offset(iy) = -w + h22 * z;
+                }
                 ix += incx;
                 iy += incy;
                 i += 1;
@@ -472,14 +516,17 @@ pub fn rotmg<T: Float + NumAssignOps + num_traits::cast::FromPrimitive>(
     d2: &mut T,
     x1: &mut T,
     y1: &mut T,
-    param: &mut [T],
+    param: *mut T,
 ) {
-    // https://github.com/xianyi/OpenBLAS/pull/1480
-    let mut flag = param[0];
-    let mut h11 = param[1];
-    let mut h12 = param[3];
-    let mut h21 = param[2];
-    let mut h22 = param[4];
+    let mut flag;
+    unsafe { flag = *param };
+    let (mut h11, mut h12, mut h21, mut h22);
+    unsafe {
+        h11 = *param.offset(1);
+        h12 = *param.offset(3);
+        h21 = *param.offset(2);
+        h22 = *param.offset(4);
+    }
     let gam = T::from_f32(4096.0).unwrap();
     let gamsq = T::from_f32(16_777_216.0).unwrap();
     let rgamsq = T::from_f32(5.960_464_5E-8).unwrap();
@@ -496,7 +543,9 @@ pub fn rotmg<T: Float + NumAssignOps + num_traits::cast::FromPrimitive>(
     } else {
         let p2 = *d2 * *y1;
         if p2 == T::zero() {
-            param[0] = -(T::one() + T::one());
+            unsafe {
+                *param = -(T::one() + T::one());
+            }
             return;
         }
         let p1 = *d1 * *x1;
@@ -578,26 +627,28 @@ pub fn rotmg<T: Float + NumAssignOps + num_traits::cast::FromPrimitive>(
             }
         }
     }
-    if flag < T::zero() {
-        param[1] = h11;
-        param[2] = h21;
-        param[3] = h12;
-        param[4] = h22;
-    } else if flag.is_zero() {
-        param[2] = h21;
-        param[3] = h12;
-    } else {
-        param[1] = h11;
-        param[4] = h22;
+    unsafe {
+        if flag < T::zero() {
+            *param.offset(1) = h11;
+            *param.offset(2) = h21;
+            *param.offset(3) = h12;
+            *param.offset(4) = h22;
+        } else if flag.is_zero() {
+            *param.offset(2) = h21;
+            *param.offset(3) = h12;
+        } else {
+            *param.offset(1) = h11;
+            *param.offset(4) = h22;
+        }
+        *param = flag;
     }
-    param[0] = flag;
 }
 
 /// SCAL scales a vector by a constant. uses unrolled loops for increment equal to 1.
 /// This is [SSCAL](http://www.netlib.org/lapack/explore-html/d9/d04/sscal_8f.html) and [DSCAL](http://www.netlib.org/lapack/explore-html/d4/dd0/dscal_8f.html) comined in one function.
 #[inline]
-pub fn scal<T: Float + NumAssignOps>(n: usize, a: T, x: &mut [T], incx: usize) {
-    if n == 0 || incx == 0 {
+pub fn scal<T: Float + NumAssignOps>(n: isize, a: T, x: *mut T, incx: isize) {
+    if n <= 0 || incx <= 0 {
         return;
     };
     if a.is_one() {
@@ -608,7 +659,9 @@ pub fn scal<T: Float + NumAssignOps>(n: usize, a: T, x: &mut [T], incx: usize) {
         let m = n % 5;
         if m != 0 {
             while i < m {
-                x[i] *= a;
+                unsafe {
+                    *x.offset(i) *= a;
+                }
                 i += 1;
             }
             if n < 5 {
@@ -617,21 +670,25 @@ pub fn scal<T: Float + NumAssignOps>(n: usize, a: T, x: &mut [T], incx: usize) {
         }
         let mut mp1 = m;
         while mp1 < n {
-            x[mp1] *= a;
-            mp1 += 1;
-            x[mp1] *= a;
-            mp1 += 1;
-            x[mp1] *= a;
-            mp1 += 1;
-            x[mp1] *= a;
-            mp1 += 1;
-            x[mp1] *= a;
-            mp1 += 1;
+            unsafe {
+                *x.offset(mp1) *= a;
+                mp1 += 1;
+                *x.offset(mp1) *= a;
+                mp1 += 1;
+                *x.offset(mp1) *= a;
+                mp1 += 1;
+                *x.offset(mp1) *= a;
+                mp1 += 1;
+                *x.offset(mp1) *= a;
+                mp1 += 1;
+            }
         }
     } else {
         let nincx = n * incx;
         while i < nincx {
-            x[i] *= a;
+            unsafe {
+                *x.offset(i) *= a;
+            }
             i += incx;
         }
     }
@@ -640,8 +697,8 @@ pub fn scal<T: Float + NumAssignOps>(n: usize, a: T, x: &mut [T], incx: usize) {
 /// SWAP interchanges two vectors. uses unrolled loops for increment equal to 1.
 /// This is [SSWAP](http://www.netlib.org/lapack/explore-html/d9/da9/sswap_8f.html) and [DSWAP](http://www.netlib.org/lapack/explore-html/db/dd4/dswap_8f.html) comined in one function.
 #[inline]
-pub fn swap<T: Float + NumAssignOps>(n: usize, x: &mut [T], incx: isize, y: &mut [T], incy: isize) {
-    if n == 0 {
+pub fn swap<T: Float + NumAssignOps>(n: isize, x: *mut T, incx: isize, y: *mut T, incy: isize) {
+    if n <= 0 {
         return;
     };
     if incx == 1 && incy == 1 {
@@ -649,7 +706,11 @@ pub fn swap<T: Float + NumAssignOps>(n: usize, x: &mut [T], incx: isize, y: &mut
         if m != 0 {
             let mut i = 0;
             while i < m {
-                std::mem::swap(&mut x[i], &mut y[i]);
+                unsafe {
+                    let tmp = *x.offset(i);
+                    *x.offset(i) = *y.offset(i);
+                    *y.offset(i) = tmp;
+                }
                 i += 1;
             }
             if n < 3 {
@@ -658,12 +719,20 @@ pub fn swap<T: Float + NumAssignOps>(n: usize, x: &mut [T], incx: isize, y: &mut
         }
         let mut mp1 = m;
         while mp1 < n {
-            std::mem::swap(&mut x[mp1], &mut y[mp1]);
-            mp1 += 1;
-            std::mem::swap(&mut x[mp1], &mut y[mp1]);
-            mp1 += 1;
-            std::mem::swap(&mut x[mp1], &mut y[mp1]);
-            mp1 += 1;
+            unsafe {
+                let tmp = *x.offset(mp1);
+                *x.offset(mp1) = *y.offset(mp1);
+                *y.offset(mp1) = tmp;
+                mp1 += 1;
+                let tmp = *x.offset(mp1);
+                *x.offset(mp1) = *y.offset(mp1);
+                *y.offset(mp1) = tmp;
+                mp1 += 1;
+                let tmp = *x.offset(mp1);
+                *x.offset(mp1) = *y.offset(mp1);
+                *y.offset(mp1) = tmp;
+                mp1 += 1;
+            }
         }
     } else {
         let mut ix = 0;
@@ -671,13 +740,17 @@ pub fn swap<T: Float + NumAssignOps>(n: usize, x: &mut [T], incx: isize, y: &mut
         let mut i = 0;
 
         if incx < 0 {
-            ix = (-(n as isize) * incx) + incx;
+            ix = (-n * incx) + incx;
         }
         if incy < 0 {
-            iy = (-(n as isize) * incy) + incy;
+            iy = (-n * incy) + incy;
         }
         while i < n {
-            std::mem::swap(&mut x[ix as usize], &mut y[iy as usize]);
+            unsafe {
+                let tmp = *x.offset(ix);
+                *x.offset(ix) = *y.offset(iy);
+                *y.offset(iy) = tmp;
+            }
             ix += incx;
             iy += incy;
             i += 1;

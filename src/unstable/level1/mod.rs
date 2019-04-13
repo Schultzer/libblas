@@ -27,7 +27,7 @@ pub fn rotmg<T: Float + NumAssignOps + num_traits::cast::FromPrimitive>(
     dd2: &mut T,
     dx1: &mut T,
     dy1: &mut T,
-    dparam: &mut [T],
+    dparam: *mut T,
 ) {
     let gam = T::from_f32(4096.0).unwrap();
     let gamsq = T::from_f32(16_777_216.0).unwrap();
@@ -47,7 +47,9 @@ pub fn rotmg<T: Float + NumAssignOps + num_traits::cast::FromPrimitive>(
 
     if dd2.is_zero() || dy1.is_zero() {
         dflag = -two;
-        dparam[0] = dflag;
+        unsafe {
+            *dparam = dflag;
+        }
         return;
     }
 
@@ -73,7 +75,9 @@ pub fn rotmg<T: Float + NumAssignOps + num_traits::cast::FromPrimitive>(
         dp2 = *dd2 * *dy1;
         if dp2.is_zero() {
             dflag = -two;
-            dparam[0] = dflag;
+            unsafe {
+                *dparam = dflag;
+            }
             return;
         }
         dp1 = *dd1 * *dx1;
@@ -159,20 +163,21 @@ pub fn rotmg<T: Float + NumAssignOps + num_traits::cast::FromPrimitive>(
         }
     }
 
-    if dflag < T::zero() {
-        dparam[1] = dh11;
-        dparam[2] = dh21;
-        dparam[3] = dh12;
-        dparam[4] = dh22;
-    } else if dflag.is_zero() {
-        dparam[2] = dh21;
-        dparam[3] = dh12;
-    } else {
-        dparam[1] = dh11;
-        dparam[4] = dh22;
+    unsafe {
+        if dflag < T::zero() {
+            *dparam.offset(1) = dh11;
+            *dparam.offset(2) = dh21;
+            *dparam.offset(3) = dh12;
+            *dparam.offset(4) = dh22;
+        } else if dflag.is_zero() {
+            *dparam.offset(2) = dh21;
+            *dparam.offset(3) = dh12;
+        } else {
+            *dparam.offset(1) = dh11;
+            *dparam.offset(4) = dh22;
+        }
+        *dparam = dflag;
     }
-
-    dparam[0] = dflag;
     return;
 }
 
@@ -183,7 +188,7 @@ fn test_rotmg() {
     let mut x1 = 3.0;
     let mut y1 = 9.0;
     let mut param = vec![0.0, 0.0, 0.0, 0.0, 0.0];
-    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, &mut param);
+    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, param.as_mut_ptr());
     assert_eq!(d1, 0.0);
     assert_eq!(d2, 0.0);
     assert_eq!(x1, 0.0);
@@ -195,7 +200,7 @@ fn test_rotmg() {
     let mut x1 = 3.0;
     let mut y1 = 9.0;
     let mut param = vec![0.0, 0.0, 0.0, 0.0, 0.0];
-    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, &mut param);
+    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, param.as_mut_ptr());
     assert_eq!(d1, 4.0);
     assert_eq!(d2, 0.0);
     assert_eq!(x1, 3.0);
@@ -207,7 +212,7 @@ fn test_rotmg() {
     let mut x1 = 3.0;
     let mut y1 = 1.0;
     let mut param = vec![0.0, 0.0, 0.0, 0.0, 0.0];
-    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, &mut param);
+    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, param.as_mut_ptr());
     assert_eq!(d1, 0.81818181818181812);
     assert_eq!(d2, 1.6363636363636362);
     assert_eq!(x1, 3.6666666666666670);
@@ -222,7 +227,7 @@ fn test_rotmg() {
     let mut x1 = 3.0;
     let mut y1 = 8.0;
     let mut param = vec![0.0, 0.0, 0.0, 0.0, 0.0];
-    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, &mut param);
+    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, param.as_mut_ptr());
     assert_eq!(d1, 0.0);
     assert_eq!(d2, 0.0);
     assert_eq!(x1, 0.0);
@@ -234,7 +239,7 @@ fn test_rotmg() {
     let mut x1 = 3.0;
     let mut y1 = 8.0;
     let mut param = vec![0.0, 0.0, 0.0, 0.0, 0.0];
-    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, &mut param);
+    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, param.as_mut_ptr());
     assert_eq!(d1, 0.78048780487804881);
     assert_eq!(d2, 1.5609756097560976);
     assert_eq!(x1, 10.250000000000000);
@@ -246,7 +251,7 @@ fn test_rotmg() {
     let mut x1 = 3.0;
     let mut y1 = 8.0;
     let mut param = vec![0.0, 0.0, 0.0, 0.0, 0.0];
-    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, &mut param);
+    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, param.as_mut_ptr());
     assert_eq!(d1, 0.39024390243902440);
     assert_eq!(d2, 0.78048780487804881);
     assert_eq!(x1, 2.5024414062500000E-003);
@@ -268,7 +273,7 @@ fn test_rotmg() {
     let mut x1 = 8.;
     let mut y1 = 7.;
     let mut param = vec![1., 4096., -4096., 1., 4096.];
-    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, &mut param);
+    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, param.as_mut_ptr());
     assert_eq!(d1, 68.96627824858757);
     assert_eq!(d2, 34.483139124293785);
     assert_eq!(x1, 45312.);
@@ -280,7 +285,7 @@ fn test_rotmg() {
     let mut x1 = 3.0;
     let mut y1 = 2.0;
     let mut param = vec![0.0, 0.0, 0.0, 0.0, 0.0];
-    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, &mut param);
+    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, param.as_mut_ptr());
     assert_eq!(d1, 0.81818181818181812);
     assert_eq!(d2, 0.40909090909090906);
     assert_eq!(x1, 8.9518229166666674E-004);
@@ -301,7 +306,7 @@ fn test_rotmg() {
     let mut x1 = 3.0;
     let mut y1 = 2.0;
     let mut param = vec![0.0, 0.0, 0.0, 0.0, 0.0];
-    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, &mut param);
+    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, param.as_mut_ptr());
     assert_eq!(d1, 9.7534873268821016E-008);
     assert_eq!(d2, 0.81818181818181812);
     assert_eq!(x1, 3.6666666666666670);
@@ -322,7 +327,7 @@ fn test_rotmg() {
     let mut x1 = 3.0;
     let mut y1 = 2.0;
     let mut param = vec![0.0, 0.0, 0.0, 0.0, 0.0];
-    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, &mut param);
+    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, param.as_mut_ptr());
     assert_eq!(d1, 8882055.5294117648);
     assert_eq!(d2, 1.0588235294117647);
     assert_eq!(x1, 5.6666666666666661);
@@ -337,7 +342,7 @@ fn test_rotmg() {
     let mut x1 = 3.0;
     let mut y1 = 2.0;
     let mut param = vec![0.0, 0.0, 0.0, 0.0, 0.0];
-    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, &mut param);
+    rotmg(&mut d1, &mut d2, &mut x1, &mut y1, param.as_mut_ptr());
     assert_eq!(d1, 1.6363636363636362);
     assert_eq!(d2, 13726813.090909090);
     assert_eq!(x1, 15018.666666666668);

@@ -42,7 +42,7 @@ fn axpy() {
         Complex::new(94.462595475391566, 48.0127333313374578),
     ];
 
-    complex::axpy(10, &a, &x, 1, &mut y, 1);
+    complex::axpy(10, &a, x.as_ptr(), 1, y.as_mut_ptr(), 1);
     assert_eq!(y, expect);
 
     // let x = vec![
@@ -83,19 +83,19 @@ fn axpy() {
         Complex::new(-0.445661970099958060, -0.47279140772793404),
     ];
 
-    complex::axpy(5, &a, &x, 2, &mut y, 2);
+    complex::axpy(5, &a, x.as_ptr(), 2, y.as_mut_ptr(), 2);
     assert_eq!(y, expect);
 
     let x = vec![Complex::new(3.0, 4.0)];
     let mut y = vec![Complex::new(1.0, 2.0)];
     let a = Complex::new(0.0, 0.0);
-    complex::axpy(1, &a, &x, 1, &mut y, 1);
+    complex::axpy(1, &a, x.as_ptr(), 1, y.as_mut_ptr(), 1);
     assert_eq!(y, vec![Complex::new(1.0, 2.0)]);
 
     let x = vec![Complex::new(9.0, 4.0)];
     let mut y = vec![Complex::new(3.0, 4.0)];
     let a = Complex::new(1.0, 2.0);
-    complex::axpy(0, &a, &x, 1, &mut y, 1);
+    complex::axpy(0, &a, x.as_ptr(), 1, y.as_mut_ptr(), 1);
     assert_eq!(y, vec![Complex::new(3.0, 4.0)]);
 
     let x = vec![
@@ -138,7 +138,7 @@ fn axpy() {
         Complex::new(-0.445661970099958060, -0.47279140772793404),
     ];
 
-    complex::axpy(5, &a, &x, -2, &mut y, -2);
+    complex::axpy(5, &a, x.as_ptr(), -2, y.as_mut_ptr(), -2);
     assert_eq!(y, expect);
 }
 
@@ -162,7 +162,7 @@ fn copy() {
         Complex::new(3.0, 7.0),
         Complex::new(4.0, 8.0),
     ];
-    complex::copy(4, &x, 1, &mut y, 1);
+    complex::copy(4, x.as_ptr(), 1, y.as_mut_ptr(), 1);
     assert_eq!(y, expect);
 
     let mut y = vec![
@@ -171,7 +171,7 @@ fn copy() {
         Complex::new(0.0, 0.0),
         Complex::new(0.0, 0.0),
     ];
-    complex::copy(4, &x, -1, &mut y, -1);
+    complex::copy(4, x.as_ptr(), -1, y.as_mut_ptr(), -1);
     assert_eq!(y, expect);
 
     let mut y = vec![
@@ -186,7 +186,7 @@ fn copy() {
         Complex::new(0.0, 0.0),
         Complex::new(0.0, 0.0),
     ];
-    complex::copy(0, &x, -1, &mut y, -1);
+    complex::copy(0, x.as_ptr(), -1, y.as_mut_ptr(), -1);
     assert_eq!(y, expect);
 }
 
@@ -204,12 +204,21 @@ fn dotc() {
         Complex::new(7.0, 11.0),
         Complex::new(8.0, 12.0),
     ];
-    assert_eq!(complex::dotc(4, &x, 1, &y, 1), Complex::new(348.0, -64.0));
-    assert_eq!(complex::dotc(4, &x, -1, &y, -1), Complex::new(348.0, -64.0));
+    assert_eq!(
+        complex::dotc(4, x.as_ptr(), 1, y.as_ptr(), 1),
+        Complex::new(348.0, -64.0)
+    );
+    assert_eq!(
+        complex::dotc(4, x.as_ptr(), -1, y.as_ptr(), -1),
+        Complex::new(348.0, -64.0)
+    );
 
     let x = vec![Complex::new(1.0, 5.0)];
     let y = vec![Complex::new(5.0, 9.0)];
-    assert_eq!(complex::dotc(0, &x, -1, &y, -1), Complex::new(0.0, 0.0));
+    assert_eq!(
+        complex::dotc(0, x.as_ptr(), -1, y.as_ptr(), -1),
+        Complex::new(0.0, 0.0)
+    );
 }
 
 #[test]
@@ -226,15 +235,21 @@ fn dotu() {
         Complex::new(7.0, 11.0),
         Complex::new(8.0, 12.0),
     ];
-    assert_eq!(complex::dotu(4, &x, 1, &y, 1), Complex::new(-208.0, 284.0));
     assert_eq!(
-        complex::dotu(4, &x, -1, &y, -1),
+        complex::dotu(4, x.as_ptr(), 1, y.as_ptr(), 1),
+        Complex::new(-208.0, 284.0)
+    );
+    assert_eq!(
+        complex::dotu(4, x.as_ptr(), -1, y.as_ptr(), -1),
         Complex::new(-208.0, 284.0)
     );
 
     let x = vec![Complex::new(1.0, 5.0)];
     let y = vec![Complex::new(5.0, 9.0)];
-    assert_eq!(complex::dotu(0, &x, -1, &y, -1), Complex::new(0.0, 0.0));
+    assert_eq!(
+        complex::dotu(0, x.as_ptr(), -1, y.as_ptr(), -1),
+        Complex::new(0.0, 0.0)
+    );
 }
 
 #[test]
@@ -244,9 +259,9 @@ fn rot() {
     let mut y = vec![Complex::new(0.0, 0.0), Complex::new(1.0, 0.0)];
     complex::rot(
         2,
-        &mut x,
+        x.as_mut_ptr(),
         1,
-        &mut y,
+        y.as_mut_ptr(),
         1,
         (PI * (1.0 / 6.0)).cos(),
         (PI * (1.0 / 6.0)).sin(),
@@ -272,9 +287,9 @@ fn rot() {
     let mut y = vec![Complex::new(0.0, 0.0), Complex::new(1.0, 0.0)];
     complex::rot(
         2,
-        &mut x,
+        x.as_mut_ptr(),
         -1,
-        &mut y,
+        y.as_mut_ptr(),
         -1,
         (PI * (1.0 / 6.0)).cos(),
         (PI * (1.0 / 6.0)).sin(),
@@ -300,9 +315,9 @@ fn rot() {
     let mut y = vec![Complex::new(0.0, 0.0), Complex::new(1.0, 0.0)];
     complex::rot(
         0,
-        &mut x,
+        x.as_mut_ptr(),
         -1,
-        &mut y,
+        y.as_mut_ptr(),
         -1,
         (PI * (1.0 / 6.0)).cos(),
         (PI * (1.0 / 6.0)).sin(),
@@ -344,7 +359,7 @@ fn sscal() {
         Complex::new(5.0, 11.0),
         Complex::new(6.0, 12.0),
     ];
-    complex::sscal(6, 2.0, &mut x, 1);
+    complex::sscal(6, 2.0, x.as_mut_ptr(), 1);
     assert_eq!(
         x,
         vec![
@@ -365,7 +380,7 @@ fn sscal() {
         Complex::new(5.0, 11.0),
         Complex::new(6.0, 12.0),
     ];
-    complex::sscal(3, 2.0, &mut x, 2);
+    complex::sscal(3, 2.0, x.as_mut_ptr(), 2);
     assert_eq!(
         x,
         vec![
@@ -394,7 +409,7 @@ fn sscal() {
         Complex::new(5.0, 11.0),
         Complex::new(6.0, 12.0),
     ];
-    complex::sscal(3, 2.0, &mut x, 0);
+    complex::sscal(3, 2.0, x.as_mut_ptr(), 0);
     assert_eq!(x, expect);
 
     let mut x = vec![
@@ -405,7 +420,7 @@ fn sscal() {
         Complex::new(5.0, 11.0),
         Complex::new(6.0, 12.0),
     ];
-    complex::sscal(0, 2.0, &mut x, 1);
+    complex::sscal(0, 2.0, x.as_mut_ptr(), 1);
     assert_eq!(x, expect);
 
     let mut x = vec![
@@ -416,7 +431,7 @@ fn sscal() {
         Complex::new(5.0, 11.0),
         Complex::new(6.0, 12.0),
     ];
-    complex::sscal(6, 0.0, &mut x, 1);
+    complex::sscal(6, 0.0, x.as_mut_ptr(), 1);
     assert_eq!(
         x,
         vec![
@@ -441,7 +456,7 @@ fn scal() {
         Complex::new(-1.53995004190370954, -0.7990092489893682037),
     ];
     let a = Complex::new(2.0, 4.0);
-    complex::scal(6, a, &mut x, 1);
+    complex::scal(6, a, x.as_mut_ptr(), 1);
     assert_eq!(
         x,
         vec![
@@ -462,7 +477,7 @@ fn scal() {
         Complex::new(0.41464143445640822, 0.7635934611404595618),
         Complex::new(-1.53995004190370954, -0.7990092489893682037),
     ];
-    complex::scal(3, a, &mut x, 2);
+    complex::scal(3, a, x.as_mut_ptr(), 2);
     assert_eq!(
         x,
         vec![
@@ -483,7 +498,7 @@ fn scal() {
         Complex::new(0.41464143445640822, 0.7635934611404595618),
         Complex::new(-1.53995004190370954, -0.7990092489893682037),
     ];
-    complex::scal(0, a, &mut x, 0);
+    complex::scal(0, a, x.as_mut_ptr(), 0);
     assert_eq!(
         x,
         vec![
@@ -504,7 +519,7 @@ fn scal() {
         Complex::new(0.41464143445640822, 0.7635934611404595618),
         Complex::new(-1.53995004190370954, -0.7990092489893682037),
     ];
-    complex::scal(3, a, &mut x, 0);
+    complex::scal(3, a, x.as_mut_ptr(), 0);
     assert_eq!(
         x,
         vec![
@@ -537,7 +552,7 @@ fn swap() {
         Complex::new(63.0, 124.0),
     ];
 
-    complex::swap(6, &mut x, 1, &mut y, 1);
+    complex::swap(6, x.as_mut_ptr(), 1, y.as_mut_ptr(), 1);
     assert_eq!(
         x,
         vec![
@@ -578,7 +593,7 @@ fn swap() {
         Complex::new(63.0, 124.0),
     ];
 
-    complex::swap(6, &mut x, -1, &mut y, 1);
+    complex::swap(6, x.as_mut_ptr(), -1, y.as_mut_ptr(), 1);
     assert_eq!(
         x,
         vec![
@@ -619,7 +634,7 @@ fn swap() {
         Complex::new(63.0, 124.0),
     ];
 
-    complex::swap(6, &mut x, 1, &mut y, -1);
+    complex::swap(6, x.as_mut_ptr(), 1, y.as_mut_ptr(), -1);
     assert_eq!(
         x,
         vec![
@@ -659,7 +674,7 @@ fn swap() {
         Complex::new(53.0, 114.0),
         Complex::new(63.0, 124.0),
     ];
-    complex::swap(0, &mut x, 1, &mut y, -1);
+    complex::swap(0, x.as_mut_ptr(), 1, y.as_mut_ptr(), -1);
     assert_eq!(
         x,
         vec![
@@ -694,7 +709,7 @@ fn iamax() {
         Complex::new(5.0, 11.0),
         Complex::new(6.0, 12.0),
     ];
-    assert_eq!(complex::iamax(6, &x, 1), 6);
+    assert_eq!(complex::iamax(6, x.as_ptr(), 1), 6);
 
     let x = vec![
         Complex::new(1.0, 7.0),
@@ -704,9 +719,9 @@ fn iamax() {
         Complex::new(5.0, 11.0),
         Complex::new(6.0, 12.0),
     ];
-    assert_eq!(complex::iamax(3, &x, 2), 3);
-    assert_eq!(complex::iamax(6, &x, 0), 0);
-    assert_eq!(complex::iamax(0, &x, 1), 0);
+    assert_eq!(complex::iamax(3, x.as_ptr(), 2), 3);
+    assert_eq!(complex::iamax(6, x.as_ptr(), 0), 0);
+    assert_eq!(complex::iamax(0, x.as_ptr(), 1), 0);
 
     let x = vec![
         Complex::new(1.0, 7.0),
@@ -716,7 +731,7 @@ fn iamax() {
         Complex::new(5.0, 11.0),
         Complex::new(6.0, 12.0),
     ];
-    assert_eq!(complex::iamax(1, &x, 1), 1);
+    assert_eq!(complex::iamax(1, x.as_ptr(), 1), 1);
 }
 
 #[test]
@@ -729,10 +744,10 @@ fn asum() {
         Complex::new(5.0, 11.0),
         Complex::new(6.0, 12.0),
     ];
-    assert_eq!(complex::asum(6, &x, 1), 68.0);
-    assert_eq!(complex::asum(3, &x, 2), 36.0);
-    assert_eq!(complex::asum(0, &x, 2), 0.0);
-    assert_eq!(complex::asum(0, &x, 0), 0.0);
+    assert_eq!(complex::asum(6, x.as_ptr(), 1), 68.0);
+    assert_eq!(complex::asum(3, x.as_ptr(), 2), 36.0);
+    assert_eq!(complex::asum(0, x.as_ptr(), 2), 0.0);
+    assert_eq!(complex::asum(0, x.as_ptr(), 0), 0.0);
 }
 
 #[test]
@@ -749,7 +764,7 @@ fn nrm2() {
         Complex::new(-0.0057671727475369552, 0.43568329935571865),
         Complex::new(2.4046533888579508798, -1.23753842192995811),
     ];
-    assert_approx!(complex::nrm2(10, &x, 1), 4.1815805452999522);
-    assert_eq!(complex::nrm2(0, &x, 1), 0.0);
-    assert_eq!(complex::nrm2(10, &x, 0), 0.0);
+    assert_approx!(complex::nrm2(10, x.as_ptr(), 1), 4.1815805452999522);
+    assert_eq!(complex::nrm2(0, x.as_ptr(), 1), 0.0);
+    assert_eq!(complex::nrm2(10, x.as_ptr(), 0), 0.0);
 }

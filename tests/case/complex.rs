@@ -15,16 +15,16 @@ pub struct expect {
 #[derive(Deserialize, Debug, Default)]
 #[allow(non_camel_case_types)]
 pub struct asum {
-    pub n: usize,
+    pub n: isize,
     pub x: Vec<Complex<f64>>,
-    pub incx: usize,
+    pub incx: isize,
     pub expect: f64,
 }
 
 #[derive(Deserialize, Debug, Default)]
 #[allow(non_camel_case_types)]
 pub struct axpy {
-    pub n: usize,
+    pub n: isize,
     pub a: Complex<f64>,
     pub x: Vec<Complex<f64>>,
     pub incx: isize,
@@ -36,7 +36,7 @@ pub struct axpy {
 #[derive(Deserialize, Debug, Default)]
 #[allow(non_camel_case_types)]
 pub struct copy {
-    pub n: usize,
+    pub n: isize,
     pub x: Vec<Complex<f64>>,
     pub incx: isize,
     pub y: Vec<Complex<f64>>,
@@ -47,7 +47,7 @@ pub struct copy {
 #[derive(Deserialize, Debug, Default)]
 #[allow(non_camel_case_types)]
 pub struct dot {
-    pub n: usize,
+    pub n: isize,
     pub x: Vec<Complex<f64>>,
     pub incx: isize,
     pub y: Vec<Complex<f64>>,
@@ -58,25 +58,25 @@ pub struct dot {
 #[derive(Deserialize, Debug, Default)]
 #[allow(non_camel_case_types)]
 pub struct iamax {
-    pub n: usize,
+    pub n: isize,
     pub x: Vec<Complex<f64>>,
-    pub incx: usize,
-    pub expect: usize,
+    pub incx: isize,
+    pub expect: isize,
 }
 
 #[derive(Deserialize, Debug, Default)]
 #[allow(non_camel_case_types)]
 pub struct nrm2 {
-    pub n: usize,
+    pub n: isize,
     pub x: Vec<Complex<f64>>,
-    pub incx: usize,
+    pub incx: isize,
     pub expect: f64,
 }
 
 #[derive(Deserialize, Debug, Default)]
 #[allow(non_camel_case_types)]
 pub struct rot {
-    pub n: usize,
+    pub n: isize,
     pub x: Vec<Complex<f64>>,
     pub incx: isize,
     pub y: Vec<Complex<f64>>,
@@ -99,27 +99,27 @@ pub struct rotg {
 #[derive(Deserialize, Debug, Default)]
 #[allow(non_camel_case_types)]
 pub struct scal {
-    pub n: usize,
+    pub n: isize,
     pub a: Complex<f64>,
     pub x: Vec<Complex<f64>>,
-    pub incx: usize,
+    pub incx: isize,
     pub expect: Vec<Complex<f64>>,
 }
 
 #[derive(Deserialize, Debug, Default)]
 #[allow(non_camel_case_types)]
 pub struct sscal {
-    pub n: usize,
+    pub n: isize,
     pub a: f64,
     pub x: Vec<Complex<f64>>,
-    pub incx: usize,
+    pub incx: isize,
     pub expect: Vec<Complex<f64>>,
 }
 
 #[derive(Deserialize, Debug, Default)]
 #[allow(non_camel_case_types)]
 pub struct swap {
-    pub n: usize,
+    pub n: isize,
     pub x: Vec<Complex<f64>>,
     pub incx: isize,
     pub y: Vec<Complex<f64>>,

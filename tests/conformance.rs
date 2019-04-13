@@ -18,14 +18,14 @@ fn asum() {
     reader = BufReader::new(file);
     let tests: Vec<case::asum> = serde_json::from_reader(reader).unwrap();
     for t in tests {
-        assert_eq!(level1::asum(t.n, &t.x, t.incx), t.expect)
+        assert_eq!(level1::asum(t.n, t.x.as_ptr(), t.incx), t.expect)
     }
 
     file = File::open("./tests/fixtures/level1/complex/asum.json").unwrap();
     reader = BufReader::new(file);
     let tests: Vec<case::complex::asum> = serde_json::from_reader(reader).unwrap();
     for t in tests {
-        assert_eq!(level1::complex::asum(t.n, &t.x, t.incx), t.expect)
+        assert_eq!(level1::complex::asum(t.n, t.x.as_ptr(), t.incx), t.expect)
     }
 }
 
@@ -38,7 +38,7 @@ fn axpy() {
     let tests: Vec<case::axpy> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut y = t.y;
-        level1::axpy(t.n, t.a, &t.x, t.incx, &mut y, t.incy);
+        level1::axpy(t.n, t.a, t.x.as_ptr(), t.incx, y.as_mut_ptr(), t.incy);
         approximately!(y, t.expect)
     }
 
@@ -47,7 +47,7 @@ fn axpy() {
     let tests: Vec<case::complex::axpy> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut y = t.y;
-        level1::complex::axpy(t.n, &t.a, &t.x, t.incx, &mut y, t.incy);
+        level1::complex::axpy(t.n, &t.a, t.x.as_ptr(), t.incx, y.as_mut_ptr(), t.incy);
         capproximately!(y, t.expect)
     }
 }
@@ -61,7 +61,7 @@ fn copy() {
     let tests: Vec<case::copy> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut y = t.y;
-        level1::copy(t.n, &t.x, t.incx, &mut y, t.incy);
+        level1::copy(t.n, t.x.as_ptr(), t.incx, y.as_mut_ptr(), t.incy);
         approximately!(y, t.expect)
     }
 
@@ -70,7 +70,7 @@ fn copy() {
     let tests: Vec<case::complex::copy> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut y = t.y;
-        level1::complex::copy(t.n, &t.x, t.incx, &mut y, t.incy);
+        level1::complex::copy(t.n, t.x.as_ptr(), t.incx, y.as_mut_ptr(), t.incy);
         capproximately!(y, t.expect)
     }
 }
@@ -83,7 +83,10 @@ fn ddot() {
     reader = BufReader::new(file);
     let tests: Vec<case::ddot> = serde_json::from_reader(reader).unwrap();
     for t in tests {
-        assert_eq!(level1::ddot(t.n, t.b, &t.x, t.incx, &t.y, t.incy), t.expect)
+        assert_eq!(
+            level1::ddot(t.n, t.b, t.x.as_ptr(), t.incx, t.y.as_ptr(), t.incy),
+            t.expect
+        )
     }
 }
 
@@ -96,7 +99,7 @@ fn dotc() {
     let tests: Vec<case::complex::dot> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         assert_eq!(
-            level1::complex::dotc(t.n, &t.x, t.incx, &t.y, t.incy),
+            level1::complex::dotc(t.n, t.x.as_ptr(), t.incx, t.y.as_ptr(), t.incy),
             t.expect
         )
     }
@@ -111,7 +114,7 @@ fn dotu() {
     let tests: Vec<case::complex::dot> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         assert_eq!(
-            level1::complex::dotu(t.n, &t.x, t.incx, &t.y, t.incy),
+            level1::complex::dotu(t.n, t.x.as_ptr(), t.incx, t.y.as_ptr(), t.incy),
             t.expect
         )
     }
@@ -125,14 +128,14 @@ fn iamax() {
     reader = BufReader::new(file);
     let tests: Vec<case::iamax> = serde_json::from_reader(reader).unwrap();
     for t in tests {
-        assert_eq!(level1::iamax(t.n, &t.x, t.incx), t.expect)
+        assert_eq!(level1::iamax(t.n, t.x.as_ptr(), t.incx), t.expect)
     }
 
     file = File::open("./tests/fixtures/level1/complex/iamax.json").unwrap();
     reader = BufReader::new(file);
     let tests: Vec<case::complex::iamax> = serde_json::from_reader(reader).unwrap();
     for t in tests {
-        assert_eq!(level1::complex::iamax(t.n, &t.x, t.incx), t.expect)
+        assert_eq!(level1::complex::iamax(t.n, t.x.as_ptr(), t.incx), t.expect)
     }
 }
 
@@ -144,14 +147,14 @@ fn nrm2() {
     reader = BufReader::new(file);
     let tests: Vec<case::nrm2> = serde_json::from_reader(reader).unwrap();
     for t in tests {
-        assert_eq!(level1::nrm2(t.n, &t.x, t.incx), t.expect)
+        assert_eq!(level1::nrm2(t.n, t.x.as_ptr(), t.incx), t.expect)
     }
 
     file = File::open("./tests/fixtures/level1/complex/nrm2.json").unwrap();
     reader = BufReader::new(file);
     let tests: Vec<case::complex::nrm2> = serde_json::from_reader(reader).unwrap();
     for t in tests {
-        assert_eq!(level1::complex::nrm2(t.n, &t.x, t.incx), t.expect)
+        assert_eq!(level1::complex::nrm2(t.n, t.x.as_ptr(), t.incx), t.expect)
     }
 }
 
@@ -165,7 +168,15 @@ fn rot() {
     for t in tests {
         let mut x = t.x;
         let mut y = t.y;
-        level1::rot(t.n, &mut x, t.incx, &mut y, t.incy, t.c, t.s);
+        level1::rot(
+            t.n,
+            x.as_mut_ptr(),
+            t.incx,
+            y.as_mut_ptr(),
+            t.incy,
+            t.c,
+            t.s,
+        );
         assert_eq!(x, t.expect.x);
         assert_eq!(y, t.expect.y)
     }
@@ -176,7 +187,15 @@ fn rot() {
     for t in tests {
         let mut x = t.x;
         let mut y = t.y;
-        level1::complex::rot(t.n, &mut x, t.incx, &mut y, t.incy, t.c, t.s);
+        level1::complex::rot(
+            t.n,
+            x.as_mut_ptr(),
+            t.incx,
+            y.as_mut_ptr(),
+            t.incy,
+            t.c,
+            t.s,
+        );
         assert_eq!(x, t.expect.x);
         assert_eq!(y, t.expect.y)
     }
@@ -230,7 +249,14 @@ fn rotm() {
         let mut dy = t.dy;
         let mut dparam = t.dparam;
 
-        level1::rotm(t.n, &mut dx, t.incx, &mut dy, t.incy, &mut dparam);
+        level1::rotm(
+            t.n,
+            dx.as_mut_ptr(),
+            t.incx,
+            dy.as_mut_ptr(),
+            t.incy,
+            dparam.as_mut_ptr(),
+        );
         assert_eq!(dx, t.expect.dx);
         assert_eq!(dy, t.expect.dy);
         assert_eq!(dparam, t.expect.dparam);
@@ -251,7 +277,7 @@ fn rotmg() {
         let mut dy1 = t.dy1;
         let mut dparam = t.dparam;
 
-        level1::rotmg(&mut dd1, &mut dd2, &mut dx1, &mut dy1, &mut dparam);
+        level1::rotmg(&mut dd1, &mut dd2, &mut dx1, &mut dy1, dparam.as_mut_ptr());
         assert_approx_eq!(dd1, t.expect.dd1);
         assert_eq!(dd2, t.expect.dd2);
         assert_eq!(dx1, t.expect.dx1);
@@ -269,7 +295,7 @@ fn scal() {
     let tests: Vec<case::scal> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut x = t.x;
-        level1::scal(t.n, t.a, &mut x, t.incx);
+        level1::scal(t.n, t.a, x.as_mut_ptr(), t.incx);
         assert_eq!(x, t.expect);
     }
 
@@ -278,7 +304,7 @@ fn scal() {
     let tests: Vec<case::complex::scal> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut x = t.x;
-        level1::complex::scal(t.n, t.a, &mut x, t.incx);
+        level1::complex::scal(t.n, t.a, x.as_mut_ptr(), t.incx);
         capproximately!(x, t.expect);
     }
 }
@@ -293,7 +319,7 @@ fn sscal() {
     let tests: Vec<case::complex::sscal> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut x = t.x;
-        level1::complex::sscal(t.n, t.a, &mut x, t.incx);
+        level1::complex::sscal(t.n, t.a, x.as_mut_ptr(), t.incx);
         assert_eq!(x, t.expect);
     }
 }
@@ -308,7 +334,7 @@ fn swap() {
     for t in tests {
         let mut x = t.x;
         let mut y = t.y;
-        level1::swap(t.n, &mut x, t.incx, &mut y, t.incy);
+        level1::swap(t.n, x.as_mut_ptr(), t.incx, y.as_mut_ptr(), t.incy);
         assert_eq!(x, t.expect.x);
         assert_eq!(y, t.expect.y);
     }
@@ -319,7 +345,7 @@ fn swap() {
     for t in tests {
         let mut x = t.x;
         let mut y = t.y;
-        level1::complex::swap(t.n, &mut x, t.incx, &mut y, t.incy);
+        level1::complex::swap(t.n, x.as_mut_ptr(), t.incx, y.as_mut_ptr(), t.incy);
         assert_eq!(x, t.expect.x);
         assert_eq!(y, t.expect.y);
     }

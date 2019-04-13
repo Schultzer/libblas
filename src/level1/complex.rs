@@ -1,4 +1,3 @@
-// use std::arch::x86_64::*;
 use num_complex::Complex;
 use num_traits::{Float, NumAssignOps, One, Zero};
 
@@ -6,27 +5,29 @@ use num_traits::{Float, NumAssignOps, One, Zero};
 /// This is [CAXPY](http://www.netlib.org/lapack/explore-html/de/da2/caxpy_8f.html) and [ZAXPY](http://www.netlib.org/lapack/explore-html/d7/db2/zaxpy_8f.html) combined in one function.
 #[inline]
 pub fn axpy<T: Float + NumAssignOps>(
-    n: usize,
+    n: isize,
     a: &Complex<T>,
-    x: &[Complex<T>],
+    x: *const Complex<T>,
     incx: isize,
-    y: &mut [Complex<T>],
+    y: *mut Complex<T>,
     incy: isize,
 ) {
-    if n == 0 {
+    if n <= 0 {
         return;
     }
     let mut ix = 0;
     let mut iy = 0;
     let mut i = 0;
     if incx < 0 {
-        ix = (-(n as isize) * incx) + incx;
+        ix = (-n * incx) + incx;
     }
     if incy < 0 {
-        iy = (-(n as isize) * incy) + incy;
+        iy = (-n * incy) + incy;
     }
     while i < n {
-        y[iy as usize] += a * x[ix as usize];
+        unsafe {
+            *y.offset(iy) += a * *x.offset(ix);
+        }
         ix += incx;
         iy += incy;
         i += 1;
@@ -37,26 +38,28 @@ pub fn axpy<T: Float + NumAssignOps>(
 /// This is [CCOPY](http://www.netlib.org/lapack/explore-html/d9/dfb/ccopy_8f.html) and [ZCOPY](http://www.netlib.org/lapack/explore-html/d6/d53/zcopy_8f.html) combined in one function.
 #[inline]
 pub fn copy<T: Float + NumAssignOps>(
-    n: usize,
-    x: &[Complex<T>],
+    n: isize,
+    x: *const Complex<T>,
     incx: isize,
-    y: &mut [Complex<T>],
+    y: *mut Complex<T>,
     incy: isize,
 ) {
-    if n == 0 {
+    if n <= 0 {
         return;
     }
     let mut ix = 0;
     let mut iy = 0;
     let mut i = 0;
     if incx < 0 {
-        ix = (-(n as isize) * incx) + incx;
+        ix = (-n * incx) + incx;
     }
     if incy < 0 {
-        iy = (-(n as isize) * incy) + incy;
+        iy = (-n * incy) + incy;
     }
     while i < n {
-        y[iy as usize] += x[ix as usize];
+        unsafe {
+            *y.offset(iy) += *x.offset(ix);
+        }
         ix += incx;
         iy += incy;
         i += 1;
@@ -67,14 +70,14 @@ pub fn copy<T: Float + NumAssignOps>(
 /// This is [CDOTC](http://www.netlib.org/lapack/explore-html/dd/db2/cdotc_8f.html) and [ZDOTC](http://www.netlib.org/lapack/explore-html/d6/db8/zdotc_8f.html) combined in one function.
 #[inline]
 pub fn dotc<T: Float + NumAssignOps>(
-    n: usize,
-    x: &[Complex<T>],
+    n: isize,
+    x: *const Complex<T>,
     incx: isize,
-    y: &[Complex<T>],
+    y: *const Complex<T>,
     incy: isize,
 ) -> Complex<T> {
     let mut tmp = Complex::zero();
-    if n == 0 {
+    if n <= 0 {
         return tmp;
     }
 
@@ -82,13 +85,15 @@ pub fn dotc<T: Float + NumAssignOps>(
     let mut iy = 0;
     let mut i = 0;
     if incx < 0 {
-        ix = (-(n as isize) * incx) + incx;
+        ix = (-n * incx) + incx;
     }
     if incy < 0 {
-        iy = (-(n as isize) * incy) + incy;
+        iy = (-n * incy) + incy;
     }
     while i < n {
-        tmp += x[ix as usize].conj() * y[iy as usize];
+        unsafe {
+            tmp += x.offset(ix).read().conj() * *y.offset(iy);
+        }
         ix += incx;
         iy += incy;
         i += 1;
@@ -100,14 +105,14 @@ pub fn dotc<T: Float + NumAssignOps>(
 /// This is [CDOTU](http://www.netlib.org/lapack/explore-html/d7/d7b/cdotu_8f.html) and [ZDOTU](http://www.netlib.org/lapack/explore-html/db/d2d/zdotu_8f.html) combined in one function.
 #[inline]
 pub fn dotu<T: Float + NumAssignOps>(
-    n: usize,
-    x: &[Complex<T>],
+    n: isize,
+    x: *const Complex<T>,
     incx: isize,
-    y: &[Complex<T>],
+    y: *const Complex<T>,
     incy: isize,
 ) -> Complex<T> {
     let mut tmp = Complex::zero();
-    if n == 0 {
+    if n <= 0 {
         return tmp;
     };
 
@@ -115,13 +120,15 @@ pub fn dotu<T: Float + NumAssignOps>(
     let mut iy = 0;
     let mut i = 0;
     if incx < 0 {
-        ix = (-(n as isize) * incx) + incx;
+        ix = (-n * incx) + incx;
     }
     if incy < 0 {
-        iy = (-(n as isize) * incy) + incy;
+        iy = (-n * incy) + incy;
     }
     while i < n {
-        tmp += x[ix as usize] * y[iy as usize];
+        unsafe {
+            tmp += *x.offset(ix) * *y.offset(iy);
+        }
         ix += incx;
         iy += incy;
         i += 1;
@@ -133,30 +140,32 @@ pub fn dotu<T: Float + NumAssignOps>(
 /// This is [CSROT](http://www.netlib.org/lapack/explore-html/d1/dbb/csrot_8f.html) and [ZDROT](http://www.netlib.org/lapack/explore-html/d4/de9/zdrot_8f.html) combined in one function.
 #[inline]
 pub fn rot<T: Float + NumAssignOps>(
-    n: usize,
-    x: &mut [Complex<T>],
+    n: isize,
+    x: *mut Complex<T>,
     incx: isize,
-    y: &mut [Complex<T>],
+    y: *mut Complex<T>,
     incy: isize,
     c: T,
     s: T,
 ) {
-    if n == 0 {
+    if n <= 0 {
         return;
     }
     let mut ix = 0;
     let mut iy = 0;
     let mut i = 0;
     if incx < 0 {
-        ix = (-(n as isize) * incx) + incx;
+        ix = (-n * incx) + incx;
     }
     if incy < 0 {
-        iy = (-(n as isize) * incy) + incy;
+        iy = (-n * incy) + incy;
     }
     while i < n {
-        let tmp = x[ix as usize] * c + y[iy as usize] * s;
-        y[iy as usize] = y[iy as usize] * c - x[ix as usize] * s;
-        x[ix as usize] = tmp;
+        unsafe {
+            let tmp = *x.offset(ix) * c + *y.offset(iy) * s;
+            *y.offset(iy) = *y.offset(iy) * c - *x.offset(ix) * s;
+            *x.offset(ix) = tmp;
+        }
         i += 1;
         ix += incx;
         iy += incy;
@@ -189,18 +198,20 @@ pub fn rotg<T: Float + NumAssignOps>(
 /// SCAL scales a complex vector by a constant.
 /// This is [CSCAL](http://www.netlib.org/lapack/explore-html/dc/d81/cscal_8f.html) and [ZSCAL](http://www.netlib.org/lapack/explore-html/d2/d74/zscal_8f.html) combined in one function.
 #[inline]
-pub fn scal<T: Float + NumAssignOps>(n: usize, a: Complex<T>, x: &mut [Complex<T>], incx: usize) {
-    if n == 0 {
+pub fn scal<T: Float + NumAssignOps>(n: isize, a: Complex<T>, x: *mut Complex<T>, incx: isize) {
+    if n <= 0 {
         return;
     }
-    if incx == 0 {
+    if incx <= 0 {
         return;
     }
 
     let mut i = 0;
     let nincx = n * incx;
     while i < nincx {
-        x[i] = a * x[i];
+        unsafe {
+            *x.offset(i) *= a;
+        }
         i += incx;
     }
 }
@@ -208,21 +219,23 @@ pub fn scal<T: Float + NumAssignOps>(n: usize, a: Complex<T>, x: &mut [Complex<T
 /// SSCAL scales a complex vector by a real constant.
 /// This is [CSSCAL](http://www.netlib.org/lapack/explore-html/de/d5e/csscal_8f.html) and [ZDSCAL](http://www.netlib.org/lapack/explore-html/dd/d76/zdscal_8f.html) combined in one function.
 #[inline]
-pub fn sscal<T: Float + NumAssignOps>(n: usize, a: T, x: &mut [Complex<T>], incx: usize) {
-    if n == 0 {
+pub fn sscal<T: Float + NumAssignOps>(n: isize, a: T, x: *mut Complex<T>, incx: isize) {
+    if n <= 0 {
         return;
     }
-    if incx == 0 {
+    if incx <= 0 {
         return;
     }
 
     let mut i = 0;
     let nincx = n * incx;
     while i < nincx {
-        if !a.is_zero() {
-            x[i] *= a;
-        } else {
-            x[i] = Complex::zero()
+        unsafe {
+            if !a.is_zero() {
+                *x.offset(i) *= a;
+            } else {
+                *x.offset(i) = Complex::zero();
+            }
         }
         i += incx;
     }
@@ -232,13 +245,13 @@ pub fn sscal<T: Float + NumAssignOps>(n: usize, a: T, x: &mut [Complex<T>], incx
 /// This is [CSWAP](http://www.netlib.org/lapack/explore-html/d1/d44/cswap_8f.html) and [ZSWAP](http://www.netlib.org/lapack/explore-html/d3/dc0/zswap_8f.html) combined in one function.
 #[inline]
 pub fn swap<T: Float + NumAssignOps>(
-    n: usize,
-    x: &mut [Complex<T>],
+    n: isize,
+    x: *mut Complex<T>,
     incx: isize,
-    y: &mut [Complex<T>],
+    y: *mut Complex<T>,
     incy: isize,
 ) {
-    if n == 0 {
+    if n <= 0 {
         return;
     }
 
@@ -247,13 +260,17 @@ pub fn swap<T: Float + NumAssignOps>(
     let mut i = 0;
 
     if incx < 0 {
-        ix = (-(n as isize) * incx) + incx;
+        ix = (-n * incx) + incx;
     }
     if incy < 0 {
-        iy = (-(n as isize) * incy) + incy;
+        iy = (-n * incy) + incy;
     }
     while i < n {
-        std::mem::swap(&mut x[ix as usize], &mut y[iy as usize]);
+        unsafe {
+            let tmp = *x.offset(ix);
+            *x.offset(ix) = *y.offset(iy);
+            *y.offset(iy) = tmp;
+        }
         ix += incx;
         iy += incy;
         i += 1;
@@ -263,9 +280,9 @@ pub fn swap<T: Float + NumAssignOps>(
 /// IAMAX finds the index of the first element having maximum |Re(.)| + |Im(.)|
 /// This is [ICAMAX](http://www.netlib.org/lapack/explore-html/dd/d51/icamax_8f.html) and [IZAMAX](http://www.netlib.org/lapack/explore-html/d0/da5/izamax_8f.html) combined in one function.
 #[inline]
-pub fn iamax<T: Float + NumAssignOps>(n: usize, x: &[Complex<T>], incx: usize) -> usize {
+pub fn iamax<T: Float + NumAssignOps>(n: isize, x: *const Complex<T>, incx: isize) -> isize {
     let mut iamax = 0;
-    if n == 0 || incx == 0 {
+    if n <= 0 || incx <= 0 {
         return iamax;
     }
     iamax = 1;
@@ -274,12 +291,16 @@ pub fn iamax<T: Float + NumAssignOps>(n: usize, x: &[Complex<T>], incx: usize) -
     }
 
     // FIXME use l1_norm()
-    let mut max = x[0].norm();
+    let mut max;
+    unsafe { max = x.read().norm() };
     let mut i = 2;
     if incx == 1 {
         while i < n {
             // FIXME use l1_norm()
-            let tmp = x[i].norm();
+            let tmp;
+            unsafe {
+                tmp = x.offset(i).read().norm();
+            }
             i += 1;
             if tmp > max {
                 iamax = i;
@@ -290,7 +311,10 @@ pub fn iamax<T: Float + NumAssignOps>(n: usize, x: &[Complex<T>], incx: usize) -
         let mut ix = 1 + incx;
         while i < n {
             // FIXME use l1_norm()
-            let tmp = x[ix].norm();
+            let tmp;
+            unsafe {
+                tmp = x.offset(ix).read().norm();
+            }
             ix += incx;
             i += 1;
             if tmp > max {
@@ -305,18 +329,20 @@ pub fn iamax<T: Float + NumAssignOps>(n: usize, x: &[Complex<T>], incx: usize) -
 /// ASUM takes the sum of the (|Re(.)| + |Im(.)|)'s of a complex vector and returns a single or double precision result.
 /// This is [SCASUM](http://www.netlib.org/lapack/explore-html/db/d53/scasum_8f.html) and [DZASUM](http://www.netlib.org/lapack/explore-html/df/d0f/dzasum_8f.html) combined in one function.
 #[inline]
-pub fn asum<T: Float + NumAssignOps>(n: usize, x: &[Complex<T>], incx: usize) -> T {
+pub fn asum<T: Float + NumAssignOps>(n: isize, x: *const Complex<T>, incx: isize) -> T {
     let mut sum = T::zero();
-    if n == 0 || incx == 0 {
+    if n <= 0 || incx <= 0 {
         return sum;
     }
 
     let mut i = 0;
     let nincx = n * incx;
     while i < nincx {
-        let Complex { re, im } = x[i];
-        // FIXME use l1_norm()
-        sum += re.abs() + im.abs();
+        unsafe {
+            let Complex { re, im } = *x.offset(i);
+            // FIXME use l1_norm()
+            sum += re.abs() + im.abs();
+        }
         i += incx;
     }
     sum
@@ -324,8 +350,8 @@ pub fn asum<T: Float + NumAssignOps>(n: usize, x: &[Complex<T>], incx: usize) ->
 
 /// NRM2 returns the euclidean norm of a vector via the function name, so that NRM2 := sqrt( x**H*x )
 /// This is [SCNRM2](http://www.netlib.org/lapack/explore-html/db/d66/scnrm2_8f.html) and [DZNRM2](http://www.netlib.org/lapack/explore-html/d9/d19/dznrm2_8f.html) combined in one function.
-pub fn nrm2<T: Float + NumAssignOps>(n: usize, x: &[Complex<T>], incx: usize) -> T {
-    if n == 0 || incx == 0 {
+pub fn nrm2<T: Float + NumAssignOps>(n: isize, x: *const Complex<T>, incx: isize) -> T {
+    if n <= 0 || incx <= 0 {
         return T::zero();
     }
     //  The following loop is equivalent to this call to the LAPACK auxiliary routine:
@@ -334,7 +360,7 @@ pub fn nrm2<T: Float + NumAssignOps>(n: usize, x: &[Complex<T>], incx: usize) ->
     let mut ssq = T::one();
     let mut ix = 0;
     while ix < n * incx {
-        let Complex { re, im } = x[ix];
+        let Complex { re, im } = unsafe { *x.offset(ix) };
         if !re.is_zero() {
             let tmp = re.abs();
             if scale < tmp {
