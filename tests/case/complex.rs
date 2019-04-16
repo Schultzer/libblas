@@ -131,13 +131,13 @@ pub struct swap {
 #[allow(non_camel_case_types)]
 pub struct gbmv {
     pub trans: char,
-    pub m: usize,
-    pub n: usize,
-    pub kl: usize,
-    pub ku: usize,
+    pub m: isize,
+    pub n: isize,
+    pub kl: isize,
+    pub ku: isize,
     pub alpha: Complex<f64>,
     pub a: Vec<Complex<f64>>,
-    pub lda: usize,
+    pub lda: isize,
     pub x: Vec<Complex<f64>>,
     pub incx: isize,
     pub beta: Complex<f64>,
@@ -150,11 +150,11 @@ pub struct gbmv {
 #[allow(non_camel_case_types)]
 pub struct gemv {
     pub trans: char,
-    pub m: usize,
-    pub n: usize,
+    pub m: isize,
+    pub n: isize,
     pub alpha: Complex<f64>,
     pub a: Vec<Complex<f64>>,
-    pub lda: usize,
+    pub lda: isize,
     pub x: Vec<Complex<f64>>,
     pub incx: isize,
     pub beta: Complex<f64>,
@@ -166,15 +166,15 @@ pub struct gemv {
 #[derive(Deserialize, Debug, Default)]
 #[allow(non_camel_case_types)]
 pub struct ger {
-    pub m: usize,
-    pub n: usize,
+    pub m: isize,
+    pub n: isize,
     pub alpha: Complex<f64>,
     pub x: Vec<Complex<f64>>,
     pub incx: isize,
     pub y: Vec<Complex<f64>>,
     pub incy: isize,
     pub a: Vec<Complex<f64>>,
-    pub lda: usize,
+    pub lda: isize,
     pub expect: Vec<Complex<f64>>,
 }
 
@@ -182,11 +182,11 @@ pub struct ger {
 #[allow(non_camel_case_types)]
 pub struct hbmv {
     pub uplo: char,
-    pub n: usize,
-    pub k: usize,
+    pub n: isize,
+    pub k: isize,
     pub alpha: Complex<f64>,
     pub a: Vec<Complex<f64>>,
-    pub lda: usize,
+    pub lda: isize,
     pub x: Vec<Complex<f64>>,
     pub incx: isize,
     pub beta: Complex<f64>,
@@ -199,10 +199,10 @@ pub struct hbmv {
 #[allow(non_camel_case_types)]
 pub struct hemv {
     pub uplo: char,
-    pub n: usize,
+    pub n: isize,
     pub alpha: Complex<f64>,
     pub a: Vec<Complex<f64>>,
-    pub lda: usize,
+    pub lda: isize,
     pub x: Vec<Complex<f64>>,
     pub incx: isize,
     pub beta: Complex<f64>,
@@ -215,12 +215,12 @@ pub struct hemv {
 #[allow(non_camel_case_types)]
 pub struct her {
     pub uplo: char,
-    pub n: usize,
+    pub n: isize,
     pub alpha: f64,
     pub x: Vec<Complex<f64>>,
     pub incx: isize,
     pub a: Vec<Complex<f64>>,
-    pub lda: usize,
+    pub lda: isize,
     pub expect: Vec<Complex<f64>>,
 }
 
@@ -228,14 +228,14 @@ pub struct her {
 #[allow(non_camel_case_types)]
 pub struct her2 {
     pub uplo: char,
-    pub n: usize,
+    pub n: isize,
     pub alpha: Complex<f64>,
     pub x: Vec<Complex<f64>>,
     pub incx: isize,
     pub y: Vec<Complex<f64>>,
     pub incy: isize,
     pub a: Vec<Complex<f64>>,
-    pub lda: usize,
+    pub lda: isize,
     pub expect: Vec<Complex<f64>>,
 }
 
@@ -243,7 +243,7 @@ pub struct her2 {
 #[allow(non_camel_case_types)]
 pub struct hpmv {
     pub uplo: char,
-    pub n: usize,
+    pub n: isize,
     pub alpha: Complex<f64>,
     pub ap: Vec<Complex<f64>>,
     pub x: Vec<Complex<f64>>,
@@ -258,7 +258,7 @@ pub struct hpmv {
 #[allow(non_camel_case_types)]
 pub struct hpr {
     pub uplo: char,
-    pub n: usize,
+    pub n: isize,
     pub alpha: f64,
     pub x: Vec<Complex<f64>>,
     pub incx: isize,
@@ -270,7 +270,7 @@ pub struct hpr {
 #[allow(non_camel_case_types)]
 pub struct hpr2 {
     pub uplo: char,
-    pub n: usize,
+    pub n: isize,
     pub alpha: Complex<f64>,
     pub x: Vec<Complex<f64>>,
     pub incx: isize,
@@ -286,10 +286,10 @@ pub struct tbmv {
     pub uplo: char,
     pub trans: char,
     pub diag: char,
-    pub n: usize,
-    pub k: usize,
+    pub n: isize,
+    pub k: isize,
     pub a: Vec<Complex<f64>>,
-    pub lda: usize,
+    pub lda: isize,
     pub x: Vec<Complex<f64>>,
     pub incx: isize,
     pub expect: Vec<Complex<f64>>,
@@ -301,10 +301,10 @@ pub struct tbsv {
     pub uplo: char,
     pub trans: char,
     pub diag: char,
-    pub n: usize,
-    pub k: usize,
+    pub n: isize,
+    pub k: isize,
     pub a: Vec<Complex<f64>>,
-    pub lda: usize,
+    pub lda: isize,
     pub x: Vec<Complex<f64>>,
     pub incx: isize,
     pub expect: Vec<Complex<f64>>,
@@ -316,7 +316,7 @@ pub struct tpmv {
     pub uplo: char,
     pub trans: char,
     pub diag: char,
-    pub n: usize,
+    pub n: isize,
     pub ap: Vec<Complex<f64>>,
     pub x: Vec<Complex<f64>>,
     pub incx: isize,
@@ -329,7 +329,7 @@ pub struct tpsv {
     pub uplo: char,
     pub trans: char,
     pub diag: char,
-    pub n: usize,
+    pub n: isize,
     pub ap: Vec<Complex<f64>>,
     pub x: Vec<Complex<f64>>,
     pub incx: isize,
@@ -342,9 +342,9 @@ pub struct trmv {
     pub uplo: char,
     pub trans: char,
     pub diag: char,
-    pub n: usize,
+    pub n: isize,
     pub a: Vec<Complex<f64>>,
-    pub lda: usize,
+    pub lda: isize,
     pub x: Vec<Complex<f64>>,
     pub incx: isize,
     pub expect: Vec<Complex<f64>>,
@@ -356,9 +356,9 @@ pub struct trsv {
     pub uplo: char,
     pub trans: char,
     pub diag: char,
-    pub n: usize,
+    pub n: isize,
     pub a: Vec<Complex<f64>>,
-    pub lda: usize,
+    pub lda: isize,
     pub x: Vec<Complex<f64>>,
     pub incx: isize,
     pub expect: Vec<Complex<f64>>,

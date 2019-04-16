@@ -361,7 +361,18 @@ fn gbmv() {
     for t in tests {
         let mut y = t.y;
         level2::gbmv(
-            t.trans, t.m, t.n, t.kl, t.ku, t.alpha, &t.a, t.lda, &t.x, t.incx, t.beta, &mut y,
+            t.trans,
+            t.m,
+            t.n,
+            t.kl,
+            t.ku,
+            t.alpha,
+            t.a.as_ptr(),
+            t.lda,
+            t.x.as_ptr(),
+            t.incx,
+            t.beta,
+            y.as_mut_ptr(),
             t.incy,
         );
         assert_eq!(y, t.expect);
@@ -373,7 +384,18 @@ fn gbmv() {
     for t in tests {
         let mut y = t.y;
         level2::complex::gbmv(
-            t.trans, t.m, t.n, t.kl, t.ku, t.alpha, &t.a, t.lda, &t.x, t.incx, t.beta, &mut y,
+            t.trans,
+            t.m,
+            t.n,
+            t.kl,
+            t.ku,
+            t.alpha,
+            t.a.as_ptr(),
+            t.lda,
+            t.x.as_ptr(),
+            t.incx,
+            t.beta,
+            y.as_mut_ptr(),
             t.incy,
         );
         capproximately!(y, t.expect);
@@ -389,7 +411,17 @@ fn ger() {
     let tests: Vec<case::ger> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut a = t.a;
-        level2::ger(t.m, t.n, t.alpha, &t.x, t.incx, &t.y, t.incy, &mut a, t.lda);
+        level2::ger(
+            t.m,
+            t.n,
+            t.alpha,
+            t.x.as_ptr(),
+            t.incx,
+            t.y.as_ptr(),
+            t.incy,
+            a.as_mut_ptr(),
+            t.lda,
+        );
         approximately!(a, t.expect);
     }
 
@@ -398,8 +430,17 @@ fn ger() {
     let tests: Vec<case::complex::ger> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut a = t.a;
-        println!("{:?}", t.incx);
-        level2::complex::gerc(t.m, t.n, t.alpha, &t.x, t.incx, &t.y, t.incy, &mut a, t.lda);
+        level2::complex::gerc(
+            t.m,
+            t.n,
+            t.alpha,
+            t.x.as_ptr(),
+            t.incx,
+            t.y.as_ptr(),
+            t.incy,
+            a.as_mut_ptr(),
+            t.lda,
+        );
         capproximately!(a, t.expect);
     }
 
@@ -408,7 +449,17 @@ fn ger() {
     let tests: Vec<case::complex::ger> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut a = t.a;
-        level2::complex::geru(t.m, t.n, t.alpha, &t.x, t.incx, &t.y, t.incy, &mut a, t.lda);
+        level2::complex::geru(
+            t.m,
+            t.n,
+            t.alpha,
+            t.x.as_ptr(),
+            t.incx,
+            t.y.as_ptr(),
+            t.incy,
+            a.as_mut_ptr(),
+            t.lda,
+        );
         capproximately!(a, t.expect);
     }
 }
@@ -423,7 +474,17 @@ fn hbmv() {
     for t in tests {
         let mut y = t.y;
         level2::complex::hbmv(
-            t.uplo, t.n, t.k, t.alpha, &t.a, t.lda, &t.x, t.incx, t.beta, &mut y, t.incy,
+            t.uplo,
+            t.n,
+            t.k,
+            t.alpha,
+            t.a.as_ptr(),
+            t.lda,
+            t.x.as_ptr(),
+            t.incx,
+            t.beta,
+            y.as_mut_ptr(),
+            t.incy,
         );
         capproximately!(y, t.expect);
     }
@@ -439,7 +500,16 @@ fn hemv() {
     for t in tests {
         let mut y = t.y;
         level2::complex::hemv(
-            t.uplo, t.n, t.alpha, &t.a, t.lda, &t.x, t.incx, t.beta, &mut y, t.incy,
+            t.uplo,
+            t.n,
+            t.alpha,
+            t.a.as_ptr(),
+            t.lda,
+            t.x.as_ptr(),
+            t.incx,
+            t.beta,
+            y.as_mut_ptr(),
+            t.incy,
         );
         capproximately!(y, t.expect);
     }
@@ -454,8 +524,15 @@ fn her() {
     let tests: Vec<case::complex::her> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut a = t.a;
-        println!("{:?}", t.uplo);
-        level2::complex::her(t.uplo, t.n, t.alpha, &t.x, t.incx, &mut a, t.lda);
+        level2::complex::her(
+            t.uplo,
+            t.n,
+            t.alpha,
+            t.x.as_ptr(),
+            t.incx,
+            a.as_mut_ptr(),
+            t.lda,
+        );
         capproximately!(a, t.expect);
     }
 }
@@ -470,7 +547,15 @@ fn her2() {
     for t in tests {
         let mut a = t.a;
         level2::complex::her2(
-            t.uplo, t.n, t.alpha, &t.x, t.incx, &t.y, t.incy, &mut a, t.lda,
+            t.uplo,
+            t.n,
+            t.alpha,
+            t.x.as_ptr(),
+            t.incx,
+            t.y.as_ptr(),
+            t.incy,
+            a.as_mut_ptr(),
+            t.lda,
         );
         capproximately!(a, t.expect);
     }
@@ -486,7 +571,15 @@ fn hpmv() {
     for t in tests {
         let mut y = t.y;
         level2::complex::hpmv(
-            t.uplo, t.n, t.alpha, &t.ap, &t.x, t.incx, t.beta, &mut y, t.incy,
+            t.uplo,
+            t.n,
+            t.alpha,
+            t.ap.as_ptr(),
+            t.x.as_ptr(),
+            t.incx,
+            t.beta,
+            y.as_mut_ptr(),
+            t.incy,
         );
         capproximately!(y, t.expect);
     }
@@ -501,8 +594,7 @@ fn hpr() {
     let tests: Vec<case::complex::hpr> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut ap = t.ap;
-        println!("{:?}", t.uplo);
-        level2::complex::hpr(t.uplo, t.n, t.alpha, &t.x, t.incx, &mut ap);
+        level2::complex::hpr(t.uplo, t.n, t.alpha, t.x.as_ptr(), t.incx, ap.as_mut_ptr());
         capproximately!(ap, t.expect);
     }
 }
@@ -516,7 +608,16 @@ fn hpr2() {
     let tests: Vec<case::complex::hpr2> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut ap = t.ap;
-        level2::complex::hpr2(t.uplo, t.n, t.alpha, &t.x, t.incx, &t.y, t.incy, &mut ap);
+        level2::complex::hpr2(
+            t.uplo,
+            t.n,
+            t.alpha,
+            t.x.as_ptr(),
+            t.incx,
+            t.y.as_ptr(),
+            t.incy,
+            ap.as_mut_ptr(),
+        );
         capproximately!(ap, t.expect);
     }
 }
@@ -531,7 +632,17 @@ fn sbmv() {
     for t in tests {
         let mut y = t.y;
         level2::sbmv(
-            t.uplo, t.n, t.k, t.alpha, &t.a, t.lda, &t.x, t.incx, t.beta, &mut y, t.incy,
+            t.uplo,
+            t.n,
+            t.k,
+            t.alpha,
+            t.a.as_ptr(),
+            t.lda,
+            t.x.as_ptr(),
+            t.incx,
+            t.beta,
+            y.as_mut_ptr(),
+            t.incy,
         );
         approximately!(y, t.expect);
     }
@@ -547,7 +658,15 @@ fn spmv() {
     for t in tests {
         let mut y = t.y;
         level2::spmv(
-            t.uplo, t.n, t.alpha, &t.ap, &t.x, t.incx, t.beta, &mut y, t.incy,
+            t.uplo,
+            t.n,
+            t.alpha,
+            t.ap.as_ptr(),
+            t.x.as_ptr(),
+            t.incx,
+            t.beta,
+            y.as_mut_ptr(),
+            t.incy,
         );
         approximately!(y, t.expect);
     }
@@ -562,7 +681,7 @@ fn spr() {
     let tests: Vec<case::spr> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut ap = t.ap;
-        level2::spr(t.uplo, t.n, t.alpha, &t.x, t.incx, &mut ap);
+        level2::spr(t.uplo, t.n, t.alpha, t.x.as_ptr(), t.incx, ap.as_mut_ptr());
         approximately!(ap, t.expect);
     }
 }
@@ -576,7 +695,16 @@ fn spr2() {
     let tests: Vec<case::spr2> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut ap = t.ap;
-        level2::spr2(t.uplo, t.n, t.alpha, &t.x, t.incx, &t.y, t.incy, &mut ap);
+        level2::spr2(
+            t.uplo,
+            t.n,
+            t.alpha,
+            t.x.as_ptr(),
+            t.incx,
+            t.y.as_ptr(),
+            t.incy,
+            ap.as_mut_ptr(),
+        );
         approximately!(ap, t.expect);
     }
 }
@@ -591,7 +719,16 @@ fn symv() {
     for t in tests {
         let mut y = t.y;
         level2::symv(
-            t.uplo, t.n, t.alpha, &t.a, t.lda, &t.x, t.incx, t.beta, &mut y, t.incy,
+            t.uplo,
+            t.n,
+            t.alpha,
+            t.a.as_ptr(),
+            t.lda,
+            t.x.as_ptr(),
+            t.incx,
+            t.beta,
+            y.as_mut_ptr(),
+            t.incy,
         );
         approximately!(y, t.expect);
     }
@@ -606,7 +743,15 @@ fn syr() {
     let tests: Vec<case::syr> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut a = t.a;
-        level2::syr(t.uplo, t.n, t.alpha, &t.x, t.incx, &mut a, t.lda);
+        level2::syr(
+            t.uplo,
+            t.n,
+            t.alpha,
+            t.x.as_ptr(),
+            t.incx,
+            a.as_mut_ptr(),
+            t.lda,
+        );
         approximately!(a, t.expect);
     }
 }
@@ -621,7 +766,15 @@ fn syr2() {
     for t in tests {
         let mut a = t.a;
         level2::syr2(
-            t.uplo, t.n, t.alpha, &t.x, t.incx, &t.y, t.incy, &mut a, t.lda,
+            t.uplo,
+            t.n,
+            t.alpha,
+            t.x.as_ptr(),
+            t.incx,
+            t.y.as_ptr(),
+            t.incy,
+            a.as_mut_ptr(),
+            t.lda,
         );
         approximately!(a, t.expect);
     }
@@ -637,7 +790,15 @@ fn tbmv() {
     for t in tests {
         let mut x = t.x;
         level2::tbmv(
-            t.uplo, t.trans, t.diag, t.n, t.k, &t.a, t.lda, &mut x, t.incx,
+            t.uplo,
+            t.trans,
+            t.diag,
+            t.n,
+            t.k,
+            t.a.as_ptr(),
+            t.lda,
+            x.as_mut_ptr(),
+            t.incx,
         );
         approximately!(x, t.expect);
     }
@@ -648,7 +809,15 @@ fn tbmv() {
     for t in tests {
         let mut x = t.x;
         level2::complex::tbmv(
-            t.uplo, t.trans, t.diag, t.n, t.k, &t.a, t.lda, &mut x, t.incx,
+            t.uplo,
+            t.trans,
+            t.diag,
+            t.n,
+            t.k,
+            t.a.as_ptr(),
+            t.lda,
+            x.as_mut_ptr(),
+            t.incx,
         );
         capproximately!(x, t.expect);
     }
@@ -664,7 +833,15 @@ fn tbsv() {
     for t in tests {
         let mut x = t.x;
         level2::tbsv(
-            t.uplo, t.trans, t.diag, t.n, t.k, &t.a, t.lda, &mut x, t.incx,
+            t.uplo,
+            t.trans,
+            t.diag,
+            t.n,
+            t.k,
+            t.a.as_ptr(),
+            t.lda,
+            x.as_mut_ptr(),
+            t.incx,
         );
         approximately!(x, t.expect);
     }
@@ -675,7 +852,15 @@ fn tbsv() {
     for t in tests {
         let mut x = t.x;
         level2::complex::tbsv(
-            t.uplo, t.trans, t.diag, t.n, t.k, &t.a, t.lda, &mut x, t.incx,
+            t.uplo,
+            t.trans,
+            t.diag,
+            t.n,
+            t.k,
+            t.a.as_ptr(),
+            t.lda,
+            x.as_mut_ptr(),
+            t.incx,
         );
         capproximately!(x, t.expect);
     }
@@ -690,7 +875,15 @@ fn tpmv() {
     let tests: Vec<case::tpmv> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut x = t.x;
-        level2::tpmv(t.uplo, t.trans, t.diag, t.n, &t.ap, &mut x, t.incx);
+        level2::tpmv(
+            t.uplo,
+            t.trans,
+            t.diag,
+            t.n,
+            t.ap.as_ptr(),
+            x.as_mut_ptr(),
+            t.incx,
+        );
         approximately!(x, t.expect);
     }
 
@@ -699,7 +892,15 @@ fn tpmv() {
     let tests: Vec<case::complex::tpmv> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut x = t.x;
-        level2::complex::tpmv(t.uplo, t.trans, t.diag, t.n, &t.ap, &mut x, t.incx);
+        level2::complex::tpmv(
+            t.uplo,
+            t.trans,
+            t.diag,
+            t.n,
+            t.ap.as_ptr(),
+            x.as_mut_ptr(),
+            t.incx,
+        );
         capproximately!(x, t.expect);
     }
 }
@@ -713,7 +914,15 @@ fn tpsv() {
     let tests: Vec<case::tpsv> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut x = t.x;
-        level2::tpsv(t.uplo, t.trans, t.diag, t.n, &t.ap, &mut x, t.incx);
+        level2::tpsv(
+            t.uplo,
+            t.trans,
+            t.diag,
+            t.n,
+            t.ap.as_ptr(),
+            x.as_mut_ptr(),
+            t.incx,
+        );
         approximately!(x, t.expect);
     }
 
@@ -722,7 +931,15 @@ fn tpsv() {
     let tests: Vec<case::complex::tpsv> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut x = t.x;
-        level2::complex::tpsv(t.uplo, t.trans, t.diag, t.n, &t.ap, &mut x, t.incx);
+        level2::complex::tpsv(
+            t.uplo,
+            t.trans,
+            t.diag,
+            t.n,
+            t.ap.as_ptr(),
+            x.as_mut_ptr(),
+            t.incx,
+        );
         capproximately!(x, t.expect);
     }
 }
@@ -736,7 +953,16 @@ fn trmv() {
     let tests: Vec<case::trmv> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut x = t.x;
-        level2::trmv(t.uplo, t.trans, t.diag, t.n, &t.a, t.lda, &mut x, t.incx);
+        level2::trmv(
+            t.uplo,
+            t.trans,
+            t.diag,
+            t.n,
+            t.a.as_ptr(),
+            t.lda,
+            x.as_mut_ptr(),
+            t.incx,
+        );
         approximately!(x, t.expect);
     }
 
@@ -745,7 +971,16 @@ fn trmv() {
     let tests: Vec<case::complex::trmv> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut x = t.x;
-        level2::complex::trmv(t.uplo, t.trans, t.diag, t.n, &t.a, t.lda, &mut x, t.incx);
+        level2::complex::trmv(
+            t.uplo,
+            t.trans,
+            t.diag,
+            t.n,
+            t.a.as_ptr(),
+            t.lda,
+            x.as_mut_ptr(),
+            t.incx,
+        );
         capproximately!(x, t.expect);
     }
 }
@@ -759,7 +994,16 @@ fn trsv() {
     let tests: Vec<case::trsv> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut x = t.x;
-        level2::trsv(t.uplo, t.trans, t.diag, t.n, &t.a, t.lda, &mut x, t.incx);
+        level2::trsv(
+            t.uplo,
+            t.trans,
+            t.diag,
+            t.n,
+            t.a.as_ptr(),
+            t.lda,
+            x.as_mut_ptr(),
+            t.incx,
+        );
         approximately!(x, t.expect);
     }
 
@@ -768,7 +1012,16 @@ fn trsv() {
     let tests: Vec<case::complex::trsv> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut x = t.x;
-        level2::complex::trsv(t.uplo, t.trans, t.diag, t.n, &t.a, t.lda, &mut x, t.incx);
+        level2::complex::trsv(
+            t.uplo,
+            t.trans,
+            t.diag,
+            t.n,
+            t.a.as_ptr(),
+            t.lda,
+            x.as_mut_ptr(),
+            t.incx,
+        );
         capproximately!(x, t.expect);
     }
 }
@@ -782,7 +1035,6 @@ fn gemm() {
     let tests: Vec<case::gemm> = serde_json::from_reader(reader).unwrap();
     for t in tests {
         let mut c = t.c;
-        println!("{:?}", t.m);
         level3::gemm(
             t.transa, t.transb, t.m, t.n, t.k, t.alpha, &t.a, t.lda, &t.b, t.ldb, t.beta, &mut c,
             t.ldc,

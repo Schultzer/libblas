@@ -16,12 +16,12 @@ fn gbmv() {
         3,
         2,
         Complex::new(0.0, 0.0),
-        &fixtures::complex::bandmatrix_nxm_ku_kl(8, 6, 3, 2),
+        fixtures::complex::bandmatrix_nxm_ku_kl(8, 6, 3, 2).as_ptr(),
         6,
-        &fixtures::complex::vector(8),
+        fixtures::complex::vector(8).as_ptr(),
         1,
         Complex::new(2.5, 0.5),
-        &mut y,
+        y.as_mut_ptr(),
         1,
     );
     capproximately!(
@@ -44,12 +44,12 @@ fn gbmv() {
         3,
         2,
         Complex::new(0.2, 0.8),
-        &fixtures::complex::bandmatrix_nxm_ku_kl(8, 6, 3, 2),
+        fixtures::complex::bandmatrix_nxm_ku_kl(8, 6, 3, 2).as_ptr(),
         6,
-        &fixtures::complex::vector(8),
+        fixtures::complex::vector(8).as_ptr(),
         1,
         Complex::new(2.5, 0.5),
-        &mut y,
+        y.as_mut_ptr(),
         1,
     );
     capproximately!(
@@ -72,12 +72,12 @@ fn gbmv() {
         3,
         2,
         Complex::new(0.2, 0.8),
-        &fixtures::complex::bandmatrix_nxm_ku_kl(8, 6, 3, 2),
+        fixtures::complex::bandmatrix_nxm_ku_kl(8, 6, 3, 2).as_ptr(),
         6,
-        &fixtures::complex::vector(6),
+        fixtures::complex::vector(6).as_ptr(),
         1,
         Complex::new(0.0, 0.0),
-        &mut y,
+        y.as_mut_ptr(),
         1,
     );
     capproximately!(
@@ -102,12 +102,12 @@ fn gbmv() {
         3,
         2,
         Complex::new(0.2, 0.8),
-        &fixtures::complex::bandmatrix_nxm_ku_kl(8, 6, 3, 2),
+        fixtures::complex::bandmatrix_nxm_ku_kl(8, 6, 3, 2).as_ptr(),
         6,
-        &fixtures::complex::vector(6),
+        fixtures::complex::vector(6).as_ptr(),
         -1,
         Complex::new(1.0, 0.0),
-        &mut y,
+        y.as_mut_ptr(),
         -1,
     );
     capproximately!(
@@ -132,12 +132,12 @@ fn gbmv() {
         3,
         2,
         Complex::new(0.0, 0.0),
-        &fixtures::complex::bandmatrix_nxm_ku_kl(8, 6, 3, 2),
+        fixtures::complex::bandmatrix_nxm_ku_kl(8, 6, 3, 2).as_ptr(),
         6,
-        &fixtures::complex::vector(6),
+        fixtures::complex::vector(6).as_ptr(),
         -1,
         Complex::new(1.0, 0.0),
-        &mut y,
+        y.as_mut_ptr(),
         -1,
     );
     capproximately!(
@@ -162,12 +162,12 @@ fn gbmv() {
             4,
             4,
             Complex::new(0.0, 0.0),
-            &vec![],
+            vec![].as_ptr(),
             6,
-            &vec![],
+            vec![].as_ptr(),
             1,
             Complex::new(2.0, 0.5),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             1,
         )
     });
@@ -181,12 +181,12 @@ fn gbmv() {
             4,
             4,
             Complex::new(0.0, 0.0),
-            &vec![],
+            vec![].as_ptr(),
             6,
-            &vec![],
+            vec![].as_ptr(),
             1,
             Complex::new(2.0, 0.5),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             1,
         )
     });
@@ -200,12 +200,12 @@ fn gbmv() {
             4,
             4,
             Complex::new(0.0, 0.0),
-            &vec![],
+            vec![].as_ptr(),
             6,
-            &vec![],
+            vec![].as_ptr(),
             0,
             Complex::new(2.0, 0.5),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             1,
         )
     });
@@ -219,12 +219,12 @@ fn gbmv() {
             4,
             4,
             Complex::new(0.0, 0.0),
-            &vec![],
+            vec![].as_ptr(),
             6,
-            &vec![],
+            vec![].as_ptr(),
             1,
             Complex::new(2.0, 0.5),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             0,
         )
     });
@@ -239,15 +239,14 @@ fn gemv() {
         6,
         8,
         Complex::new(0.8, 0.2),
-        &fixtures::complex::matrix_mxn(6, 8),
+        fixtures::complex::matrix_mxn(6, 8).as_ptr(),
         6,
-        &fixtures::complex::vector(8),
+        fixtures::complex::vector(8).as_ptr(),
         1,
         Complex::new(0.2, 0.8),
-        &mut y,
+        y.as_mut_ptr(),
         1,
     );
-    println!("{:?}", y);
     capproximately!(
         y,
         vec![
@@ -266,12 +265,12 @@ fn gemv() {
         6,
         8,
         Complex::new(0.8, 0.2),
-        &fixtures::complex::matrix_mxn(6, 8),
+        fixtures::complex::matrix_mxn(6, 8).as_ptr(),
         6,
-        &fixtures::complex::vector(8),
+        fixtures::complex::vector(8).as_ptr(),
         -1,
         Complex::new(0.0, 0.0),
-        &mut y,
+        y.as_mut_ptr(),
         -1,
     );
     capproximately!(
@@ -292,12 +291,12 @@ fn gemv() {
         6,
         8,
         Complex::new(0.8, 0.2),
-        &fixtures::complex::matrix_mxn(6, 8),
+        fixtures::complex::matrix_mxn(6, 8).as_ptr(),
         6,
-        &fixtures::complex::vector(8),
+        fixtures::complex::vector(8).as_ptr(),
         1,
         Complex::new(1.0, 0.0),
-        &mut y,
+        y.as_mut_ptr(),
         1,
     );
     capproximately!(
@@ -318,12 +317,12 @@ fn gemv() {
         6,
         8,
         Complex::new(0.8, 0.2),
-        &fixtures::complex::matrix_mxn(6, 8),
+        fixtures::complex::matrix_mxn(6, 8).as_ptr(),
         6,
-        &fixtures::complex::vector(6),
+        fixtures::complex::vector(6).as_ptr(),
         1,
         Complex::new(1.0, 0.0),
-        &mut y,
+        y.as_mut_ptr(),
         1,
     );
     capproximately!(
@@ -346,12 +345,12 @@ fn gemv() {
         6,
         8,
         Complex::new(0.8, 0.2),
-        &fixtures::complex::matrix_mxn(6, 8),
+        fixtures::complex::matrix_mxn(6, 8).as_ptr(),
         6,
-        &fixtures::complex::vector(6),
+        fixtures::complex::vector(6).as_ptr(),
         1,
         Complex::new(1.0, 0.0),
-        &mut y,
+        y.as_mut_ptr(),
         1,
     );
     capproximately!(
@@ -374,12 +373,12 @@ fn gemv() {
         6,
         8,
         Complex::new(0.0, 0.0),
-        &fixtures::complex::matrix_mxn(6, 8),
+        fixtures::complex::matrix_mxn(6, 8).as_ptr(),
         6,
-        &fixtures::complex::vector(8),
+        fixtures::complex::vector(8).as_ptr(),
         1,
         Complex::new(0.2, 0.8),
-        &mut y,
+        y.as_mut_ptr(),
         1,
     );
     capproximately!(
@@ -401,12 +400,12 @@ fn gemv() {
         6,
         8,
         Complex::new(0.0, 0.0),
-        &fixtures::complex::matrix_mxn(6, 8),
+        fixtures::complex::matrix_mxn(6, 8).as_ptr(),
         6,
-        &fixtures::complex::vector(6),
+        fixtures::complex::vector(6).as_ptr(),
         1,
         Complex::new(1.0, 0.0),
-        &mut y,
+        y.as_mut_ptr(),
         1,
     );
     capproximately!(y, expect);
@@ -417,12 +416,12 @@ fn gemv() {
             6,
             8,
             Complex::new(0.0, 0.0),
-            &vec![],
+            vec![].as_ptr(),
             6,
-            &vec![],
+            vec![].as_ptr(),
             1,
             Complex::new(2.0, 0.5),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             1,
         )
     });
@@ -434,12 +433,12 @@ fn gemv() {
             6,
             8,
             Complex::new(0.0, 0.0),
-            &vec![],
-            6,
-            &vec![],
+            vec![].as_ptr(),
+            4,
+            vec![].as_ptr(),
             1,
             Complex::new(2.0, 0.5),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             1,
         )
     });
@@ -451,46 +450,12 @@ fn gemv() {
             6,
             8,
             Complex::new(0.0, 0.0),
-            &vec![],
+            vec![].as_ptr(),
             6,
-            &vec![],
-            1,
-            Complex::new(2.0, 0.5),
-            &mut vec![],
-            1,
-        )
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::gemv(
-            't',
-            6,
-            8,
-            Complex::new(0.0, 0.0),
-            &vec![],
-            6,
-            &vec![],
-            1,
-            Complex::new(2.0, 0.5),
-            &mut vec![],
-            1,
-        )
-    });
-    assert!(result.is_err());
-
-    let result = std::panic::catch_unwind(|| {
-        complex::gemv(
-            't',
-            6,
-            8,
-            Complex::new(0.0, 0.0),
-            &vec![],
-            6,
-            &vec![],
+            vec![].as_ptr(),
             0,
             Complex::new(2.0, 0.5),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             1,
         )
     });
@@ -502,12 +467,46 @@ fn gemv() {
             6,
             8,
             Complex::new(0.0, 0.0),
-            &vec![],
+            vec![].as_ptr(),
             6,
-            &vec![],
+            vec![].as_ptr(),
             1,
             Complex::new(2.0, 0.5),
-            &mut vec![],
+            vec![].as_mut_ptr(),
+            0,
+        )
+    });
+    assert!(result.is_err());
+
+    let result = std::panic::catch_unwind(|| {
+        complex::gemv(
+            't',
+            6,
+            8,
+            Complex::new(0.0, 0.0),
+            vec![].as_ptr(),
+            6,
+            vec![].as_ptr(),
+            0,
+            Complex::new(2.0, 0.5),
+            vec![].as_mut_ptr(),
+            1,
+        )
+    });
+    assert!(result.is_err());
+
+    let result = std::panic::catch_unwind(|| {
+        complex::gemv(
+            't',
+            6,
+            8,
+            Complex::new(0.0, 0.0),
+            vec![].as_ptr(),
+            6,
+            vec![].as_ptr(),
+            1,
+            Complex::new(2.0, 0.5),
+            vec![].as_mut_ptr(),
             0,
         )
     });
@@ -532,11 +531,11 @@ fn gerc() {
         6,
         8,
         Complex::new(0.2, 0.8),
-        &fixtures::complex::vector(6),
+        fixtures::complex::vector(6).as_ptr(),
         1,
-        &y,
+        y.as_ptr(),
         1,
-        &mut a,
+        a.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -598,11 +597,11 @@ fn gerc() {
         6,
         8,
         Complex::new(0.2, 0.8),
-        &fixtures::complex::vector(6),
+        fixtures::complex::vector(6).as_ptr(),
         -1,
-        &fixtures::complex::vector(8),
+        fixtures::complex::vector(8).as_ptr(),
         -1,
-        &mut a,
+        a.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -665,11 +664,11 @@ fn gerc() {
         6,
         8,
         Complex::new(0.0, 0.0),
-        &fixtures::complex::vector(6),
+        fixtures::complex::vector(6).as_ptr(),
         -1,
-        &fixtures::complex::vector(8),
+        fixtures::complex::vector(8).as_ptr(),
         -1,
-        &mut a,
+        a.as_mut_ptr(),
         6,
     );
     capproximately!(a, expect);
@@ -679,11 +678,11 @@ fn gerc() {
             6,
             8,
             Complex::new(0.0, 0.0),
-            &vec![],
+            vec![].as_ptr(),
             1,
-            &vec![],
+            vec![].as_ptr(),
             1,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             2,
         )
     });
@@ -694,11 +693,11 @@ fn gerc() {
             6,
             8,
             Complex::new(0.0, 0.0),
-            &vec![],
+            vec![].as_ptr(),
             0,
-            &vec![],
+            vec![].as_ptr(),
             1,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         )
     });
@@ -709,11 +708,11 @@ fn gerc() {
             6,
             8,
             Complex::new(0.0, 0.0),
-            &vec![],
+            vec![].as_ptr(),
             1,
-            &vec![],
+            vec![].as_ptr(),
             0,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         )
     });
@@ -738,11 +737,11 @@ fn geru() {
         6,
         8,
         Complex::new(0.2, 0.8),
-        &fixtures::complex::vector(6),
+        fixtures::complex::vector(6).as_ptr(),
         1,
-        &y,
+        y.as_ptr(),
         1,
-        &mut a,
+        a.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -804,11 +803,11 @@ fn geru() {
         6,
         8,
         Complex::new(0.2, 0.8),
-        &fixtures::complex::vector(6),
+        fixtures::complex::vector(6).as_ptr(),
         -1,
-        &fixtures::complex::vector(8),
+        fixtures::complex::vector(8).as_ptr(),
         -1,
-        &mut a,
+        a.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -871,11 +870,11 @@ fn geru() {
         6,
         8,
         Complex::new(0.0, 0.0),
-        &fixtures::complex::vector(6),
+        fixtures::complex::vector(6).as_ptr(),
         -1,
-        &fixtures::complex::vector(8),
+        fixtures::complex::vector(8).as_ptr(),
         -1,
-        &mut a,
+        a.as_mut_ptr(),
         6,
     );
     capproximately!(a, expect);
@@ -885,11 +884,11 @@ fn geru() {
             6,
             8,
             Complex::new(0.0, 0.0),
-            &vec![],
+            vec![].as_ptr(),
             1,
-            &vec![],
+            vec![].as_ptr(),
             1,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             2,
         )
     });
@@ -900,11 +899,11 @@ fn geru() {
             6,
             8,
             Complex::new(0.0, 0.0),
-            &vec![],
+            vec![].as_ptr(),
             0,
-            &vec![],
+            vec![].as_ptr(),
             1,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         )
     });
@@ -915,11 +914,11 @@ fn geru() {
             6,
             8,
             Complex::new(0.0, 0.0),
-            &vec![],
+            vec![].as_ptr(),
             1,
-            &vec![],
+            vec![].as_ptr(),
             0,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         )
     });
@@ -948,12 +947,12 @@ fn hbmv() {
         6,
         3,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         4,
-        &x,
+        x.as_ptr(),
         1,
         Complex::new(0.3, -0.7),
-        &mut y,
+        y.as_mut_ptr(),
         1,
     );
     capproximately!(
@@ -981,12 +980,12 @@ fn hbmv() {
         6,
         3,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         4,
-        &x,
+        x.as_ptr(),
         -1,
         Complex::new(0.0, 0.0),
-        &mut y,
+        y.as_mut_ptr(),
         -1,
     );
     capproximately!(
@@ -1015,12 +1014,12 @@ fn hbmv() {
         6,
         3,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         4,
-        &x,
+        x.as_ptr(),
         -1,
         Complex::new(0.0, 0.0),
-        &mut y,
+        y.as_mut_ptr(),
         -1,
     );
     capproximately!(
@@ -1056,12 +1055,12 @@ fn hbmv() {
         6,
         3,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         4,
-        &x,
+        x.as_ptr(),
         -1,
         Complex::new(1.0, 0.0),
-        &mut y,
+        y.as_mut_ptr(),
         -1,
     );
     capproximately!(y, expect);
@@ -1079,12 +1078,12 @@ fn hbmv() {
         6,
         3,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         4,
-        &x,
+        x.as_ptr(),
         -1,
         Complex::new(1.0, 0.0),
-        &mut y,
+        y.as_mut_ptr(),
         -1,
     );
     capproximately!(
@@ -1118,12 +1117,12 @@ fn hbmv() {
         6,
         3,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         4,
-        &x,
+        x.as_ptr(),
         1,
         Complex::new(1.0, 0.0),
-        &mut y,
+        y.as_mut_ptr(),
         1,
     );
     capproximately!(
@@ -1144,12 +1143,12 @@ fn hbmv() {
             6,
             4,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             4,
-            &x,
+            x.as_ptr(),
             1,
             Complex::new(1.0, 0.0),
-            &mut fixtures::complex::vector(6),
+            fixtures::complex::vector(6).as_mut_ptr(),
             1,
         );
     });
@@ -1163,12 +1162,12 @@ fn hbmv() {
             6,
             4,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             5,
-            &x,
+            x.as_ptr(),
             0,
             Complex::new(1.0, 0.0),
-            &mut fixtures::complex::vector(6),
+            fixtures::complex::vector(6).as_mut_ptr(),
             1,
         );
     });
@@ -1180,12 +1179,12 @@ fn hbmv() {
             6,
             4,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             5,
-            &x,
+            x.as_ptr(),
             1,
             Complex::new(1.0, 0.0),
-            &mut fixtures::complex::vector(6),
+            fixtures::complex::vector(6).as_mut_ptr(),
             0,
         );
     });
@@ -1197,12 +1196,12 @@ fn hbmv() {
             6,
             4,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             5,
-            &x,
+            x.as_ptr(),
             1,
             Complex::new(1.0, 0.0),
-            &mut fixtures::complex::vector(6),
+            fixtures::complex::vector(6).as_mut_ptr(),
             1,
         );
     });
@@ -1226,12 +1225,12 @@ fn hemv() {
         'u',
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &x,
+        x.as_ptr(),
         1,
         Complex::new(0.3, -0.7),
-        &mut y,
+        y.as_mut_ptr(),
         1,
     );
     capproximately!(
@@ -1258,12 +1257,12 @@ fn hemv() {
         'u',
         6,
         Complex::new(-0.12, 0.88),
-        &a,
+        a.as_ptr(),
         6,
-        &x,
+        x.as_ptr(),
         -1,
         Complex::new(-0.43, 0.57),
-        &mut y,
+        y.as_mut_ptr(),
         -1,
     );
     capproximately!(
@@ -1292,12 +1291,12 @@ fn hemv() {
         'l',
         6,
         Complex::new(-0.12, 0.88),
-        &a,
+        a.as_ptr(),
         6,
-        &x,
+        x.as_ptr(),
         -1,
         Complex::new(-0.43, 0.57),
-        &mut y,
+        y.as_mut_ptr(),
         -1,
     );
     capproximately!(
@@ -1325,12 +1324,12 @@ fn hemv() {
         'l',
         6,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &x,
+        x.as_ptr(),
         -1,
         Complex::new(0.0, 0.0),
-        &mut y,
+        y.as_mut_ptr(),
         -1,
     );
     capproximately!(
@@ -1358,12 +1357,12 @@ fn hemv() {
         'l',
         6,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &x,
+        x.as_ptr(),
         -1,
         Complex::new(1.0, 0.0),
-        &mut y,
+        y.as_mut_ptr(),
         -1,
     );
     capproximately!(
@@ -1390,12 +1389,12 @@ fn hemv() {
         'l',
         6,
         Complex::new(0.0, 1.0),
-        &a,
+        a.as_ptr(),
         6,
-        &x,
+        x.as_ptr(),
         -1,
         Complex::new(1.0, 0.0),
-        &mut y,
+        y.as_mut_ptr(),
         -1,
     );
     capproximately!(
@@ -1415,12 +1414,12 @@ fn hemv() {
             'l',
             6,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             5,
-            &x,
+            x.as_ptr(),
             1,
             Complex::new(1.0, 0.0),
-            &mut fixtures::complex::vector(6),
+            fixtures::complex::vector(6).as_mut_ptr(),
             1,
         );
     });
@@ -1431,12 +1430,12 @@ fn hemv() {
             'l',
             6,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             6,
-            &x,
+            x.as_ptr(),
             0,
             Complex::new(1.0, 0.0),
-            &mut fixtures::complex::vector(6),
+            fixtures::complex::vector(6).as_mut_ptr(),
             1,
         );
     });
@@ -1448,12 +1447,12 @@ fn hemv() {
             'l',
             6,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             5,
-            &x,
+            x.as_ptr(),
             1,
             Complex::new(1.0, 0.0),
-            &mut fixtures::complex::vector(6),
+            fixtures::complex::vector(6).as_mut_ptr(),
             0,
         );
     });
@@ -1464,12 +1463,12 @@ fn hemv() {
             'x',
             6,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             5,
-            &x,
+            x.as_ptr(),
             1,
             Complex::new(1.0, 0.0),
-            &mut fixtures::complex::vector(6),
+            fixtures::complex::vector(6).as_mut_ptr(),
             1,
         );
     });
@@ -1490,7 +1489,7 @@ fn her() {
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
 
-    complex::her('u', 6, 0.2, &x, 1, &mut a, 6);
+    complex::her('u', 6, 0.2, x.as_ptr(), 1, a.as_mut_ptr(), 6);
     capproximately!(
         a,
         vec![
@@ -1535,7 +1534,7 @@ fn her() {
 
     let mut a = matrix::complex::slice(fixtures::complex::matrix_mxn(6, 8), 6, 1, 6, 1, 6);
     matrix::complex::set_lower(&mut a, 6, 6, 0.0);
-    complex::her('u', 6, 0.2, &x, -1, &mut a, 6);
+    complex::her('u', 6, 0.2, x.as_ptr(), -1, a.as_mut_ptr(), 6);
     capproximately!(
         a,
         vec![
@@ -1580,7 +1579,7 @@ fn her() {
 
     let mut a = matrix::complex::slice(fixtures::complex::matrix_mxn(6, 8), 6, 1, 6, 1, 6);
     matrix::complex::set_lower(&mut a, 6, 6, 0.0);
-    complex::her('u', 6, 0.0, &x, -1, &mut a, 6);
+    complex::her('u', 6, 0.0, x.as_ptr(), -1, a.as_mut_ptr(), 6);
     capproximately!(
         a,
         vec![
@@ -1625,7 +1624,7 @@ fn her() {
 
     let mut a = matrix::complex::slice(fixtures::complex::matrix_mxn(6, 8), 6, 1, 6, 1, 6);
     matrix::complex::set_upper(&mut a, 6, 6, 0.0);
-    complex::her('l', 6, 1.234, &x, -1, &mut a, 6);
+    complex::her('l', 6, 1.234, x.as_ptr(), -1, a.as_mut_ptr(), 6);
     capproximately!(
         a,
         vec![
@@ -1669,18 +1668,18 @@ fn her() {
     );
 
     let result = std::panic::catch_unwind(|| {
-        complex::her('l', 6, 1.2, &x, 1, &mut vec![], 5);
+        complex::her('l', 6, 1.2, x.as_ptr(), 1, vec![].as_mut_ptr(), 5);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::her('l', 6, 0.2, &x, 0, &mut vec![], 6);
+        complex::her('l', 6, 0.2, x.as_ptr(), 0, vec![].as_mut_ptr(), 6);
     });
 
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::her('x', 6, 0.1, &x, 1, &mut vec![], 6);
+        complex::her('x', 6, 0.1, x.as_ptr(), 1, vec![].as_mut_ptr(), 6);
     });
 
     assert!(result.is_err());
@@ -1707,7 +1706,17 @@ fn her2() {
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
 
-    complex::her2('u', 6, Complex::new(0.2, 0.8), &x, 1, &y, 1, &mut a, 6);
+    complex::her2(
+        'u',
+        6,
+        Complex::new(0.2, 0.8),
+        x.as_ptr(),
+        1,
+        y.as_ptr(),
+        1,
+        a.as_mut_ptr(),
+        6,
+    );
     capproximately!(
         a,
         vec![
@@ -1751,7 +1760,17 @@ fn her2() {
     );
     let mut a = matrix::complex::slice(fixtures::complex::matrix_mxn(6, 8), 6, 1, 6, 1, 6);
     matrix::complex::set_upper(&mut a, 6, 6, 0.0);
-    complex::her2('l', 6, Complex::new(0.2, 0.8), &x, -1, &y, -1, &mut a, 6);
+    complex::her2(
+        'l',
+        6,
+        Complex::new(0.2, 0.8),
+        x.as_ptr(),
+        -1,
+        y.as_ptr(),
+        -1,
+        a.as_mut_ptr(),
+        6,
+    );
     capproximately!(
         a,
         vec![
@@ -1798,7 +1817,17 @@ fn her2() {
     matrix::complex::set_lower(&mut a, 6, 6, 0.0);
     let mut expect = matrix::complex::slice(fixtures::complex::matrix_mxn(6, 8), 6, 1, 6, 1, 6);
     matrix::complex::set_lower(&mut expect, 6, 6, 0.0);
-    complex::her2('l', 6, Complex::new(0.0, 0.0), &x, -1, &y, -1, &mut a, 6);
+    complex::her2(
+        'l',
+        6,
+        Complex::new(0.0, 0.0),
+        x.as_ptr(),
+        -1,
+        y.as_ptr(),
+        -1,
+        a.as_mut_ptr(),
+        6,
+    );
     capproximately!(a, expect);
 
     let result = std::panic::catch_unwind(|| {
@@ -1806,11 +1835,11 @@ fn her2() {
             'x',
             6,
             Complex::new(0.0, 0.0),
-            &x,
+            x.as_ptr(),
             -1,
-            &y,
+            y.as_ptr(),
             -1,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -1821,11 +1850,11 @@ fn her2() {
             'l',
             6,
             Complex::new(0.0, 0.0),
-            &x,
+            x.as_ptr(),
             0,
-            &y,
+            y.as_ptr(),
             -1,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -1836,11 +1865,11 @@ fn her2() {
             'l',
             6,
             Complex::new(0.0, 0.0),
-            &x,
+            x.as_ptr(),
             -1,
-            &y,
+            y.as_ptr(),
             0,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -1851,11 +1880,11 @@ fn her2() {
             'x',
             6,
             Complex::new(0.0, 0.0),
-            &x,
+            x.as_ptr(),
             -1,
-            &y,
+            y.as_ptr(),
             -1,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             4,
         );
     });
@@ -1889,11 +1918,11 @@ fn hpmv() {
         'u',
         6,
         Complex::new(0.2, -0.8),
-        &ap,
-        &x,
+        ap.as_ptr(),
+        x.as_ptr(),
         1,
         Complex::new(0.3, -0.7),
-        &mut y,
+        y.as_mut_ptr(),
         1,
     );
     capproximately!(
@@ -1921,11 +1950,11 @@ fn hpmv() {
         'l',
         6,
         Complex::new(0.2, -0.8),
-        &ap,
-        &x,
+        ap.as_ptr(),
+        x.as_ptr(),
         -1,
         Complex::new(0.3, -0.7),
-        &mut y,
+        y.as_mut_ptr(),
         -1,
     );
     capproximately!(
@@ -1956,11 +1985,11 @@ fn hpmv() {
         'l',
         6,
         Complex::new(0.0, 0.0),
-        &ap,
-        &x,
+        ap.as_ptr(),
+        x.as_ptr(),
         -1,
         Complex::new(1.0, 0.0),
-        &mut y,
+        y.as_mut_ptr(),
         -1,
     );
     capproximately!(
@@ -1988,11 +2017,11 @@ fn hpmv() {
         'l',
         6,
         Complex::new(0.0, 0.0),
-        &ap,
-        &x,
+        ap.as_ptr(),
+        x.as_ptr(),
         -1,
         Complex::new(0.0, 0.0),
-        &mut y,
+        y.as_mut_ptr(),
         -1,
     );
     capproximately!(
@@ -2023,11 +2052,11 @@ fn hpmv() {
         'l',
         6,
         Complex::new(1.0, 0.0),
-        &ap,
-        &x,
+        ap.as_ptr(),
+        x.as_ptr(),
         -1,
         Complex::new(1.0, 0.0),
-        &mut y,
+        y.as_mut_ptr(),
         -1,
     );
     capproximately!(
@@ -2047,11 +2076,11 @@ fn hpmv() {
             'x',
             6,
             Complex::new(0.0, 0.0),
-            &vec![],
-            &vec![],
+            vec![].as_ptr(),
+            vec![].as_ptr(),
             -1,
             Complex::new(0.0, 0.0),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             -1,
         );
     });
@@ -2062,11 +2091,11 @@ fn hpmv() {
             'l',
             6,
             Complex::new(0.0, 0.0),
-            &vec![],
-            &vec![],
+            vec![].as_ptr(),
+            vec![].as_ptr(),
             0,
             Complex::new(0.0, 0.0),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             -1,
         );
     });
@@ -2077,11 +2106,11 @@ fn hpmv() {
             'l',
             6,
             Complex::new(0.0, 0.0),
-            &vec![],
-            &vec![],
+            vec![].as_ptr(),
+            vec![].as_ptr(),
             -1,
             Complex::new(0.0, 0.0),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             0,
         );
     });
@@ -2101,7 +2130,7 @@ fn hpr() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::hpr('u', 6, 0.2, &x, 1, &mut ap);
+    complex::hpr('u', 6, 0.2, x.as_ptr(), 1, ap.as_mut_ptr());
     capproximately!(
         ap,
         vec![
@@ -2131,7 +2160,7 @@ fn hpr() {
     let mut ap = matrix::complex::slice(fixtures::complex::matrix_mxn(6, 8), 6, 1, 6, 1, 6);
     matrix::complex::set_lower(&mut ap, 6, 6, 0.0);
     let mut ap = matrix::complex::pack_upper(ap, 6, 6, 5);
-    complex::hpr('l', 6, 0.2, &x, -1, &mut ap);
+    complex::hpr('l', 6, 0.2, x.as_ptr(), -1, ap.as_mut_ptr());
     capproximately!(
         ap,
         vec![
@@ -2166,16 +2195,16 @@ fn hpr() {
     matrix::complex::set_lower(&mut expect, 6, 6, 0.0);
     let expect = matrix::complex::pack_upper(expect, 6, 6, 5);
 
-    complex::hpr('l', 6, 0.0, &x, -1, &mut ap);
+    complex::hpr('l', 6, 0.0, x.as_ptr(), -1, ap.as_mut_ptr());
     capproximately!(ap, expect);
 
     let result = std::panic::catch_unwind(|| {
-        complex::hpr('x', 6, 0.0, &x, 1, &mut vec![]);
+        complex::hpr('x', 6, 0.0, x.as_ptr(), 1, vec![].as_mut_ptr());
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::hpr('l', 6, 0.0, &x, 0, &mut vec![]);
+        complex::hpr('l', 6, 0.0, x.as_ptr(), 0, vec![].as_mut_ptr());
     });
     assert!(result.is_err());
 }
@@ -2201,7 +2230,16 @@ fn hpr2() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::hpr2('u', 6, Complex::new(0.2, 0.8), &x, 1, &y, 1, &mut ap);
+    complex::hpr2(
+        'u',
+        6,
+        Complex::new(0.2, 0.8),
+        x.as_ptr(),
+        1,
+        y.as_ptr(),
+        1,
+        ap.as_mut_ptr(),
+    );
     capproximately!(
         ap,
         vec![
@@ -2231,7 +2269,16 @@ fn hpr2() {
     let mut ap = matrix::complex::slice(fixtures::complex::matrix_mxn(6, 8), 6, 1, 6, 1, 6);
     matrix::complex::set_upper(&mut ap, 6, 6, 0.0);
     let mut ap = matrix::complex::pack_lower(ap, 6, 6, 5);
-    complex::hpr2('l', 6, Complex::new(0.2, 0.8), &x, -1, &y, -1, &mut ap);
+    complex::hpr2(
+        'l',
+        6,
+        Complex::new(0.2, 0.8),
+        x.as_ptr(),
+        -1,
+        y.as_ptr(),
+        -1,
+        ap.as_mut_ptr(),
+    );
     capproximately!(
         ap,
         vec![
@@ -2265,21 +2312,57 @@ fn hpr2() {
     matrix::complex::set_upper(&mut expect, 6, 6, 0.0);
     let expect = matrix::complex::pack_lower(expect, 6, 6, 5);
 
-    complex::hpr2('l', 6, Complex::new(0.0, 0.0), &x, -1, &y, -1, &mut ap);
+    complex::hpr2(
+        'l',
+        6,
+        Complex::new(0.0, 0.0),
+        x.as_ptr(),
+        -1,
+        y.as_ptr(),
+        -1,
+        ap.as_mut_ptr(),
+    );
     capproximately!(ap, expect);
 
     let result = std::panic::catch_unwind(|| {
-        complex::hpr2('x', 6, Complex::new(0.0, 0.0), &x, 1, &y, 1, &mut vec![]);
+        complex::hpr2(
+            'x',
+            6,
+            Complex::new(0.0, 0.0),
+            x.as_ptr(),
+            1,
+            y.as_ptr(),
+            1,
+            vec![].as_mut_ptr(),
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::hpr2('l', 6, Complex::new(0.0, 0.0), &x, 0, &y, 1, &mut vec![]);
+        complex::hpr2(
+            'l',
+            6,
+            Complex::new(0.0, 0.0),
+            x.as_ptr(),
+            0,
+            y.as_ptr(),
+            1,
+            vec![].as_mut_ptr(),
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::hpr2('l', 6, Complex::new(0.0, 0.0), &x, 1, &y, 0, &mut vec![]);
+        complex::hpr2(
+            'l',
+            6,
+            Complex::new(0.0, 0.0),
+            x.as_ptr(),
+            1,
+            y.as_ptr(),
+            0,
+            vec![].as_mut_ptr(),
+        );
     });
     assert!(result.is_err());
 }
@@ -2296,7 +2379,7 @@ fn tbmv() {
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
 
-    complex::tbmv('u', 'n', 'n', 6, 3, &a, 6, &mut x, 1);
+    complex::tbmv('u', 'n', 'n', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2317,7 +2400,7 @@ fn tbmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbmv('u', 'n', 'u', 6, 3, &a, 6, &mut x, 1);
+    complex::tbmv('u', 'n', 'u', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2338,7 +2421,7 @@ fn tbmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbmv('l', 'n', 'n', 6, 3, &a, 6, &mut x, 1);
+    complex::tbmv('l', 'n', 'n', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2359,7 +2442,7 @@ fn tbmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbmv('l', 'n', 'u', 6, 3, &a, 6, &mut x, 1);
+    complex::tbmv('l', 'n', 'u', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2380,7 +2463,7 @@ fn tbmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbmv('u', 't', 'n', 6, 3, &a, 6, &mut x, 1);
+    complex::tbmv('u', 't', 'n', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2401,7 +2484,7 @@ fn tbmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbmv('u', 't', 'u', 6, 3, &a, 6, &mut x, 1);
+    complex::tbmv('u', 't', 'u', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2422,7 +2505,7 @@ fn tbmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbmv('l', 't', 'n', 6, 3, &a, 6, &mut x, 1);
+    complex::tbmv('l', 't', 'n', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2443,7 +2526,7 @@ fn tbmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbmv('l', 't', 'u', 6, 3, &a, 6, &mut x, 1);
+    complex::tbmv('l', 't', 'u', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2464,7 +2547,7 @@ fn tbmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbmv('u', 'c', 'n', 6, 3, &a, 6, &mut x, -1);
+    complex::tbmv('u', 'c', 'n', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), -1);
     capproximately!(
         x,
         vec![
@@ -2485,7 +2568,7 @@ fn tbmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbmv('u', 'c', 'u', 6, 3, &a, 6, &mut x, 1);
+    complex::tbmv('u', 'c', 'u', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2506,7 +2589,7 @@ fn tbmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbmv('l', 'c', 'n', 6, 3, &a, 6, &mut x, 1);
+    complex::tbmv('l', 'c', 'n', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2527,7 +2610,7 @@ fn tbmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbmv('l', 'c', 'u', 6, 3, &a, 6, &mut x, 1);
+    complex::tbmv('l', 'c', 'u', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2548,7 +2631,7 @@ fn tbmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbmv('l', 'c', 'u', 0, 3, &a, 6, &mut x, 1);
+    complex::tbmv('l', 'c', 'u', 0, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2562,27 +2645,27 @@ fn tbmv() {
     );
 
     let result = std::panic::catch_unwind(|| {
-        complex::tbmv('x', 't', 'u', 6, 5, &a, 6, &mut vec![], 1);
+        complex::tbmv('x', 't', 'u', 6, 5, a.as_ptr(), 6, vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::tbmv('u', 'x', 'u', 6, 5, &a, 6, &mut vec![], 1);
+        complex::tbmv('u', 'x', 'u', 6, 5, a.as_ptr(), 6, vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::tbmv('u', 't', 'c', 6, 5, &a, 6, &mut vec![], 1);
+        complex::tbmv('u', 't', 'c', 6, 5, a.as_ptr(), 6, vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::tbmv('u', 't', 'n', 6, 5, &a, 4, &mut vec![], 1);
+        complex::tbmv('u', 't', 'n', 6, 5, a.as_ptr(), 4, vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::tbmv('u', 't', 'n', 6, 5, &a, 4, &mut vec![], 0);
+        complex::tbmv('u', 't', 'n', 6, 5, a.as_ptr(), 4, vec![].as_mut_ptr(), 0);
     });
     assert!(result.is_err());
 }
@@ -2599,7 +2682,7 @@ fn tbsv() {
         Complex::new(0.0, 0.0),
     ];
 
-    complex::tbsv('u', 'n', 'n', 6, 3, &a, 6, &mut x, 1);
+    complex::tbsv('u', 'n', 'n', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2619,7 +2702,7 @@ fn tbsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbsv('u', 'n', 'u', 6, 3, &a, 6, &mut x, 1);
+    complex::tbsv('u', 'n', 'u', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2640,7 +2723,7 @@ fn tbsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbsv('l', 'n', 'n', 6, 3, &a, 6, &mut x, 1);
+    complex::tbsv('l', 'n', 'n', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2662,7 +2745,7 @@ fn tbsv() {
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
 
-    complex::tbsv('l', 'n', 'u', 6, 3, &a, 6, &mut x, 1);
+    complex::tbsv('l', 'n', 'u', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2683,7 +2766,7 @@ fn tbsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbsv('u', 't', 'n', 6, 3, &a, 6, &mut x, 1);
+    complex::tbsv('u', 't', 'n', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2704,7 +2787,7 @@ fn tbsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbsv('u', 't', 'u', 6, 3, &a, 6, &mut x, 1);
+    complex::tbsv('u', 't', 'u', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2725,7 +2808,7 @@ fn tbsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbsv('l', 't', 'n', 6, 3, &a, 6, &mut x, 1);
+    complex::tbsv('l', 't', 'n', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2746,7 +2829,7 @@ fn tbsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbsv('l', 't', 'u', 6, 3, &a, 6, &mut x, 1);
+    complex::tbsv('l', 't', 'u', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2767,7 +2850,7 @@ fn tbsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbsv('u', 'c', 'n', 6, 3, &a, 6, &mut x, -1);
+    complex::tbsv('u', 'c', 'n', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), -1);
     capproximately!(
         x,
         vec![
@@ -2788,7 +2871,7 @@ fn tbsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbsv('u', 'c', 'u', 6, 3, &a, 6, &mut x, 1);
+    complex::tbsv('u', 'c', 'u', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2808,7 +2891,7 @@ fn tbsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbsv('l', 'c', 'n', 6, 3, &a, 6, &mut x, 1);
+    complex::tbsv('l', 'c', 'n', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2829,7 +2912,7 @@ fn tbsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbsv('l', 'c', 'u', 6, 3, &a, 6, &mut x, 1);
+    complex::tbsv('l', 'c', 'u', 6, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2850,7 +2933,7 @@ fn tbsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tbsv('l', 'c', 'u', 0, 3, &a, 6, &mut x, 1);
+    complex::tbsv('l', 'c', 'u', 0, 3, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2864,27 +2947,27 @@ fn tbsv() {
     );
 
     let result = std::panic::catch_unwind(|| {
-        complex::tbsv('x', 't', 'u', 6, 5, &a, 6, &mut vec![], 1);
+        complex::tbsv('x', 't', 'u', 6, 5, a.as_ptr(), 6, vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::tbsv('u', 'x', 'u', 6, 5, &a, 6, &mut vec![], 1);
+        complex::tbsv('u', 'x', 'u', 6, 5, a.as_ptr(), 6, vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::tbsv('u', 't', 'c', 6, 5, &a, 6, &mut vec![], 1);
+        complex::tbsv('u', 't', 'c', 6, 5, a.as_ptr(), 6, vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::tbsv('u', 't', 'n', 6, 5, &a, 4, &mut vec![], 1);
+        complex::tbsv('u', 't', 'n', 6, 5, a.as_ptr(), 4, vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::tbsv('u', 't', 'n', 6, 5, &a, 4, &mut vec![], 0);
+        complex::tbsv('u', 't', 'n', 6, 5, a.as_ptr(), 4, vec![].as_mut_ptr(), 0);
     });
     assert!(result.is_err());
 }
@@ -2902,7 +2985,7 @@ fn tpmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpmv('u', 'n', 'n', 6, &ap, &mut x, 1);
+    complex::tpmv('u', 'n', 'n', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2923,7 +3006,7 @@ fn tpmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpmv('u', 'n', 'u', 6, &ap, &mut x, 1);
+    complex::tpmv('u', 'n', 'u', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2944,7 +3027,7 @@ fn tpmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpmv('l', 'n', 'n', 6, &ap, &mut x, 1);
+    complex::tpmv('l', 'n', 'n', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2965,7 +3048,7 @@ fn tpmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpmv('l', 'n', 'u', 6, &ap, &mut x, 1);
+    complex::tpmv('l', 'n', 'u', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -2985,10 +3068,7 @@ fn tpmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    for c in ap.iter() {
-        println!("{:?}", c.im);
-    }
-    complex::tpmv('u', 't', 'n', 6, &ap, &mut x, 1);
+    complex::tpmv('u', 't', 'n', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3009,7 +3089,7 @@ fn tpmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpmv('u', 't', 'u', 6, &ap, &mut x, 1);
+    complex::tpmv('u', 't', 'u', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3030,7 +3110,7 @@ fn tpmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpmv('l', 't', 'n', 6, &ap, &mut x, 1);
+    complex::tpmv('l', 't', 'n', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3051,7 +3131,7 @@ fn tpmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpmv('l', 't', 'u', 6, &ap, &mut x, 1);
+    complex::tpmv('l', 't', 'u', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3071,7 +3151,7 @@ fn tpmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpmv('u', 'c', 'n', 6, &ap, &mut x, -1);
+    complex::tpmv('u', 'c', 'n', 6, ap.as_ptr(), x.as_mut_ptr(), -1);
     capproximately!(
         x,
         vec![
@@ -3092,7 +3172,7 @@ fn tpmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpmv('u', 'c', 'u', 6, &ap, &mut x, 1);
+    complex::tpmv('u', 'c', 'u', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3112,7 +3192,7 @@ fn tpmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpmv('l', 'c', 'n', 6, &ap, &mut x, 1);
+    complex::tpmv('l', 'c', 'n', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3133,7 +3213,7 @@ fn tpmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpmv('l', 'c', 'u', 6, &ap, &mut x, 1);
+    complex::tpmv('l', 'c', 'u', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3154,7 +3234,7 @@ fn tpmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpmv('l', 'c', 'u', 0, &ap, &mut x, 1);
+    complex::tpmv('l', 'c', 'u', 0, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3168,22 +3248,22 @@ fn tpmv() {
     );
 
     let result = std::panic::catch_unwind(|| {
-        complex::tpmv('x', 't', 'u', 6, &ap, &mut vec![], 1);
+        complex::tpmv('x', 't', 'u', 6, ap.as_ptr(), vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::tpmv('u', 'x', 'u', 6, &ap, &mut vec![], 1);
+        complex::tpmv('u', 'x', 'u', 6, ap.as_ptr(), vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::tpmv('u', 't', 'x', 6, &ap, &mut vec![], 1);
+        complex::tpmv('u', 't', 'x', 6, ap.as_ptr(), vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::tpmv('u', 't', 'n', 6, &ap, &mut vec![], 0);
+        complex::tpmv('u', 't', 'n', 6, ap.as_ptr(), vec![].as_mut_ptr(), 0);
     });
     assert!(result.is_err());
 }
@@ -3201,7 +3281,7 @@ fn tpsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(0.0, 0.0),
     ];
-    complex::tpsv('u', 'n', 'n', 6, &ap, &mut x, 1);
+    complex::tpsv('u', 'n', 'n', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3222,7 +3302,7 @@ fn tpsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(0.0, 0.0),
     ];
-    complex::tpsv('u', 'n', 'u', 6, &ap, &mut x, 1);
+    complex::tpsv('u', 'n', 'u', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3242,7 +3322,7 @@ fn tpsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpsv('l', 'n', 'n', 6, &ap, &mut x, 1);
+    complex::tpsv('l', 'n', 'n', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3263,7 +3343,7 @@ fn tpsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpsv('l', 'n', 'u', 6, &ap, &mut x, 1);
+    complex::tpsv('l', 'n', 'u', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3284,7 +3364,7 @@ fn tpsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpsv('u', 't', 'n', 6, &ap, &mut x, 1);
+    complex::tpsv('u', 't', 'n', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3305,7 +3385,7 @@ fn tpsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpsv('u', 't', 'u', 6, &ap, &mut x, 1);
+    complex::tpsv('u', 't', 'u', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3326,7 +3406,7 @@ fn tpsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpsv('l', 't', 'n', 6, &ap, &mut x, 1);
+    complex::tpsv('l', 't', 'n', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3348,7 +3428,7 @@ fn tpsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpsv('l', 't', 'u', 6, &ap, &mut x, 1);
+    complex::tpsv('l', 't', 'u', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3369,7 +3449,7 @@ fn tpsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpsv('u', 'c', 'n', 6, &ap, &mut x, -1);
+    complex::tpsv('u', 'c', 'n', 6, ap.as_ptr(), x.as_mut_ptr(), -1);
     capproximately!(
         x,
         vec![
@@ -3390,7 +3470,7 @@ fn tpsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpsv('u', 'c', 'u', 6, &ap, &mut x, 1);
+    complex::tpsv('u', 'c', 'u', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3411,7 +3491,7 @@ fn tpsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpsv('l', 'c', 'n', 6, &ap, &mut x, 1);
+    complex::tpsv('l', 'c', 'n', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3433,7 +3513,7 @@ fn tpsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpsv('l', 'c', 'u', 6, &ap, &mut x, 1);
+    complex::tpsv('l', 'c', 'u', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3454,7 +3534,7 @@ fn tpsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::tpsv('l', 'c', 'u', 0, &ap, &mut x, 1);
+    complex::tpsv('l', 'c', 'u', 0, ap.as_ptr(), x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3468,22 +3548,22 @@ fn tpsv() {
     );
 
     let result = std::panic::catch_unwind(|| {
-        complex::tpsv('x', 't', 'u', 6, &ap, &mut vec![], 1);
+        complex::tpsv('x', 't', 'u', 6, ap.as_ptr(), vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::tpsv('u', 'x', 'u', 6, &ap, &mut vec![], 1);
+        complex::tpsv('u', 'x', 'u', 6, ap.as_ptr(), vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::tpsv('u', 't', 'x', 6, &ap, &mut vec![], 1);
+        complex::tpsv('u', 't', 'x', 6, ap.as_ptr(), vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::tpsv('u', 't', 'n', 6, &ap, &mut vec![], 0);
+        complex::tpsv('u', 't', 'n', 6, ap.as_ptr(), vec![].as_mut_ptr(), 0);
     });
     assert!(result.is_err());
 }
@@ -3500,7 +3580,7 @@ fn trmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(0.0, 0.0),
     ];
-    complex::trmv('u', 'n', 'n', 6, &a, 6, &mut x, 1);
+    complex::trmv('u', 'n', 'n', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3521,7 +3601,7 @@ fn trmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(0.0, 0.0),
     ];
-    complex::trmv('u', 'n', 'u', 6, &a, 6, &mut x, 1);
+    complex::trmv('u', 'n', 'u', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3545,7 +3625,7 @@ fn trmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(0.0, 0.0),
     ];
-    complex::trmv('l', 'n', 'n', 6, &a, 6, &mut x, 1);
+    complex::trmv('l', 'n', 'n', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3566,7 +3646,7 @@ fn trmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(0.0, 0.0),
     ];
-    complex::trmv('l', 'n', 'u', 6, &a, 6, &mut x, 1);
+    complex::trmv('l', 'n', 'u', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3590,7 +3670,7 @@ fn trmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(0.0, 0.0),
     ];
-    complex::trmv('u', 't', 'n', 6, &a, 6, &mut x, 1);
+    complex::trmv('u', 't', 'n', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3614,7 +3694,7 @@ fn trmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(0.0, 0.0),
     ];
-    complex::trmv('u', 't', 'u', 6, &a, 6, &mut x, 1);
+    complex::trmv('u', 't', 'u', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3638,7 +3718,7 @@ fn trmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(0.0, 0.0),
     ];
-    complex::trmv('l', 't', 'n', 6, &a, 6, &mut x, 1);
+    complex::trmv('l', 't', 'n', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3659,7 +3739,7 @@ fn trmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(0.0, 0.0),
     ];
-    complex::trmv('l', 't', 'u', 6, &a, 6, &mut x, 1);
+    complex::trmv('l', 't', 'u', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3683,7 +3763,7 @@ fn trmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(0.0, 0.0),
     ];
-    complex::trmv('u', 'c', 'n', 6, &a, 6, &mut x, 1);
+    complex::trmv('u', 'c', 'n', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3704,7 +3784,7 @@ fn trmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(0.0, 0.0),
     ];
-    complex::trmv('u', 'c', 'u', 6, &a, 6, &mut x, 1);
+    complex::trmv('u', 'c', 'u', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3728,7 +3808,7 @@ fn trmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(0.0, 0.0),
     ];
-    complex::trmv('l', 'c', 'n', 6, &a, 6, &mut x, 1);
+    complex::trmv('l', 'c', 'n', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3749,7 +3829,7 @@ fn trmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(0.0, 0.0),
     ];
-    complex::trmv('l', 'c', 'u', 6, &a, 6, &mut x, -1);
+    complex::trmv('l', 'c', 'u', 6, a.as_ptr(), 6, x.as_mut_ptr(), -1);
     capproximately!(
         x,
         vec![
@@ -3770,7 +3850,7 @@ fn trmv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(0.0, 0.0),
     ];
-    complex::trmv('l', 'c', 'u', 0, &a, 6, &mut x, -1);
+    complex::trmv('l', 'c', 'u', 0, a.as_ptr(), 6, x.as_mut_ptr(), -1);
     capproximately!(
         x,
         vec![
@@ -3784,27 +3864,27 @@ fn trmv() {
     );
 
     let result = std::panic::catch_unwind(|| {
-        complex::trmv('x', 't', 'u', 6, &a, 6, &mut vec![], 1);
+        complex::trmv('x', 't', 'u', 6, a.as_ptr(), 6, vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::trmv('u', 'x', 'u', 6, &a, 6, &mut vec![], 1);
+        complex::trmv('u', 'x', 'u', 6, a.as_ptr(), 6, vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::trmv('u', 't', 'x', 6, &a, 6, &mut vec![], 1);
+        complex::trmv('u', 't', 'x', 6, a.as_ptr(), 6, vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::trmv('u', 't', 'n', 6, &a, 6, &mut vec![], 0);
+        complex::trmv('u', 't', 'n', 6, a.as_ptr(), 6, vec![].as_mut_ptr(), 0);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::trmv('u', 't', 'n', 6, &a, 5, &mut vec![], 1);
+        complex::trmv('u', 't', 'n', 6, a.as_ptr(), 5, vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 }
@@ -3822,7 +3902,7 @@ fn trsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(0.0, 0.0),
     ];
-    complex::trsv('u', 'n', 'n', 6, &a, 6, &mut x, 1);
+    complex::trsv('u', 'n', 'n', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3842,7 +3922,7 @@ fn trsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(0.0, 0.0),
     ];
-    complex::trsv('u', 'n', 'u', 6, &a, 6, &mut x, 1);
+    complex::trsv('u', 'n', 'u', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3866,7 +3946,7 @@ fn trsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::trsv('l', 'n', 'n', 6, &a, 6, &mut x, 1);
+    complex::trsv('l', 'n', 'n', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3887,7 +3967,7 @@ fn trsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::trsv('l', 'n', 'u', 6, &a, 6, &mut x, 1);
+    complex::trsv('l', 'n', 'u', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3911,7 +3991,7 @@ fn trsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::trsv('u', 't', 'n', 6, &a, 6, &mut x, 1);
+    complex::trsv('u', 't', 'n', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3932,7 +4012,7 @@ fn trsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::trsv('u', 't', 'u', 6, &a, 6, &mut x, 1);
+    complex::trsv('u', 't', 'u', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3956,7 +4036,7 @@ fn trsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(0.0, 0.0),
     ];
-    complex::trsv('l', 't', 'n', 6, &a, 6, &mut x, 1);
+    complex::trsv('l', 't', 'n', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -3977,7 +4057,7 @@ fn trsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(0.0, 0.0),
     ];
-    complex::trsv('l', 't', 'u', 6, &a, 6, &mut x, 1);
+    complex::trsv('l', 't', 'u', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -4000,7 +4080,7 @@ fn trsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::trsv('u', 'c', 'n', 6, &a, 6, &mut x, 1);
+    complex::trsv('u', 'c', 'n', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -4021,7 +4101,7 @@ fn trsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(-0.11775359816595128, -0.27577802908802723),
     ];
-    complex::trsv('u', 'c', 'u', 6, &a, 6, &mut x, 1);
+    complex::trsv('u', 'c', 'u', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -4045,7 +4125,7 @@ fn trsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(0.0, 0.0),
     ];
-    complex::trsv('l', 'c', 'n', 6, &a, 6, &mut x, 1);
+    complex::trsv('l', 'c', 'n', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -4066,7 +4146,7 @@ fn trsv() {
         Complex::new(0.14377148075806995, 0.9969868609091059),
         Complex::new(0.0, 0.0),
     ];
-    complex::trsv('l', 'c', 'u', 6, &a, 6, &mut x, -1);
+    complex::trsv('l', 'c', 'u', 6, a.as_ptr(), 6, x.as_mut_ptr(), -1);
     capproximately!(
         x,
         vec![
@@ -4087,7 +4167,7 @@ fn trsv() {
         Complex::new(0.14377148449420929, 0.99698686599731445),
         Complex::new(-0.11775359511375427, -0.27577802538871765),
     ];
-    complex::trsv('l', 'c', 'u', 0, &a, 6, &mut x, 1);
+    complex::trsv('l', 'c', 'u', 0, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     capproximately!(
         x,
         vec![
@@ -4101,27 +4181,27 @@ fn trsv() {
     );
 
     let result = std::panic::catch_unwind(|| {
-        complex::trsv('x', 't', 'u', 6, &a, 6, &mut vec![], 1);
+        complex::trsv('x', 't', 'u', 6, a.as_ptr(), 6, vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::trsv('u', 'x', 'u', 6, &a, 6, &mut vec![], 1);
+        complex::trsv('u', 'x', 'u', 6, a.as_ptr(), 6, vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::trsv('u', 't', 'x', 6, &a, 6, &mut vec![], 1);
+        complex::trsv('u', 't', 'x', 6, a.as_ptr(), 6, vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::trsv('u', 't', 'n', 6, &a, 6, &mut vec![], 0);
+        complex::trsv('u', 't', 'n', 6, a.as_ptr(), 6, vec![].as_mut_ptr(), 0);
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::trsv('u', 't', 'n', 6, &a, 5, &mut vec![], 1);
+        complex::trsv('u', 't', 'n', 6, a.as_ptr(), 5, vec![].as_mut_ptr(), 1);
     });
     assert!(result.is_err());
 }

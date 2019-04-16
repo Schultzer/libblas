@@ -152,13 +152,13 @@ pub struct swap {
 #[allow(non_camel_case_types)]
 pub struct gbmv {
     pub trans: char,
-    pub m: usize,
-    pub n: usize,
-    pub kl: usize,
-    pub ku: usize,
+    pub m: isize,
+    pub n: isize,
+    pub kl: isize,
+    pub ku: isize,
     pub alpha: f64,
     pub a: Vec<f64>,
-    pub lda: usize,
+    pub lda: isize,
     pub x: Vec<f64>,
     pub incx: isize,
     pub beta: f64,
@@ -171,11 +171,11 @@ pub struct gbmv {
 #[allow(non_camel_case_types)]
 pub struct gemv {
     pub trans: char,
-    pub m: usize,
-    pub n: usize,
+    pub m: isize,
+    pub n: isize,
     pub alpha: f64,
     pub a: Vec<f64>,
-    pub lda: usize,
+    pub lda: isize,
     pub x: Vec<f64>,
     pub incx: isize,
     pub beta: f64,
@@ -187,15 +187,15 @@ pub struct gemv {
 #[derive(Deserialize, Debug, Default)]
 #[allow(non_camel_case_types)]
 pub struct ger {
-    pub m: usize,
-    pub n: usize,
+    pub m: isize,
+    pub n: isize,
     pub alpha: f64,
     pub x: Vec<f64>,
     pub incx: isize,
     pub y: Vec<f64>,
     pub incy: isize,
     pub a: Vec<f64>,
-    pub lda: usize,
+    pub lda: isize,
     pub expect: Vec<f64>,
 }
 
@@ -203,11 +203,11 @@ pub struct ger {
 #[allow(non_camel_case_types)]
 pub struct sbmv {
     pub uplo: char,
-    pub n: usize,
-    pub k: usize,
+    pub n: isize,
+    pub k: isize,
     pub alpha: f64,
     pub a: Vec<f64>,
-    pub lda: usize,
+    pub lda: isize,
     pub x: Vec<f64>,
     pub incx: isize,
     pub beta: f64,
@@ -220,7 +220,7 @@ pub struct sbmv {
 #[allow(non_camel_case_types)]
 pub struct spmv {
     pub uplo: char,
-    pub n: usize,
+    pub n: isize,
     pub alpha: f64,
     pub ap: Vec<f64>,
     pub x: Vec<f64>,
@@ -235,7 +235,7 @@ pub struct spmv {
 #[allow(non_camel_case_types)]
 pub struct spr {
     pub uplo: char,
-    pub n: usize,
+    pub n: isize,
     pub alpha: f64,
     pub x: Vec<f64>,
     pub incx: isize,
@@ -247,7 +247,7 @@ pub struct spr {
 #[allow(non_camel_case_types)]
 pub struct spr2 {
     pub uplo: char,
-    pub n: usize,
+    pub n: isize,
     pub alpha: f64,
     pub x: Vec<f64>,
     pub incx: isize,
@@ -261,10 +261,10 @@ pub struct spr2 {
 #[allow(non_camel_case_types)]
 pub struct symv {
     pub uplo: char,
-    pub n: usize,
+    pub n: isize,
     pub alpha: f64,
     pub a: Vec<f64>,
-    pub lda: usize,
+    pub lda: isize,
     pub x: Vec<f64>,
     pub incx: isize,
     pub beta: f64,
@@ -277,12 +277,12 @@ pub struct symv {
 #[allow(non_camel_case_types)]
 pub struct syr {
     pub uplo: char,
-    pub n: usize,
+    pub n: isize,
     pub alpha: f64,
     pub x: Vec<f64>,
     pub incx: isize,
     pub a: Vec<f64>,
-    pub lda: usize,
+    pub lda: isize,
     pub expect: Vec<f64>,
 }
 
@@ -290,14 +290,14 @@ pub struct syr {
 #[allow(non_camel_case_types)]
 pub struct syr2 {
     pub uplo: char,
-    pub n: usize,
+    pub n: isize,
     pub alpha: f64,
     pub x: Vec<f64>,
     pub incx: isize,
     pub y: Vec<f64>,
     pub incy: isize,
     pub a: Vec<f64>,
-    pub lda: usize,
+    pub lda: isize,
     pub expect: Vec<f64>,
 }
 
@@ -307,10 +307,10 @@ pub struct tbmv {
     pub uplo: char,
     pub trans: char,
     pub diag: char,
-    pub n: usize,
-    pub k: usize,
+    pub n: isize,
+    pub k: isize,
     pub a: Vec<f64>,
-    pub lda: usize,
+    pub lda: isize,
     pub x: Vec<f64>,
     pub incx: isize,
     pub expect: Vec<f64>,
@@ -322,10 +322,10 @@ pub struct tbsv {
     pub uplo: char,
     pub trans: char,
     pub diag: char,
-    pub n: usize,
-    pub k: usize,
+    pub n: isize,
+    pub k: isize,
     pub a: Vec<f64>,
-    pub lda: usize,
+    pub lda: isize,
     pub x: Vec<f64>,
     pub incx: isize,
     pub expect: Vec<f64>,
@@ -337,7 +337,7 @@ pub struct tpmv {
     pub uplo: char,
     pub trans: char,
     pub diag: char,
-    pub n: usize,
+    pub n: isize,
     pub ap: Vec<f64>,
     pub x: Vec<f64>,
     pub incx: isize,
@@ -350,7 +350,7 @@ pub struct tpsv {
     pub uplo: char,
     pub trans: char,
     pub diag: char,
-    pub n: usize,
+    pub n: isize,
     pub ap: Vec<f64>,
     pub x: Vec<f64>,
     pub incx: isize,
@@ -363,9 +363,9 @@ pub struct trmv {
     pub uplo: char,
     pub trans: char,
     pub diag: char,
-    pub n: usize,
+    pub n: isize,
     pub a: Vec<f64>,
-    pub lda: usize,
+    pub lda: isize,
     pub x: Vec<f64>,
     pub incx: isize,
     pub expect: Vec<f64>,
@@ -376,9 +376,9 @@ pub struct trsv {
     pub uplo: char,
     pub trans: char,
     pub diag: char,
-    pub n: usize,
+    pub n: isize,
     pub a: Vec<f64>,
-    pub lda: usize,
+    pub lda: isize,
     pub x: Vec<f64>,
     pub incx: isize,
     pub expect: Vec<f64>,

@@ -12,17 +12,59 @@ fn gbmv() {
     let x = vec![1.0, 1.0, 2.0, 2.0, 3.0, 3.0, 4.0, 4.0, 5.0];
     let mut y = vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
 
-    level2::gbmv('n', 6, 9, 1, 1, 1.5, &a, 3, &x, 1, 2.5, &mut y, 1);
+    level2::gbmv(
+        'n',
+        6,
+        9,
+        1,
+        1,
+        1.5,
+        a.as_ptr(),
+        3,
+        x.as_ptr(),
+        1,
+        2.5,
+        y.as_mut_ptr(),
+        1,
+    );
     assert_eq!(y, vec![4.0, 1.0, 4.0, 1.0, 4.0, 1.0]);
 
     let a = vec![];
     let x = vec![];
     let mut y = vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
-    level2::gbmv('n', 6, 0, 1, 1, 1.5, &a, 3, &x, 1, 2.5, &mut y, 1);
+    level2::gbmv(
+        'n',
+        6,
+        0,
+        1,
+        1,
+        1.5,
+        a.as_ptr(),
+        3,
+        x.as_ptr(),
+        1,
+        2.5,
+        y.as_mut_ptr(),
+        1,
+    );
     assert_eq!(y, vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0]);
 
     let mut y = vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
-    level2::gbmv('n', 6, 9, 1, 1, 0.0, &a, 3, &x, 1, 1.0, &mut y, 1);
+    level2::gbmv(
+        'n',
+        6,
+        9,
+        1,
+        1,
+        0.0,
+        a.as_ptr(),
+        3,
+        x.as_ptr(),
+        1,
+        1.0,
+        y.as_mut_ptr(),
+        1,
+    );
     assert_eq!(y, vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0]);
 
     let a = vec![
@@ -31,15 +73,57 @@ fn gbmv() {
     ];
     let x = vec![1.0, 1.0, 2.0, 2.0, 3.0, 3.0, 4.0, 4.0, 5.0];
     let mut y = vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
-    level2::gbmv('n', 3, 9, 1, 1, 1.5, &a, 3, &x, 1, 2.5, &mut y, 2);
+    level2::gbmv(
+        'n',
+        3,
+        9,
+        1,
+        1,
+        1.5,
+        a.as_ptr(),
+        3,
+        x.as_ptr(),
+        1,
+        2.5,
+        y.as_mut_ptr(),
+        2,
+    );
     assert_eq!(y, vec![4.0, 1.0, 1.0, 1.0, 4.0, 1.0]);
 
     let mut y = vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
-    level2::gbmv('n', 3, 9, 1, 1, 1.5, &a, 3, &x, 1, 0.0, &mut y, 2);
+    level2::gbmv(
+        'n',
+        3,
+        9,
+        1,
+        1,
+        1.5,
+        a.as_ptr(),
+        3,
+        x.as_ptr(),
+        1,
+        0.0,
+        y.as_mut_ptr(),
+        2,
+    );
     assert_eq!(y, vec![1.5, 1.0, -1.5, 1.0, 1.5, 1.0]);
 
     let mut y = vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
-    level2::gbmv('n', 6, 9, 1, 1, 1.5, &a, 3, &x, 1, 0.0, &mut y, 1);
+    level2::gbmv(
+        'n',
+        6,
+        9,
+        1,
+        1,
+        1.5,
+        a.as_ptr(),
+        3,
+        x.as_ptr(),
+        1,
+        0.0,
+        y.as_mut_ptr(),
+        1,
+    );
     assert_eq!(y, vec![1.5, -1.5, 1.5, -1.5, 1.5, -1.5]);
 
     let mut y = vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
@@ -50,23 +134,51 @@ fn gbmv() {
         1,
         1,
         1.5,
-        &a,
+        a.as_ptr(),
         3,
-        &vec![1.0, 1.0, 2.0, 2.0, 3.0, 3.0],
+        vec![1.0, 1.0, 2.0, 2.0, 3.0, 3.0].as_ptr(),
         1,
         1.0,
-        &mut y,
+        y.as_mut_ptr(),
         1,
     );
     assert_eq!(y, vec![2.5, -0.5, 2.5, -0.5, 2.5, 5.5, -3.5, 1.0, 1.0]);
 
     let mut y = vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
-    level2::gbmv('n', 6, 9, 1, 1, 0.0, &a, 3, &x, 1, 2.5, &mut y, 1);
+    level2::gbmv(
+        'n',
+        6,
+        9,
+        1,
+        1,
+        0.0,
+        a.as_ptr(),
+        3,
+        x.as_ptr(),
+        1,
+        2.5,
+        y.as_mut_ptr(),
+        1,
+    );
     assert_eq!(y, vec![2.5, 2.5, 2.5, 2.5, 2.5, 2.5]);
 
     let x = vec![1.0, 1.0, 2.0, 2.0, 3.0, 3.0, 4.0, 4.0, 3.0];
     let mut y = vec![9.0, 0.0, 0.0, 0.0, 0.0, -9.0];
-    level2::gbmv('n', 6, 9, 1, 1, 1.0, &a, 3, &x, -1, 0.0, &mut y, -1);
+    level2::gbmv(
+        'n',
+        6,
+        9,
+        1,
+        1,
+        1.0,
+        a.as_ptr(),
+        3,
+        x.as_ptr(),
+        -1,
+        0.0,
+        y.as_mut_ptr(),
+        -1,
+    );
     assert_eq!(y, vec![-1.0, 1.0, -1.0, 1.0, 1.0, 2.0]);
 
     let result = std::panic::catch_unwind(|| {
@@ -77,12 +189,12 @@ fn gbmv() {
             1,
             1,
             1.5,
-            &vec![],
+            vec![].as_ptr(),
             3,
-            &vec![],
+            vec![].as_ptr(),
             1,
             2.5,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             1,
         )
     });
@@ -96,12 +208,12 @@ fn gbmv() {
             1,
             1,
             1.5,
-            &vec![],
+            vec![].as_ptr(),
             2,
-            &vec![],
+            vec![].as_ptr(),
             1,
             2.5,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             1,
         )
     });
@@ -115,12 +227,12 @@ fn gbmv() {
             1,
             1,
             1.5,
-            &vec![],
+            vec![].as_ptr(),
             3,
-            &vec![],
+            vec![].as_ptr(),
             1,
             2.5,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             0,
         )
     });
@@ -134,12 +246,12 @@ fn gbmv() {
             1,
             1,
             1.5,
-            &vec![],
+            vec![].as_ptr(),
             3,
-            &vec![],
+            vec![].as_ptr(),
             0,
             2.5,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             1,
         )
     });
@@ -207,7 +319,19 @@ fn gemv() {
 
     let x = vec![1.0, 1.0, 2.0, 2.0, 3.0, 3.0, 4.0, 4.0, 5.0];
     let mut y = vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
-    level2::gemv('n', 6, 9, 1.5, &a, 6, &x, 1, 2.5, &mut y, 1);
+    level2::gemv(
+        'n',
+        6,
+        9,
+        1.5,
+        a.as_ptr(),
+        6,
+        x.as_ptr(),
+        1,
+        2.5,
+        y.as_mut_ptr(),
+        1,
+    );
     approximately!(
         y,
         vec![
@@ -221,7 +345,19 @@ fn gemv() {
     );
 
     let mut y = vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
-    level2::gemv('n', 6, 9, 1.5, &a, 6, &x, -1, 0.0, &mut y, -1);
+    level2::gemv(
+        'n',
+        6,
+        9,
+        1.5,
+        a.as_ptr(),
+        6,
+        x.as_ptr(),
+        -1,
+        0.0,
+        y.as_mut_ptr(),
+        -1,
+    );
     approximately!(
         y,
         vec![
@@ -235,7 +371,19 @@ fn gemv() {
     );
 
     let mut y = vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
-    level2::gemv('n', 6, 9, 1.5, &a, 6, &x, -1, 0.0, &mut y, 1);
+    level2::gemv(
+        'n',
+        6,
+        9,
+        1.5,
+        a.as_ptr(),
+        6,
+        x.as_ptr(),
+        -1,
+        0.0,
+        y.as_mut_ptr(),
+        1,
+    );
     approximately!(
         y,
         vec![
@@ -250,7 +398,19 @@ fn gemv() {
 
     let x = vec![1.0, 1.0, 2.0, 2.0, 3.0, 3.0];
     let mut y = vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 4.0, 4.0, 5.0];
-    level2::gemv('t', 6, 9, 1.5, &a, 6, &x, -1, 1.0, &mut y, 1);
+    level2::gemv(
+        't',
+        6,
+        9,
+        1.5,
+        a.as_ptr(),
+        6,
+        x.as_ptr(),
+        -1,
+        1.0,
+        y.as_mut_ptr(),
+        1,
+    );
     approximately!(
         y,
         vec![
@@ -267,15 +427,51 @@ fn gemv() {
     );
 
     let mut y = vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 4.0, 4.0, 5.0];
-    level2::gemv('t', 6, 9, 0.0, &a, 6, &x, -1, 1.0, &mut y, 1);
+    level2::gemv(
+        't',
+        6,
+        9,
+        0.0,
+        a.as_ptr(),
+        6,
+        x.as_ptr(),
+        -1,
+        1.0,
+        y.as_mut_ptr(),
+        1,
+    );
     assert_eq!(y, vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 4.0, 4.0, 5.0]);
 
     let mut y = vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 4.0, 4.0, 5.0];
-    level2::gemv('t', 6, 9, 0.0, &a, 6, &x, -1, 1.5, &mut y, 1);
+    level2::gemv(
+        't',
+        6,
+        9,
+        0.0,
+        a.as_ptr(),
+        6,
+        x.as_ptr(),
+        -1,
+        1.5,
+        y.as_mut_ptr(),
+        1,
+    );
     assert_eq!(y, vec![1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 6.0, 6.0, 7.5]);
 
     let mut y = vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 4.0, 4.0, 5.0];
-    level2::gemv('t', 3, 4, 1.0, &a, 6, &x, -2, 0.0, &mut y, -2);
+    level2::gemv(
+        't',
+        3,
+        4,
+        1.0,
+        a.as_ptr(),
+        6,
+        x.as_ptr(),
+        -2,
+        0.0,
+        y.as_mut_ptr(),
+        -2,
+    );
     approximately!(
         y,
         vec![
@@ -297,29 +493,65 @@ fn gemv() {
             3,
             4,
             1.0,
-            &vec![],
+            vec![].as_ptr(),
             6,
-            &vec![],
+            vec![].as_ptr(),
             -2,
             0.0,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             -2,
         )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::gemv('t', 1, 7, 0.0, &vec![], 6, &vec![], 1, 0.0, &mut vec![], 1)
+        level2::gemv(
+            't',
+            7,
+            1,
+            0.0,
+            vec![].as_ptr(),
+            6,
+            vec![].as_ptr(),
+            1,
+            0.0,
+            vec![].as_mut_ptr(),
+            1,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::gemv('t', 1, 7, 0.0, &vec![], 7, &vec![], 0, 0.0, &mut vec![], 1)
+        level2::gemv(
+            't',
+            1,
+            7,
+            0.0,
+            vec![].as_ptr(),
+            7,
+            vec![].as_ptr(),
+            0,
+            0.0,
+            vec![].as_mut_ptr(),
+            1,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::gemv('t', 1, 7, 0.0, &vec![], 7, &vec![], 1, 0.0, &mut vec![], 0)
+        level2::gemv(
+            't',
+            1,
+            7,
+            0.0,
+            vec![].as_ptr(),
+            7,
+            vec![].as_ptr(),
+            1,
+            0.0,
+            vec![].as_mut_ptr(),
+            0,
+        )
     });
     assert!(result.is_err());
 }
@@ -396,7 +628,7 @@ fn ger() {
         0.613885907,
         0.617612043,
     ];
-    level2::ger(3, 4, 1.5, &x, 2, &y, 2, &mut a, 6);
+    level2::ger(3, 4, 1.5, x.as_ptr(), 2, y.as_ptr(), 2, a.as_mut_ptr(), 6);
     approximately!(
         matrix::slice(a.clone(), 6, 1, 3, 1, 4),
         vec![
@@ -484,7 +716,7 @@ fn ger() {
         0.617612043,
     ];
 
-    level2::ger(3, 4, 1.5, &x, -2, &y, -2, &mut a, 6);
+    level2::ger(3, 4, 1.5, x.as_ptr(), -2, y.as_ptr(), -2, a.as_mut_ptr(), 6);
     approximately!(
         matrix::slice(a.clone(), 6, 1, 3, 1, 4),
         vec![
@@ -571,7 +803,7 @@ fn ger() {
         0.613885907,
         0.617612043,
     ];
-    level2::ger(3, 4, 0.0, &x, -2, &y, -2, &mut a, 6);
+    level2::ger(3, 4, 0.0, x.as_ptr(), -2, y.as_ptr(), -2, a.as_mut_ptr(), 6);
     approximately!(
         matrix::slice(a.clone(), 6, 1, 3, 1, 4),
         vec![
@@ -591,16 +823,49 @@ fn ger() {
         1E-7
     );
 
-    let result =
-        std::panic::catch_unwind(|| level2::ger(3, 2, 1.0, &vec![], 2, &vec![], 2, &mut vec![], 2));
+    let result = std::panic::catch_unwind(|| {
+        level2::ger(
+            3,
+            2,
+            1.0,
+            vec![].as_ptr(),
+            2,
+            vec![].as_ptr(),
+            2,
+            vec![].as_mut_ptr(),
+            2,
+        )
+    });
     assert!(result.is_err());
 
-    let result =
-        std::panic::catch_unwind(|| level2::ger(3, 2, 1.0, &vec![], 0, &vec![], 2, &mut vec![], 5));
+    let result = std::panic::catch_unwind(|| {
+        level2::ger(
+            3,
+            2,
+            1.0,
+            vec![].as_ptr(),
+            0,
+            vec![].as_ptr(),
+            2,
+            vec![].as_mut_ptr(),
+            5,
+        )
+    });
     assert!(result.is_err());
 
-    let result =
-        std::panic::catch_unwind(|| level2::ger(3, 2, 1.0, &vec![], 2, &vec![], 0, &mut vec![], 5));
+    let result = std::panic::catch_unwind(|| {
+        level2::ger(
+            3,
+            2,
+            1.0,
+            vec![].as_ptr(),
+            2,
+            vec![].as_ptr(),
+            0,
+            vec![].as_mut_ptr(),
+            5,
+        )
+    });
     assert!(result.is_err());
 }
 
@@ -662,7 +927,19 @@ fn sbmv() {
         -0.9406491626186084,
     ];
 
-    level2::sbmv('u', 6, 5, 0.75, &a, 6, &x, 1, 0.25, &mut y, 1);
+    level2::sbmv(
+        'u',
+        6,
+        5,
+        0.75,
+        a.as_ptr(),
+        6,
+        x.as_ptr(),
+        1,
+        0.25,
+        y.as_mut_ptr(),
+        1,
+    );
     approximately!(
         y,
         vec![
@@ -723,7 +1000,19 @@ fn sbmv() {
         -0.9406491626186084,
     ];
 
-    level2::sbmv('l', 6, 5, 0.75, &a, 6, &x, 1, 0.25, &mut y, 1);
+    level2::sbmv(
+        'l',
+        6,
+        5,
+        0.75,
+        a.as_ptr(),
+        6,
+        x.as_ptr(),
+        1,
+        0.25,
+        y.as_mut_ptr(),
+        1,
+    );
     approximately!(
         y,
         vec![
@@ -745,7 +1034,19 @@ fn sbmv() {
         -0.9406491626186084,
     ];
 
-    level2::sbmv('l', 6, 5, 0.75, &a, 6, &x, -1, 0.25, &mut y, -1);
+    level2::sbmv(
+        'l',
+        6,
+        5,
+        0.75,
+        a.as_ptr(),
+        6,
+        x.as_ptr(),
+        -1,
+        0.25,
+        y.as_mut_ptr(),
+        -1,
+    );
     approximately!(
         y,
         vec![
@@ -767,7 +1068,19 @@ fn sbmv() {
         -0.9406491626186084,
     ];
 
-    level2::sbmv('l', 3, 5, 0.75, &a, 6, &x, 2, 0.25, &mut y, -2);
+    level2::sbmv(
+        'l',
+        3,
+        5,
+        0.75,
+        a.as_ptr(),
+        6,
+        x.as_ptr(),
+        2,
+        0.25,
+        y.as_mut_ptr(),
+        -2,
+    );
     approximately!(
         y,
         vec![
@@ -789,7 +1102,19 @@ fn sbmv() {
         -0.9406491626186084,
     ];
 
-    level2::sbmv('l', 6, 5, 0.0, &a, 6, &x, 1, 1.0, &mut y, 1);
+    level2::sbmv(
+        'l',
+        6,
+        5,
+        0.0,
+        a.as_ptr(),
+        6,
+        x.as_ptr(),
+        1,
+        1.0,
+        y.as_mut_ptr(),
+        1,
+    );
     assert_eq!(
         y,
         vec![
@@ -810,7 +1135,19 @@ fn sbmv() {
         -0.011045478465663564,
         -0.9406491626186084,
     ];
-    level2::sbmv('l', 6, 5, 0.25, &a, 6, &x, 1, 1.0, &mut y, 1);
+    level2::sbmv(
+        'l',
+        6,
+        5,
+        0.25,
+        a.as_ptr(),
+        6,
+        x.as_ptr(),
+        1,
+        1.0,
+        y.as_mut_ptr(),
+        1,
+    );
     approximately!(
         y,
         vec![
@@ -831,26 +1168,86 @@ fn sbmv() {
         -0.011045478465663564,
         -0.9406491626186084,
     ];
-    level2::sbmv('l', 6, 5, 0.0, &a, 6, &x, 1, 0.0, &mut y, 1);
+    level2::sbmv(
+        'l',
+        6,
+        5,
+        0.0,
+        a.as_ptr(),
+        6,
+        x.as_ptr(),
+        1,
+        0.0,
+        y.as_mut_ptr(),
+        1,
+    );
     assert_eq!(y, vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0]);
 
     let result = std::panic::catch_unwind(|| {
-        level2::sbmv('x', 6, 5, 0.0, &vec![], 6, &vec![], 1, 0.0, &mut vec![], 1)
+        level2::sbmv(
+            'x',
+            6,
+            5,
+            0.0,
+            vec![].as_ptr(),
+            6,
+            vec![].as_ptr(),
+            1,
+            0.0,
+            vec![].as_mut_ptr(),
+            1,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::sbmv('l', 1, 7, 0.0, &vec![], 6, &vec![], 1, 0.0, &mut vec![], 1)
+        level2::sbmv(
+            'l',
+            1,
+            7,
+            0.0,
+            vec![].as_ptr(),
+            6,
+            vec![].as_ptr(),
+            1,
+            0.0,
+            vec![].as_mut_ptr(),
+            1,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::sbmv('l', 1, 3, 0.0, &vec![], 6, &vec![], 0, 0.0, &mut vec![], 1)
+        level2::sbmv(
+            'l',
+            1,
+            3,
+            0.0,
+            vec![].as_ptr(),
+            6,
+            vec![].as_ptr(),
+            0,
+            0.0,
+            vec![].as_mut_ptr(),
+            1,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::sbmv('l', 1, 3, 0.0, &vec![], 6, &vec![], 1, 0.0, &mut vec![], 0)
+        level2::sbmv(
+            'l',
+            1,
+            3,
+            0.0,
+            vec![].as_ptr(),
+            6,
+            vec![].as_ptr(),
+            1,
+            0.0,
+            vec![].as_mut_ptr(),
+            0,
+        )
     });
     assert!(result.is_err());
 }
@@ -877,7 +1274,17 @@ fn spmv() {
         0.310141376504687,
         1.7025705860144955,
     ];
-    level2::spmv('u', 8, 1.0, &fixtures::MSP8X8(), &x, 1, 0.25, &mut y, 1);
+    level2::spmv(
+        'u',
+        8,
+        1.0,
+        fixtures::MSP8X8().as_ptr(),
+        x.as_ptr(),
+        1,
+        0.25,
+        y.as_mut_ptr(),
+        1,
+    );
     approximately!(
         y,
         vec![
@@ -902,7 +1309,17 @@ fn spmv() {
         0.310141376504687,
         1.7025705860144955,
     ];
-    level2::spmv('u', 8, 1.0, &fixtures::MSP8X8(), &x, -1, 0.25, &mut y, -1);
+    level2::spmv(
+        'u',
+        8,
+        1.0,
+        fixtures::MSP8X8().as_ptr(),
+        x.as_ptr(),
+        -1,
+        0.25,
+        y.as_mut_ptr(),
+        -1,
+    );
     approximately!(
         y,
         vec![
@@ -927,7 +1344,17 @@ fn spmv() {
         0.310141376504687,
         1.7025705860144955,
     ];
-    level2::spmv('u', 8, 0.0, &fixtures::MSP8X8(), &x, -1, 1.0, &mut y, -1);
+    level2::spmv(
+        'u',
+        8,
+        0.0,
+        fixtures::MSP8X8().as_ptr(),
+        x.as_ptr(),
+        -1,
+        1.0,
+        y.as_mut_ptr(),
+        -1,
+    );
     approximately!(
         y,
         vec![
@@ -952,7 +1379,17 @@ fn spmv() {
         0.310141376504687,
         1.7025705860144955,
     ];
-    level2::spmv('u', 8, 0.0, &fixtures::MSP8X8(), &x, -1, 0.0, &mut y, -1);
+    level2::spmv(
+        'u',
+        8,
+        0.0,
+        fixtures::MSP8X8().as_ptr(),
+        x.as_ptr(),
+        -1,
+        0.0,
+        y.as_mut_ptr(),
+        -1,
+    );
     assert_eq!(y, vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]);
 
     let mut y = vec![
@@ -965,7 +1402,17 @@ fn spmv() {
         0.310141376504687,
         1.7025705860144955,
     ];
-    level2::spmv('l', 8, 1.0, &fixtures::MSP8X8(), &x, 1, 1.0, &mut y, 1);
+    level2::spmv(
+        'l',
+        8,
+        1.0,
+        fixtures::MSP8X8().as_ptr(),
+        x.as_ptr(),
+        1,
+        1.0,
+        y.as_mut_ptr(),
+        1,
+    );
     approximately!(
         y,
         vec![
@@ -981,27 +1428,77 @@ fn spmv() {
     );
 
     let result = std::panic::catch_unwind(|| {
-        level2::spmv('x', 8, 0.0, &vec![], &vec![], 1, 0.0, &mut vec![], 1)
+        level2::spmv(
+            'x',
+            8,
+            0.0,
+            vec![].as_ptr(),
+            vec![].as_ptr(),
+            1,
+            0.0,
+            vec![].as_mut_ptr(),
+            1,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::spmv('l', 8, 0.0, &vec![], &vec![], 0, 0.0, &mut vec![], 1)
+        level2::spmv(
+            'l',
+            8,
+            0.0,
+            vec![].as_ptr(),
+            vec![].as_ptr(),
+            0,
+            0.0,
+            vec![].as_mut_ptr(),
+            1,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::spmv('l', 8, 0.0, &vec![], &vec![], 1, 0.0, &mut vec![], 0)
+        level2::spmv(
+            'l',
+            8,
+            0.0,
+            vec![].as_ptr(),
+            vec![].as_ptr(),
+            1,
+            0.0,
+            vec![].as_mut_ptr(),
+            0,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::spmv('x', 8, 0.0, &vec![], &vec![], 0, 0.0, &mut vec![], 1)
+        level2::spmv(
+            'x',
+            8,
+            0.0,
+            vec![].as_ptr(),
+            vec![].as_ptr(),
+            0,
+            0.0,
+            vec![].as_mut_ptr(),
+            1,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::spmv('x', 8, 0.0, &vec![], &vec![], 1, 0.0, &mut vec![], 0)
+        level2::spmv(
+            'x',
+            8,
+            0.0,
+            vec![].as_ptr(),
+            vec![].as_ptr(),
+            1,
+            0.0,
+            vec![].as_mut_ptr(),
+            0,
+        )
     });
     assert!(result.is_err());
 }
@@ -1019,7 +1516,7 @@ fn spr() {
         1.4623515387464268,
     ];
     let mut ap = fixtures::MSP8X8();
-    level2::spr('u', 8, 1.0, &rand0_vector1x8, 1, &mut ap);
+    level2::spr('u', 8, 1.0, rand0_vector1x8.as_ptr(), 1, ap.as_mut_ptr());
     approximately!(
         ap,
         vec![
@@ -1063,7 +1560,7 @@ fn spr() {
     );
 
     let mut ap = fixtures::MSP8X8();
-    level2::spr('l', 8, 1.0, &rand0_vector1x8, -1, &mut ap);
+    level2::spr('l', 8, 1.0, rand0_vector1x8.as_ptr(), -1, ap.as_mut_ptr());
     approximately!(
         ap,
         vec![
@@ -1108,7 +1605,7 @@ fn spr() {
 
     let mut ap = fixtures::MSP8X8();
     let x = vec![1.0, 0.0, 2.0, 0.0, 3.0, 0.0, 4.0, 0.0];
-    level2::spr('l', 8, 1.0, &x, -1, &mut ap);
+    level2::spr('l', 8, 1.0, x.as_ptr(), -1, ap.as_mut_ptr());
     approximately!(
         ap,
         vec![
@@ -1152,7 +1649,7 @@ fn spr() {
     );
 
     let mut ap = fixtures::MSP8X8();
-    level2::spr('u', 8, 1.0, &x, -1, &mut ap);
+    level2::spr('u', 8, 1.0, x.as_ptr(), -1, ap.as_mut_ptr());
     approximately!(
         ap,
         vec![
@@ -1197,13 +1694,15 @@ fn spr() {
 
     let mut ap = fixtures::MSP8X8();
     let x = vec![];
-    level2::spr('u', 8, 0.0, &x, -1, &mut ap);
+    level2::spr('u', 8, 0.0, x.as_ptr(), -1, ap.as_mut_ptr());
     assert_eq!(ap, fixtures::MSP8X8());
 
-    let result = std::panic::catch_unwind(|| level2::spr('x', 8, 1.0, &x, 1, &mut vec![]));
+    let result =
+        std::panic::catch_unwind(|| level2::spr('x', 8, 1.0, x.as_ptr(), 1, vec![].as_mut_ptr()));
     assert!(result.is_err());
 
-    let result = std::panic::catch_unwind(|| level2::spr('l', 8, 1.0, &x, 0, &mut vec![]));
+    let result =
+        std::panic::catch_unwind(|| level2::spr('l', 8, 1.0, x.as_ptr(), 0, vec![].as_mut_ptr()));
     assert!(result.is_err());
 }
 
@@ -1231,7 +1730,7 @@ fn spr2() {
         1.7025705860144955,
     ];
 
-    level2::spr2('u', 8, 1.0, &x, 1, &y, 1, &mut ap);
+    level2::spr2('u', 8, 1.0, x.as_ptr(), 1, y.as_ptr(), 1, ap.as_mut_ptr());
     approximately!(
         ap,
         vec![
@@ -1277,7 +1776,16 @@ fn spr2() {
     let mut ap = fixtures::MSP8X8();
     let x = vec![1.0, 2.0, 0.0, 4.0, 0.0, 6.0, 7.0, 8.0];
     let y = vec![9.0, 12.0, 13.0, 14.0, 0.0, 16.0, 17.0, 18.0];
-    level2::spr2('l', 8, 0.25, &x, -1, &y, -1, &mut ap);
+    level2::spr2(
+        'l',
+        8,
+        0.25,
+        x.as_ptr(),
+        -1,
+        y.as_ptr(),
+        -1,
+        ap.as_mut_ptr(),
+    );
     approximately!(
         ap,
         vec![
@@ -1321,7 +1829,16 @@ fn spr2() {
     );
 
     let mut ap = fixtures::MSP8X8();
-    level2::spr2('u', 8, 0.25, &x, -1, &y, -1, &mut ap);
+    level2::spr2(
+        'u',
+        8,
+        0.25,
+        x.as_ptr(),
+        -1,
+        y.as_ptr(),
+        -1,
+        ap.as_mut_ptr(),
+    );
     approximately!(
         ap,
         vec![
@@ -1365,19 +1882,49 @@ fn spr2() {
     );
 
     let mut ap = fixtures::MSP8X8();
-    level2::spr2('u', 8, 0.0, &x, -1, &y, -1, &mut ap);
+    level2::spr2('u', 8, 0.0, x.as_ptr(), -1, y.as_ptr(), -1, ap.as_mut_ptr());
     assert_eq!(ap, fixtures::MSP8X8());
 
-    let result =
-        std::panic::catch_unwind(|| level2::spr2('x', 8, 1.0, &vec![], 1, &vec![], 1, &mut vec![]));
+    let result = std::panic::catch_unwind(|| {
+        level2::spr2(
+            'x',
+            8,
+            1.0,
+            vec![].as_ptr(),
+            1,
+            vec![].as_ptr(),
+            1,
+            vec![].as_mut_ptr(),
+        )
+    });
     assert!(result.is_err());
 
-    let result =
-        std::panic::catch_unwind(|| level2::spr2('l', 8, 1.0, &vec![], 0, &vec![], 1, &mut vec![]));
+    let result = std::panic::catch_unwind(|| {
+        level2::spr2(
+            'l',
+            8,
+            1.0,
+            vec![].as_ptr(),
+            0,
+            vec![].as_ptr(),
+            1,
+            vec![].as_mut_ptr(),
+        )
+    });
     assert!(result.is_err());
 
-    let result =
-        std::panic::catch_unwind(|| level2::spr2('l', 8, 1.0, &vec![], 1, &vec![], 0, &mut vec![]));
+    let result = std::panic::catch_unwind(|| {
+        level2::spr2(
+            'l',
+            8,
+            1.0,
+            vec![].as_ptr(),
+            1,
+            vec![].as_ptr(),
+            0,
+            vec![].as_mut_ptr(),
+        )
+    });
     assert!(result.is_err());
 }
 
@@ -1400,7 +1947,18 @@ fn symv() {
         -1.7145022968458246,
         -0.4209978978166964,
     ];
-    level2::symv('u', 6, 1.0, &a, 6, &x, 1, 1.0, &mut y, 1);
+    level2::symv(
+        'u',
+        6,
+        1.0,
+        a.as_ptr(),
+        6,
+        x.as_ptr(),
+        1,
+        1.0,
+        y.as_mut_ptr(),
+        1,
+    );
     approximately!(
         y,
         vec![
@@ -1421,7 +1979,18 @@ fn symv() {
         -1.7145022968458246,
         -0.4209978978166964,
     ];
-    level2::symv('u', 6, 0.0, &a, 6, &x, -1, 0.35, &mut y, -1);
+    level2::symv(
+        'u',
+        6,
+        0.0,
+        a.as_ptr(),
+        6,
+        x.as_ptr(),
+        -1,
+        0.35,
+        y.as_mut_ptr(),
+        -1,
+    );
     approximately!(
         y,
         vec![
@@ -1442,7 +2011,18 @@ fn symv() {
         -1.7145022968458246,
         -0.4209978978166964,
     ];
-    level2::symv('u', 6, 0.5, &a, 6, &x, -1, 0.0, &mut y, -1);
+    level2::symv(
+        'u',
+        6,
+        0.5,
+        a.as_ptr(),
+        6,
+        x.as_ptr(),
+        -1,
+        0.0,
+        y.as_mut_ptr(),
+        -1,
+    );
     approximately!(
         y,
         vec![
@@ -1463,7 +2043,18 @@ fn symv() {
         -1.7145022968458246,
         -0.4209978978166964,
     ];
-    level2::symv('l', 6, 0.5, &a, 6, &x, -1, 0.0, &mut y, -1);
+    level2::symv(
+        'l',
+        6,
+        0.5,
+        a.as_ptr(),
+        6,
+        x.as_ptr(),
+        -1,
+        0.0,
+        y.as_mut_ptr(),
+        -1,
+    );
     approximately!(
         y,
         vec![
@@ -1484,7 +2075,18 @@ fn symv() {
         -1.7145022968458246,
         -0.4209978978166964,
     ];
-    level2::symv('l', 6, 0.0, &a, 6, &x, -1, 1.0, &mut y, -1);
+    level2::symv(
+        'l',
+        6,
+        0.0,
+        a.as_ptr(),
+        6,
+        x.as_ptr(),
+        -1,
+        1.0,
+        y.as_mut_ptr(),
+        -1,
+    );
     approximately!(
         y,
         vec![
@@ -1498,22 +2100,66 @@ fn symv() {
     );
     let a = vec![];
     let result = std::panic::catch_unwind(|| {
-        level2::symv('x', 6, 0.5, &a, 6, &vec![], -1, 1.0, &mut vec![], -1)
+        level2::symv(
+            'x',
+            6,
+            0.5,
+            a.as_ptr(),
+            6,
+            vec![].as_ptr(),
+            -1,
+            1.0,
+            vec![].as_mut_ptr(),
+            -1,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::symv('l', 7, 0.5, &a, 6, &vec![], -1, 1.0, &mut vec![], -1)
+        level2::symv(
+            'l',
+            7,
+            0.5,
+            a.as_ptr(),
+            6,
+            vec![].as_ptr(),
+            -1,
+            1.0,
+            vec![].as_mut_ptr(),
+            -1,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::symv('l', 7, 0.5, &a, 7, &vec![], 0, 1.0, &mut vec![], -1)
+        level2::symv(
+            'l',
+            7,
+            0.5,
+            a.as_ptr(),
+            7,
+            vec![].as_ptr(),
+            0,
+            1.0,
+            vec![].as_mut_ptr(),
+            -1,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::symv('l', 7, 0.5, &a, 7, &vec![], 4, 1.0, &mut vec![], 0)
+        level2::symv(
+            'l',
+            7,
+            0.5,
+            a.as_ptr(),
+            7,
+            vec![].as_ptr(),
+            4,
+            1.0,
+            vec![].as_mut_ptr(),
+            0,
+        )
     });
     assert!(result.is_err());
 }
@@ -1530,7 +2176,7 @@ fn syr() {
         0.5503933584550523,
     ];
 
-    level2::syr('u', 6, 1.0, &x, 1, &mut a, 6);
+    level2::syr('u', 6, 1.0, x.as_ptr(), 1, a.as_mut_ptr(), 6);
     approximately!(
         a,
         vec![
@@ -1574,7 +2220,7 @@ fn syr() {
     );
 
     let mut a = fixtures::M6X6U();
-    level2::syr('l', 6, 1.0, &x, -1, &mut a, 6);
+    level2::syr('l', 6, 1.0, x.as_ptr(), -1, a.as_mut_ptr(), 6);
     approximately!(
         a,
         vec![
@@ -1627,7 +2273,7 @@ fn syr() {
         0.5503933584550523,
     ];
 
-    level2::syr('l', 6, 1.5, &x, 1, &mut a, 6);
+    level2::syr('l', 6, 1.5, x.as_ptr(), 1, a.as_mut_ptr(), 6);
     approximately!(
         a,
         vec![
@@ -1671,7 +2317,7 @@ fn syr() {
     );
 
     let mut a = fixtures::M6X6U();
-    level2::syr('u', 6, 1.5, &x, 1, &mut a, 6);
+    level2::syr('u', 6, 1.5, x.as_ptr(), 1, a.as_mut_ptr(), 6);
     approximately!(
         a,
         vec![
@@ -1715,16 +2361,22 @@ fn syr() {
     );
 
     let mut a = fixtures::M6X6U();
-    level2::syr('u', 6, 0.0, &x, 1, &mut a, 6);
+    level2::syr('u', 6, 0.0, x.as_ptr(), 1, a.as_mut_ptr(), 6);
     assert_eq!(a, fixtures::M6X6U());
 
-    let result = std::panic::catch_unwind(|| level2::syr('x', 6, 1.0, &vec![], 1, &mut vec![], 6));
+    let result = std::panic::catch_unwind(|| {
+        level2::syr('x', 6, 1.0, vec![].as_ptr(), 1, vec![].as_mut_ptr(), 6)
+    });
     assert!(result.is_err());
 
-    let result = std::panic::catch_unwind(|| level2::syr('l', 0, 1.0, &vec![], 0, &mut vec![], 6));
+    let result = std::panic::catch_unwind(|| {
+        level2::syr('l', 0, 1.0, vec![].as_ptr(), 0, vec![].as_mut_ptr(), 6)
+    });
     assert!(result.is_err());
 
-    let result = std::panic::catch_unwind(|| level2::syr('l', 10, 1.0, &vec![], 2, &mut vec![], 6));
+    let result = std::panic::catch_unwind(|| {
+        level2::syr('l', 10, 1.0, vec![].as_ptr(), 2, vec![].as_mut_ptr(), 6)
+    });
     assert!(result.is_err());
 }
 
@@ -1748,7 +2400,7 @@ fn syr2() {
         11.557443037629128,
     ];
 
-    level2::syr2('u', 6, 1.0, &x, 1, &y, 1, &mut a, 6);
+    level2::syr2('u', 6, 1.0, x.as_ptr(), 1, y.as_ptr(), 1, a.as_mut_ptr(), 6);
     approximately!(
         a,
         vec![
@@ -1792,7 +2444,17 @@ fn syr2() {
     );
 
     let mut a = fixtures::M6X6U();
-    level2::syr2('l', 6, 1.0, &x, -1, &y, -1, &mut a, 6);
+    level2::syr2(
+        'l',
+        6,
+        1.0,
+        x.as_ptr(),
+        -1,
+        y.as_ptr(),
+        -1,
+        a.as_mut_ptr(),
+        6,
+    );
     approximately!(
         a,
         vec![
@@ -1852,7 +2514,17 @@ fn syr2() {
         0.0,
         0.5503933584550523,
     ];
-    level2::syr2('l', 6, 1.0, &x, -1, &y, -1, &mut a, 6);
+    level2::syr2(
+        'l',
+        6,
+        1.0,
+        x.as_ptr(),
+        -1,
+        y.as_ptr(),
+        -1,
+        a.as_mut_ptr(),
+        6,
+    );
     approximately!(
         a,
         vec![
@@ -1896,7 +2568,17 @@ fn syr2() {
     );
 
     let mut a = fixtures::M6X6U();
-    level2::syr2('u', 6, 1.0, &x, -1, &y, -1, &mut a, 6);
+    level2::syr2(
+        'u',
+        6,
+        1.0,
+        x.as_ptr(),
+        -1,
+        y.as_ptr(),
+        -1,
+        a.as_mut_ptr(),
+        6,
+    );
     approximately!(
         a,
         vec![
@@ -1940,26 +2622,76 @@ fn syr2() {
     );
 
     let mut a = fixtures::M6X6U();
-    level2::syr2('u', 0, 1.0, &x, -1, &y, -1, &mut a, 6);
+    level2::syr2(
+        'u',
+        0,
+        1.0,
+        x.as_ptr(),
+        -1,
+        y.as_ptr(),
+        -1,
+        a.as_mut_ptr(),
+        6,
+    );
     assert_eq!(a, fixtures::M6X6U().to_vec());
 
     let result = std::panic::catch_unwind(|| {
-        level2::syr2('x', 6, 1.0, &vec![], -1, &vec![], -1, &mut vec![], 6)
+        level2::syr2(
+            'x',
+            6,
+            1.0,
+            vec![].as_ptr(),
+            -1,
+            vec![].as_ptr(),
+            -1,
+            vec![].as_mut_ptr(),
+            6,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::syr2('l', 0, 1.0, &vec![], 0, &vec![], 1, &mut vec![], 6)
+        level2::syr2(
+            'l',
+            0,
+            1.0,
+            vec![].as_ptr(),
+            0,
+            vec![].as_ptr(),
+            1,
+            vec![].as_mut_ptr(),
+            6,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::syr2('l', 0, 1.0, &vec![], 1, &vec![], 0, &mut vec![], 6)
+        level2::syr2(
+            'l',
+            0,
+            1.0,
+            vec![].as_ptr(),
+            1,
+            vec![].as_ptr(),
+            0,
+            vec![].as_mut_ptr(),
+            6,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::syr2('l', 10, 1.0, &vec![], 1, &vec![], 1, &mut vec![], 6)
+        level2::syr2(
+            'l',
+            10,
+            1.0,
+            vec![].as_ptr(),
+            1,
+            vec![].as_ptr(),
+            1,
+            vec![].as_mut_ptr(),
+            6,
+        )
     });
     assert!(result.is_err());
 }
@@ -1975,7 +2707,7 @@ fn tbmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tbmv('u', 'n', 'n', 6, 5, &a, 6, &mut x, 1);
+    level2::tbmv('u', 'n', 'n', 6, 5, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -1997,7 +2729,7 @@ fn tbmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tbmv('u', 'n', 'u', 6, 5, &a, 6, &mut x, 1);
+    level2::tbmv('u', 'n', 'u', 6, 5, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -2020,7 +2752,7 @@ fn tbmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tbmv('l', 'n', 'n', 6, 5, &a, 6, &mut x, 1);
+    level2::tbmv('l', 'n', 'n', 6, 5, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -2042,7 +2774,7 @@ fn tbmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tbmv('l', 'n', 'u', 6, 5, &a, 6, &mut x, 1);
+    level2::tbmv('l', 'n', 'u', 6, 5, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -2065,7 +2797,7 @@ fn tbmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tbmv('u', 't', 'n', 6, 5, &a, 6, &mut x, -1);
+    level2::tbmv('u', 't', 'n', 6, 5, a.as_ptr(), 6, x.as_mut_ptr(), -1);
     approximately!(
         x,
         vec![
@@ -2087,7 +2819,7 @@ fn tbmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tbmv('u', 't', 'u', 6, 5, &a, 6, &mut x, -1);
+    level2::tbmv('u', 't', 'u', 6, 5, a.as_ptr(), 6, x.as_mut_ptr(), -1);
     approximately!(
         x,
         vec![
@@ -2110,7 +2842,7 @@ fn tbmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tbmv('l', 't', 'n', 6, 5, &a, 6, &mut x, -1);
+    level2::tbmv('l', 't', 'n', 6, 5, a.as_ptr(), 6, x.as_mut_ptr(), -1);
     approximately!(
         x,
         vec![
@@ -2132,7 +2864,7 @@ fn tbmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tbmv('l', 't', 'u', 6, 5, &a, 6, &mut x, -1);
+    level2::tbmv('l', 't', 'u', 6, 5, a.as_ptr(), 6, x.as_mut_ptr(), -1);
     approximately!(
         x,
         vec![
@@ -2154,7 +2886,7 @@ fn tbmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tbmv('l', 't', 'u', 0, 5, &a, 6, &mut x, -1);
+    level2::tbmv('l', 't', 'u', 0, 5, a.as_ptr(), 6, x.as_mut_ptr(), -1);
     approximately!(
         x,
         vec![
@@ -2169,27 +2901,77 @@ fn tbmv() {
     );
 
     let result = std::panic::catch_unwind(|| {
-        level2::tbmv('x', 'n', 'n', 6, 5, &vec![0.0], 6, &mut vec![], 1)
+        level2::tbmv(
+            'x',
+            'n',
+            'n',
+            6,
+            5,
+            vec![0.0].as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            1,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::tbmv('l', 'x', 'n', 6, 5, &vec![0.0], 6, &mut vec![], 1)
+        level2::tbmv(
+            'l',
+            'x',
+            'n',
+            6,
+            5,
+            vec![0.0].as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            1,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::tbmv('l', 't', 'x', 6, 5, &vec![0.0], 6, &mut vec![], 1)
+        level2::tbmv(
+            'l',
+            't',
+            'x',
+            6,
+            5,
+            vec![0.0].as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            1,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::tbmv('l', 't', 'n', 6, 5, &vec![0.0], 4, &mut vec![], 1)
+        level2::tbmv(
+            'l',
+            't',
+            'n',
+            6,
+            5,
+            vec![0.0].as_ptr(),
+            4,
+            vec![].as_mut_ptr(),
+            1,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::tbmv('l', 't', 'n', 6, 5, &vec![0.0], 6, &mut vec![], 0)
+        level2::tbmv(
+            'l',
+            't',
+            'n',
+            6,
+            5,
+            vec![0.0].as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            0,
+        )
     });
     assert!(result.is_err());
 }
@@ -2205,7 +2987,7 @@ fn tbsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tbsv('u', 'n', 'n', 6, 5, &a, 6, &mut x, -1);
+    level2::tbsv('u', 'n', 'n', 6, 5, a.as_ptr(), 6, x.as_mut_ptr(), -1);
     approximately!(
         x,
         vec![
@@ -2227,7 +3009,7 @@ fn tbsv() {
         0.3528744733184766,
         0.0, /*0.5503933584550523*/
     ];
-    level2::tbsv('u', 'n', 'u', 6, 5, &a, 6, &mut x, 1);
+    level2::tbsv('u', 'n', 'u', 6, 5, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -2249,7 +3031,7 @@ fn tbsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tbsv('u', 't', 'n', 6, 5, &a, 6, &mut x, 1);
+    level2::tbsv('u', 't', 'n', 6, 5, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -2271,7 +3053,7 @@ fn tbsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tbsv('u', 't', 'u', 6, 5, &a, 6, &mut x, 1);
+    level2::tbsv('u', 't', 'u', 6, 5, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -2294,7 +3076,7 @@ fn tbsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tbsv('l', 'n', 'n', 6, 5, &a, 6, &mut x, 1);
+    level2::tbsv('l', 'n', 'n', 6, 5, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -2316,7 +3098,7 @@ fn tbsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tbsv('l', 'n', 'u', 6, 5, &a, 6, &mut x, 1);
+    level2::tbsv('l', 'n', 'u', 6, 5, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -2338,7 +3120,7 @@ fn tbsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tbsv('l', 't', 'n', 6, 5, &a, 6, &mut x, 1);
+    level2::tbsv('l', 't', 'n', 6, 5, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -2360,7 +3142,7 @@ fn tbsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tbsv('l', 't', 'u', 6, 5, &a, 6, &mut x, 1);
+    level2::tbsv('l', 't', 'u', 6, 5, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -2382,7 +3164,7 @@ fn tbsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tbsv('l', 't', 'u', 0, 5, &a, 6, &mut x, 1);
+    level2::tbsv('l', 't', 'u', 0, 5, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -2397,27 +3179,77 @@ fn tbsv() {
     );
 
     let result = std::panic::catch_unwind(|| {
-        level2::tbsv('x', 'n', 'n', 6, 5, &vec![0.0], 6, &mut vec![], 1)
+        level2::tbsv(
+            'x',
+            'n',
+            'n',
+            6,
+            5,
+            vec![0.0].as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            1,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::tbsv('l', 'x', 'n', 6, 5, &vec![0.0], 6, &mut vec![], 1)
+        level2::tbsv(
+            'l',
+            'x',
+            'n',
+            6,
+            5,
+            vec![0.0].as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            1,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::tbsv('l', 't', 'x', 6, 5, &vec![0.0], 6, &mut vec![], 1)
+        level2::tbsv(
+            'l',
+            't',
+            'x',
+            6,
+            5,
+            vec![0.0].as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            1,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::tbsv('l', 't', 'n', 6, 5, &vec![0.0], 4, &mut vec![], 1)
+        level2::tbsv(
+            'l',
+            't',
+            'n',
+            6,
+            5,
+            vec![0.0].as_ptr(),
+            4,
+            vec![].as_mut_ptr(),
+            1,
+        )
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level2::tbsv('l', 't', 'n', 6, 5, &vec![0.0], 6, &mut vec![], 0)
+        level2::tbsv(
+            'l',
+            't',
+            'n',
+            6,
+            5,
+            vec![0.0].as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            0,
+        )
     });
     assert!(result.is_err());
 }
@@ -2432,7 +3264,15 @@ fn tpsv() {
         0.3528744733184766,
         0.0, /*0.5503933584550523*/
     ];
-    level2::tpsv('u', 'n', 'n', 6, &fixtures::M6X6PU(), &mut x, 1);
+    level2::tpsv(
+        'u',
+        'n',
+        'n',
+        6,
+        fixtures::M6X6PU().as_ptr(),
+        x.as_mut_ptr(),
+        1,
+    );
     approximately!(
         x,
         vec![
@@ -2454,7 +3294,15 @@ fn tpsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tpsv('u', 'n', 'u', 6, &fixtures::M6X6PU(), &mut x, -1);
+    level2::tpsv(
+        'u',
+        'n',
+        'u',
+        6,
+        fixtures::M6X6PU().as_ptr(),
+        x.as_mut_ptr(),
+        -1,
+    );
     approximately!(
         x,
         vec![
@@ -2476,7 +3324,15 @@ fn tpsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tpsv('u', 't', 'n', 6, &fixtures::M6X6PU(), &mut x, 1);
+    level2::tpsv(
+        'u',
+        't',
+        'n',
+        6,
+        fixtures::M6X6PU().as_ptr(),
+        x.as_mut_ptr(),
+        1,
+    );
     approximately!(
         x,
         vec![
@@ -2498,7 +3354,15 @@ fn tpsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tpsv('u', 't', 'u', 6, &fixtures::M6X6PU(), &mut x, 1);
+    level2::tpsv(
+        'u',
+        't',
+        'u',
+        6,
+        fixtures::M6X6PU().as_ptr(),
+        x.as_mut_ptr(),
+        1,
+    );
     approximately!(
         x,
         vec![
@@ -2543,7 +3407,7 @@ fn tpsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tpsv('l', 'n', 'n', 6, &ap, &mut x, 1);
+    level2::tpsv('l', 'n', 'n', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -2588,7 +3452,7 @@ fn tpsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tpsv('l', 'n', 'u', 6, &ap, &mut x, 1);
+    level2::tpsv('l', 'n', 'u', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -2610,7 +3474,7 @@ fn tpsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tpsv('l', 't', 'n', 6, &ap, &mut x, 1);
+    level2::tpsv('l', 't', 'n', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -2632,7 +3496,7 @@ fn tpsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tpsv('l', 't', 'u', 6, &ap, &mut x, 1);
+    level2::tpsv('l', 't', 'u', 6, ap.as_ptr(), x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -2654,7 +3518,7 @@ fn tpsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tpsv('l', 't', 'u', 0, &ap, &mut x, 1);
+    level2::tpsv('l', 't', 'u', 0, ap.as_ptr(), x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -2668,20 +3532,24 @@ fn tpsv() {
         1E-5
     );
 
-    let result =
-        std::panic::catch_unwind(|| level2::tpsv('x', 'n', 'n', 6, &vec![], &mut vec![0.0], 1));
+    let result = std::panic::catch_unwind(|| {
+        level2::tpsv('x', 'n', 'n', 6, vec![].as_ptr(), vec![0.0].as_mut_ptr(), 1)
+    });
     assert!(result.is_err());
 
-    let result =
-        std::panic::catch_unwind(|| level2::tpsv('l', 'x', 'n', 6, &vec![], &mut vec![0.0], 1));
+    let result = std::panic::catch_unwind(|| {
+        level2::tpsv('l', 'x', 'n', 6, vec![].as_ptr(), vec![0.0].as_mut_ptr(), 1)
+    });
     assert!(result.is_err());
 
-    let result =
-        std::panic::catch_unwind(|| level2::tpsv('l', 't', 'x', 6, &vec![], &mut vec![0.0], 1));
+    let result = std::panic::catch_unwind(|| {
+        level2::tpsv('l', 't', 'x', 6, vec![].as_ptr(), vec![0.0].as_mut_ptr(), 1)
+    });
     assert!(result.is_err());
 
-    let result =
-        std::panic::catch_unwind(|| level2::tpsv('l', 't', 'n', 6, &vec![], &mut vec![0.0], 0));
+    let result = std::panic::catch_unwind(|| {
+        level2::tpsv('l', 't', 'n', 6, vec![].as_ptr(), vec![0.0].as_mut_ptr(), 0)
+    });
     assert!(result.is_err());
 }
 
@@ -2695,7 +3563,15 @@ fn tpmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tpmv('u', 'n', 'n', 6, &fixtures::M6X6PU(), &mut x, 1);
+    level2::tpmv(
+        'u',
+        'n',
+        'n',
+        6,
+        fixtures::M6X6PU().as_ptr(),
+        x.as_mut_ptr(),
+        1,
+    );
     approximately!(
         x,
         vec![
@@ -2717,7 +3593,15 @@ fn tpmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tpmv('u', 'n', 'u', 6, &fixtures::M6X6PU(), &mut x, 1);
+    level2::tpmv(
+        'u',
+        'n',
+        'u',
+        6,
+        fixtures::M6X6PU().as_ptr(),
+        x.as_mut_ptr(),
+        1,
+    );
     approximately!(
         x,
         vec![
@@ -2739,7 +3623,15 @@ fn tpmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tpmv('l', 'n', 'n', 6, &fixtures::M6X6PL(), &mut x, 1);
+    level2::tpmv(
+        'l',
+        'n',
+        'n',
+        6,
+        fixtures::M6X6PL().as_ptr(),
+        x.as_mut_ptr(),
+        1,
+    );
     approximately!(
         x,
         vec![
@@ -2761,7 +3653,15 @@ fn tpmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tpmv('l', 'n', 'u', 6, &fixtures::M6X6PL(), &mut x, 1);
+    level2::tpmv(
+        'l',
+        'n',
+        'u',
+        6,
+        fixtures::M6X6PL().as_ptr(),
+        x.as_mut_ptr(),
+        1,
+    );
     approximately!(
         x,
         vec![
@@ -2783,7 +3683,15 @@ fn tpmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tpmv('u', 't', 'n', 6, &fixtures::M6X6PU(), &mut x, -1);
+    level2::tpmv(
+        'u',
+        't',
+        'n',
+        6,
+        fixtures::M6X6PU().as_ptr(),
+        x.as_mut_ptr(),
+        -1,
+    );
     approximately!(
         x,
         vec![
@@ -2805,7 +3713,15 @@ fn tpmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tpmv('u', 't', 'u', 6, &fixtures::M6X6PU(), &mut x, -1);
+    level2::tpmv(
+        'u',
+        't',
+        'u',
+        6,
+        fixtures::M6X6PU().as_ptr(),
+        x.as_mut_ptr(),
+        -1,
+    );
     approximately!(
         x,
         vec![
@@ -2827,7 +3743,15 @@ fn tpmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tpmv('l', 't', 'n', 6, &fixtures::M6X6PL(), &mut x, -1);
+    level2::tpmv(
+        'l',
+        't',
+        'n',
+        6,
+        fixtures::M6X6PL().as_ptr(),
+        x.as_mut_ptr(),
+        -1,
+    );
     approximately!(
         x,
         vec![
@@ -2849,7 +3773,15 @@ fn tpmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tpmv('l', 't', 'u', 6, &fixtures::M6X6PL(), &mut x, -1);
+    level2::tpmv(
+        'l',
+        't',
+        'u',
+        6,
+        fixtures::M6X6PL().as_ptr(),
+        x.as_mut_ptr(),
+        -1,
+    );
     approximately!(
         x,
         vec![
@@ -2895,7 +3827,7 @@ fn tpmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::tpmv('l', 't', 'u', 0, &ap, &mut x, 1);
+    level2::tpmv('l', 't', 'u', 0, ap.as_ptr(), x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -2909,20 +3841,24 @@ fn tpmv() {
         1E-5
     );
 
-    let result =
-        std::panic::catch_unwind(|| level2::tpmv('x', 'n', 'n', 6, &vec![], &mut vec![0.0], 1));
+    let result = std::panic::catch_unwind(|| {
+        level2::tpmv('x', 'n', 'n', 6, vec![].as_ptr(), vec![0.0].as_mut_ptr(), 1)
+    });
     assert!(result.is_err());
 
-    let result =
-        std::panic::catch_unwind(|| level2::tpmv('l', 'x', 'n', 6, &vec![], &mut vec![0.0], 1));
+    let result = std::panic::catch_unwind(|| {
+        level2::tpmv('l', 'x', 'n', 6, vec![].as_ptr(), vec![0.0].as_mut_ptr(), 1)
+    });
     assert!(result.is_err());
 
-    let result =
-        std::panic::catch_unwind(|| level2::tpmv('l', 't', 'x', 6, &vec![], &mut vec![0.0], 1));
+    let result = std::panic::catch_unwind(|| {
+        level2::tpmv('l', 't', 'x', 6, vec![].as_ptr(), vec![0.0].as_mut_ptr(), 1)
+    });
     assert!(result.is_err());
 
-    let result =
-        std::panic::catch_unwind(|| level2::tpmv('l', 't', 'n', 6, &vec![], &mut vec![0.0], 0));
+    let result = std::panic::catch_unwind(|| {
+        level2::tpmv('l', 't', 'n', 6, vec![].as_ptr(), vec![0.0].as_mut_ptr(), 0)
+    });
     assert!(result.is_err());
 }
 
@@ -2937,7 +3873,7 @@ fn trmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::trmv('u', 'n', 'n', 6, &a, 6, &mut x, 1);
+    level2::trmv('u', 'n', 'n', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -2959,7 +3895,7 @@ fn trmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::trmv('u', 'n', 'u', 6, &a, 6, &mut x, 1);
+    level2::trmv('u', 'n', 'u', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -2982,7 +3918,7 @@ fn trmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::trmv('l', 'n', 'n', 6, &a, 6, &mut x, 1);
+    level2::trmv('l', 'n', 'n', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -3004,7 +3940,7 @@ fn trmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::trmv('l', 'n', 'u', 6, &a, 6, &mut x, 1);
+    level2::trmv('l', 'n', 'u', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -3027,7 +3963,7 @@ fn trmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::trmv('u', 't', 'n', 6, &a, 6, &mut x, -1);
+    level2::trmv('u', 't', 'n', 6, a.as_ptr(), 6, x.as_mut_ptr(), -1);
     approximately!(
         x,
         vec![
@@ -3049,7 +3985,7 @@ fn trmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::trmv('u', 't', 'u', 6, &a, 6, &mut x, -1);
+    level2::trmv('u', 't', 'u', 6, a.as_ptr(), 6, x.as_mut_ptr(), -1);
     approximately!(
         x,
         vec![
@@ -3072,7 +4008,7 @@ fn trmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::trmv('l', 't', 'n', 6, &a, 6, &mut x, -1);
+    level2::trmv('l', 't', 'n', 6, a.as_ptr(), 6, x.as_mut_ptr(), -1);
     approximately!(
         x,
         vec![
@@ -3094,7 +4030,7 @@ fn trmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::trmv('l', 't', 'u', 6, &a, 6, &mut x, -1);
+    level2::trmv('l', 't', 'u', 6, a.as_ptr(), 6, x.as_mut_ptr(), -1);
     approximately!(
         x,
         vec![
@@ -3116,7 +4052,7 @@ fn trmv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::trmv('l', 't', 'u', 0, &a, 6, &mut x, -1);
+    level2::trmv('l', 't', 'u', 0, a.as_ptr(), 6, x.as_mut_ptr(), -1);
     approximately!(
         x,
         vec![
@@ -3130,24 +4066,74 @@ fn trmv() {
         1E-5
     );
 
-    let result =
-        std::panic::catch_unwind(|| level2::trmv('x', 'n', 'n', 6, &vec![0.0], 6, &mut vec![], 1));
+    let result = std::panic::catch_unwind(|| {
+        level2::trmv(
+            'x',
+            'n',
+            'n',
+            6,
+            vec![0.0].as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            1,
+        )
+    });
     assert!(result.is_err());
 
-    let result =
-        std::panic::catch_unwind(|| level2::trmv('l', 'x', 'n', 6, &vec![0.0], 6, &mut vec![], 1));
+    let result = std::panic::catch_unwind(|| {
+        level2::trmv(
+            'l',
+            'x',
+            'n',
+            6,
+            vec![0.0].as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            1,
+        )
+    });
     assert!(result.is_err());
 
-    let result =
-        std::panic::catch_unwind(|| level2::trmv('l', 't', 'x', 6, &vec![0.0], 6, &mut vec![], 1));
+    let result = std::panic::catch_unwind(|| {
+        level2::trmv(
+            'l',
+            't',
+            'x',
+            6,
+            vec![0.0].as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            1,
+        )
+    });
     assert!(result.is_err());
 
-    let result =
-        std::panic::catch_unwind(|| level2::trmv('l', 't', 'n', 6, &vec![0.0], 6, &mut vec![], 0));
+    let result = std::panic::catch_unwind(|| {
+        level2::trmv(
+            'l',
+            't',
+            'n',
+            6,
+            vec![0.0].as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            0,
+        )
+    });
     assert!(result.is_err());
 
-    let result =
-        std::panic::catch_unwind(|| level2::trmv('l', 't', 'n', 6, &vec![0.0], 5, &mut vec![], 1));
+    let result = std::panic::catch_unwind(|| {
+        level2::trmv(
+            'l',
+            't',
+            'n',
+            6,
+            vec![0.0].as_ptr(),
+            5,
+            vec![].as_mut_ptr(),
+            1,
+        )
+    });
     assert!(result.is_err());
 }
 
@@ -3162,7 +4148,7 @@ fn trsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::trsv('u', 'n', 'n', 6, &a, 6, &mut x, -1);
+    level2::trsv('u', 'n', 'n', 6, a.as_ptr(), 6, x.as_mut_ptr(), -1);
     approximately!(
         x,
         vec![
@@ -3184,7 +4170,7 @@ fn trsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::trsv('u', 'n', 'u', 6, &a, 6, &mut x, 1);
+    level2::trsv('u', 'n', 'u', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -3206,7 +4192,7 @@ fn trsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::trsv('u', 't', 'n', 6, &a, 6, &mut x, 1);
+    level2::trsv('u', 't', 'n', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -3228,7 +4214,7 @@ fn trsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::trsv('u', 't', 'u', 6, &a, 6, &mut x, 1);
+    level2::trsv('u', 't', 'u', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -3251,7 +4237,7 @@ fn trsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::trsv('l', 'n', 'n', 6, &a, 6, &mut x, 1);
+    level2::trsv('l', 'n', 'n', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -3273,7 +4259,7 @@ fn trsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::trsv('l', 'n', 'u', 6, &a, 6, &mut x, 1);
+    level2::trsv('l', 'n', 'u', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -3295,7 +4281,7 @@ fn trsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::trsv('l', 't', 'n', 6, &a, 6, &mut x, 1);
+    level2::trsv('l', 't', 'n', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -3317,7 +4303,7 @@ fn trsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::trsv('l', 't', 'u', 6, &a, 6, &mut x, 1);
+    level2::trsv('l', 't', 'u', 6, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -3340,7 +4326,7 @@ fn trsv() {
         0.3528744733184766,
         0.5503933584550523,
     ];
-    level2::trsv('l', 't', 'u', 0, &a, 6, &mut x, 1);
+    level2::trsv('l', 't', 'u', 0, a.as_ptr(), 6, x.as_mut_ptr(), 1);
     approximately!(
         x,
         vec![
@@ -3353,23 +4339,73 @@ fn trsv() {
         ],
         1E-4
     );
-    let result =
-        std::panic::catch_unwind(|| level2::trsv('x', 'n', 'n', 6, &vec![0.0], 6, &mut vec![], 1));
+    let result = std::panic::catch_unwind(|| {
+        level2::trsv(
+            'x',
+            'n',
+            'n',
+            6,
+            vec![0.0].as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            1,
+        )
+    });
     assert!(result.is_err());
 
-    let result =
-        std::panic::catch_unwind(|| level2::trsv('l', 'x', 'n', 6, &vec![0.0], 6, &mut vec![], 1));
+    let result = std::panic::catch_unwind(|| {
+        level2::trsv(
+            'l',
+            'x',
+            'n',
+            6,
+            vec![0.0].as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            1,
+        )
+    });
     assert!(result.is_err());
 
-    let result =
-        std::panic::catch_unwind(|| level2::trsv('l', 't', 'x', 6, &vec![0.0], 6, &mut vec![], 1));
+    let result = std::panic::catch_unwind(|| {
+        level2::trsv(
+            'l',
+            't',
+            'x',
+            6,
+            vec![0.0].as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            1,
+        )
+    });
     assert!(result.is_err());
 
-    let result =
-        std::panic::catch_unwind(|| level2::trsv('l', 't', 'n', 6, &vec![0.0], 4, &mut vec![], 1));
+    let result = std::panic::catch_unwind(|| {
+        level2::trsv(
+            'l',
+            't',
+            'n',
+            6,
+            vec![0.0].as_ptr(),
+            4,
+            vec![].as_mut_ptr(),
+            1,
+        )
+    });
     assert!(result.is_err());
 
-    let result =
-        std::panic::catch_unwind(|| level2::trsv('l', 't', 'n', 6, &vec![0.0], 6, &mut vec![], 0));
+    let result = std::panic::catch_unwind(|| {
+        level2::trsv(
+            'l',
+            't',
+            'n',
+            6,
+            vec![0.0].as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            0,
+        )
+    });
     assert!(result.is_err());
 }

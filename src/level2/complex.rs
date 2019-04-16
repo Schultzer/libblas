@@ -1,10 +1,9 @@
-// use std::arch::x86_64::*;
 use num_complex::Complex;
 use num_traits::{Float, NumAssignOps, One, Zero};
 use std::cmp::{max, min};
 
 fn multiply<T: Float + NumAssignOps>(
-    left: &mut [Complex<T>],
+    left: *mut Complex<T>,
     right: Complex<T>,
     len: isize,
     mut index: isize,
@@ -15,22 +14,21 @@ fn multiply<T: Float + NumAssignOps>(
     } else {
         let mut i = 0;
         while i < len {
-            left[index as usize] *= right;
+            unsafe {
+                *left.offset(index) *= right;
+            }
             index += inc;
             i += 1;
         }
     }
 }
 
-fn zero<T: Float + NumAssignOps>(
-    left: &mut [Complex<T>],
-    len: isize,
-    mut index: isize,
-    inc: isize,
-) {
+fn zero<T: Float + NumAssignOps>(left: *mut Complex<T>, len: isize, mut index: isize, inc: isize) {
     let mut i = 0;
     while i < len {
-        left[index as usize] = Complex::zero();
+        unsafe {
+            *left.offset(index) = Complex::zero();
+        }
         index += inc;
         i += 1;
     }
@@ -43,23 +41,31 @@ fn zero<T: Float + NumAssignOps>(
 #[inline]
 pub fn gbmv<T: Float + NumAssignOps>(
     trans: char,
-    m: usize,
-    n: usize,
-    kl: usize,
-    ku: usize,
+    m: isize,
+    n: isize,
+    kl: isize,
+    ku: isize,
     alpha: Complex<T>,
-    a: &[Complex<T>],
-    lda: usize,
-    x: &[Complex<T>],
+    a: *const Complex<T>,
+    lda: isize,
+    x: *const Complex<T>,
     incx: isize,
     beta: Complex<T>,
-    y: &mut [Complex<T>],
+    y: *mut Complex<T>,
     incy: isize,
 ) {
     let mut info = 0;
     if trans != 'c' && trans != 'C' && trans != 'n' && trans != 'N' && trans != 't' && trans != 'T'
     {
         info = 1;
+    } else if m < 0 {
+        info = 2;
+    } else if n < 0 {
+        info = 3;
+    } else if kl < 0 {
+        info = 4;
+    } else if ku < 0 {
+        info = 5;
     } else if lda < (kl + ku + 1) {
         info = 8;
     } else if incx == 0 {
@@ -84,14 +90,14 @@ pub fn gbmv<T: Float + NumAssignOps>(
     let mut kx = 0;
     let mut ky = 0;
     if incx < 0 {
-        kx = (-(lenx as isize) * incx) + incx
+        kx = (-lenx * incx) + incx
     };
     if incy < 0 {
-        ky = (-(leny as isize) * incy) + incy
+        ky = (-leny * incy) + incy
     };
 
     if !beta.is_one() {
-        multiply(y, beta, leny as isize, ky, incy)
+        multiply(y, beta, leny, ky, incy)
     }
     if alpha.is_zero() {
         return;
@@ -101,14 +107,16 @@ pub fn gbmv<T: Float + NumAssignOps>(
         let mut jx = kx;
         let mut j = 0;
         while j < n {
-            let tmp = x[jx as usize] * alpha;
+            let tmp = unsafe { *x.offset(jx) * alpha };
             let mut iy = ky;
             // FIXME
-            let k = ku as isize - j as isize; // apparently we want this to be negative sometimes.
-            let aj = (j * lda) as isize;
-            let mut i = j.saturating_sub(ku); // MAX(0, J-KU) using saturating_sub it will always be 0
+            let k = ku - j; // apparently we want this to be negative sometimes.
+            let aj = j * lda;
+            let mut i = max(0, j - ku);
             while i < min(m, j + kl + 1) {
-                y[iy as usize] += tmp * a[(aj + k + i as isize) as usize];
+                unsafe {
+                    *y.offset(iy) += tmp * *a.offset(aj + k + i);
+                }
                 iy += incy;
                 i += 1;
             }
@@ -126,19 +134,25 @@ pub fn gbmv<T: Float + NumAssignOps>(
             let mut tmp: Complex<T> = Complex::zero();
             let mut ix = kx;
             // FIXME
-            let k = ku as isize - j as isize; // apparently we want this to be negative sometimes.
+            let k = ku - j; // apparently we want this to be negative sometimes.
             let aj = j * lda;
-            let mut i = j.saturating_sub(ku); // MAX(0, J-KU) using saturating_sub it will always be 0
+            let mut i = max(0, j - ku);
             while i < min(m, j + kl + 1) {
                 if noconj {
-                    tmp += a[(aj as isize + k + i as isize) as usize] * x[ix as usize];
+                    unsafe {
+                        tmp += *a.offset(aj + k + i) * *x.offset(ix);
+                    }
                 } else {
-                    tmp += a[(aj as isize + k + i as isize) as usize].conj() * x[ix as usize];
+                    unsafe {
+                        tmp += a.offset(aj + k + i).read().conj() * *x.offset(ix);
+                    }
                 }
                 ix += incx;
                 i += 1;
             }
-            y[jy as usize] += alpha * tmp;
+            unsafe {
+                *y.offset(jy) += alpha * tmp;
+            }
             jy += incy;
             if j > ku - 1 {
                 kx += incx
@@ -156,15 +170,15 @@ pub fn gbmv<T: Float + NumAssignOps>(
 #[inline]
 pub fn gemv<T: Float + NumAssignOps>(
     trans: char,
-    m: usize,
-    n: usize,
+    m: isize,
+    n: isize,
     alpha: Complex<T>,
-    a: &[Complex<T>],
-    lda: usize,
-    x: &[Complex<T>],
+    a: *const Complex<T>,
+    lda: isize,
+    x: *const Complex<T>,
     incx: isize,
     beta: Complex<T>,
-    y: &mut [Complex<T>],
+    y: *mut Complex<T>,
     incy: isize,
 ) {
     let mut info = 0;
@@ -193,14 +207,14 @@ pub fn gemv<T: Float + NumAssignOps>(
     let mut kx = 0;
     let mut ky = 0;
     if incx < 0 {
-        kx = (-(lenx as isize) * incx) + incx
+        kx = (-lenx * incx) + incx
     };
     if incy < 0 {
-        ky = (-(leny as isize) * incx) + incy
+        ky = (-leny * incx) + incy
     };
 
     if !beta.is_one() {
-        multiply(y, beta, leny as isize, ky, incy)
+        multiply(y, beta, leny, ky, incy)
     }
     if alpha.is_zero() {
         return;
@@ -209,12 +223,14 @@ pub fn gemv<T: Float + NumAssignOps>(
         let mut jx = kx;
         let mut j = 0;
         while j < n {
-            let tmp = alpha * x[jx as usize];
+            let tmp = unsafe { alpha * *x.offset(jx) };
             let mut iy = ky;
             let aj = j * lda;
             let mut i = 0;
             while i < m {
-                y[iy as usize] += tmp * a[aj + i];
+                unsafe {
+                    *y.offset(iy) += tmp * *a.offset(aj + i);
+                }
                 iy += incy;
                 i += 1;
             }
@@ -231,15 +247,20 @@ pub fn gemv<T: Float + NumAssignOps>(
             let mut i = 0;
             while i < m {
                 if noconj {
-                    tmp += a[aj + i] * x[ix as usize];
+                    unsafe {
+                        tmp += *a.offset(aj + i) * *x.offset(ix);
+                    }
                 } else {
-                    tmp += a[aj + i].conj() * x[ix as usize];
+                    unsafe {
+                        tmp += a.offset(aj + i).read().conj() * *x.offset(ix);
+                    }
                 }
-
                 ix += incx;
                 i += 1;
             }
-            y[jy as usize] += alpha * tmp;
+            unsafe {
+                *y.offset(jy) += alpha * tmp;
+            }
             jy += incy;
             j += 1;
         }
@@ -252,18 +273,22 @@ pub fn gemv<T: Float + NumAssignOps>(
 /// This is [CGERC](http://www.netlib.org/lapack/explore-html/dd/d84/cgerc_8f.html) and [ZGERC](http://www.netlib.org/lapack/explore-html/d3/dad/zgerc_8f.html) comined in one function
 #[inline]
 pub fn gerc<T: Float + NumAssignOps>(
-    m: usize,
-    n: usize,
+    m: isize,
+    n: isize,
     alpha: Complex<T>,
-    x: &[Complex<T>],
+    x: *const Complex<T>,
     incx: isize,
-    y: &[Complex<T>],
+    y: *const Complex<T>,
     incy: isize,
-    a: &mut [Complex<T>],
-    lda: usize,
+    a: *mut Complex<T>,
+    lda: isize,
 ) {
     let mut info = 0;
-    if incx == 0 {
+    if m < 0 {
+        info = 1;
+    } else if n < 0 {
+        info = 2;
+    } else if incx == 0 {
         info = 5;
     } else if incy == 0 {
         info = 7;
@@ -281,21 +306,21 @@ pub fn gerc<T: Float + NumAssignOps>(
     let mut kx = 0;
     let mut jy = 0;
     if incx < 0 {
-        kx = (-(m as isize) * incx) + incx
+        kx = (-m * incx) + incx
     };
     if incy < 0 {
-        jy = (-(n as isize) * incy) + incy
+        jy = (-n * incy) + incy
     };
     let mut j = 0;
     while j < n {
-        let tmp = y[jy as usize];
+        let tmp = unsafe { *y.offset(jy) };
         if !tmp.is_zero() {
             let tmp = alpha * tmp.conj();
             let mut ix = kx;
             let aj = j * lda;
             let mut i = 0;
             while i < m {
-                a[aj + i] += x[ix as usize] * tmp;
+                unsafe { *a.offset(aj + i) += *x.offset(ix) * tmp };
                 ix += incx;
                 i += 1;
             }
@@ -311,18 +336,22 @@ pub fn gerc<T: Float + NumAssignOps>(
 /// This is [CGERU](http://www.netlib.org/lapack/explore-html/db/d5f/cgeru_8f.html) and [ZGERU](http://www.netlib.org/lapack/explore-html/d7/d12/zgeru_8f.html) comined in one function
 #[inline]
 pub fn geru<T: Float + NumAssignOps>(
-    m: usize,
-    n: usize,
+    m: isize,
+    n: isize,
     alpha: Complex<T>,
-    x: &[Complex<T>],
+    x: *const Complex<T>,
     incx: isize,
-    y: &[Complex<T>],
+    y: *const Complex<T>,
     incy: isize,
-    a: &mut [Complex<T>],
-    lda: usize,
+    a: *mut Complex<T>,
+    lda: isize,
 ) {
     let mut info = 0;
-    if incx == 0 {
+    if m < 0 {
+        info = 5;
+    } else if n < 0 {
+        info = 5;
+    } else if incx == 0 {
         info = 5;
     } else if incy == 0 {
         info = 7;
@@ -340,21 +369,21 @@ pub fn geru<T: Float + NumAssignOps>(
     let mut kx = 0;
     let mut jy = 0;
     if incx < 0 {
-        kx = (-(m as isize) * incx) + incx
+        kx = (-m * incx) + incx
     };
     if incy < 0 {
-        jy = (-(n as isize) * incy) + incy
+        jy = (-n * incy) + incy
     };
     let mut j = 0;
     while j < n {
-        let tmp = y[jy as usize];
+        let tmp = unsafe { *y.offset(jy) };
         if !tmp.is_zero() {
             let tmp = alpha * tmp;
             let mut ix = kx;
             let aj = j * lda;
             let mut i = 0;
             while i < m {
-                a[aj + i] += x[ix as usize] * tmp;
+                unsafe { *a.offset(aj + i) += *x.offset(ix) * tmp };
                 ix += incx;
                 i += 1;
             }
@@ -371,20 +400,24 @@ pub fn geru<T: Float + NumAssignOps>(
 #[inline]
 pub fn hbmv<T: Float + NumAssignOps>(
     uplo: char,
-    n: usize,
-    k: usize,
+    n: isize,
+    k: isize,
     alpha: Complex<T>,
-    a: &[Complex<T>],
-    lda: usize,
-    x: &[Complex<T>],
+    a: *const Complex<T>,
+    lda: isize,
+    x: *const Complex<T>,
     incx: isize,
     beta: Complex<T>,
-    y: &mut [Complex<T>],
+    y: *mut Complex<T>,
     incy: isize,
 ) {
     let mut info = 0;
     if uplo != 'l' && uplo != 'L' && uplo != 'u' && uplo != 'U' {
         info = 1;
+    } else if n < 0 {
+        info = 2;
+    } else if k < 0 {
+        info = 3;
     } else if lda < k + 1 {
         info = 6;
     } else if incx == 0 {
@@ -403,14 +436,14 @@ pub fn hbmv<T: Float + NumAssignOps>(
     let mut kx = 0;
     let mut ky = 0;
     if incx < 0 {
-        kx = (-(n as isize) * incx) + incx
+        kx = (-n * incx) + incx
     };
     if incy < 0 {
-        ky = (-(n as isize) * incy) + incy
+        ky = (-n * incy) + incy
     };
 
     if !beta.is_one() {
-        multiply(y, beta, n as isize, ky, incy)
+        multiply(y, beta, n, ky, incy)
     }
     if alpha.is_zero() {
         return;
@@ -420,20 +453,22 @@ pub fn hbmv<T: Float + NumAssignOps>(
     if uplo == 'u' || uplo == 'U' {
         let mut j = 0;
         while j < n {
-            let tmp = alpha * x[jx as usize];
+            let tmp = unsafe { alpha * *x.offset(jx) };
             let mut tmp2: Complex<T> = Complex::zero();
             let mut ix = kx;
             let mut iy = ky;
             let aj = j * lda;
-            let mut i = j.saturating_sub(k); // MAX(0, j - k)
+            let mut i = max(0, j - k);
             while i < j {
-                y[iy as usize] += tmp * a[aj + k - j + i];
-                tmp2 += a[aj + k - j + i].conj() * x[ix as usize];
+                unsafe {
+                    *y.offset(iy) += tmp * *a.offset(aj + k - j + i);
+                    tmp2 += a.offset(aj + k - j + i).read().conj() * *x.offset(ix);
+                }
                 ix += incx;
                 iy += incy;
                 i += 1;
             }
-            y[iy as usize] += tmp * a[aj + k].re + (alpha * tmp2);
+            unsafe { *y.offset(iy) += tmp * a.offset(aj + k).read().re + (alpha * tmp2) };
             jx += incx;
             jy += incy;
             j += 1;
@@ -445,21 +480,23 @@ pub fn hbmv<T: Float + NumAssignOps>(
     } else {
         let mut j = 0;
         while j < n {
-            let tmp = alpha * x[jx as usize];
+            let tmp = unsafe { alpha * *x.offset(jx) };
             let mut tmp2: Complex<T> = Complex::zero();
             let aj = j * lda;
-            y[jy as usize] += tmp * a[aj].re;
+            unsafe { *y.offset(jy) += tmp * a.offset(aj).read().re };
             let mut ix = jx;
             let mut iy = jy;
             let mut i = j + 1;
             while i < min(n, j + k + 1) {
                 ix += incx;
                 iy += incy;
-                y[iy as usize] += tmp * a[aj - j + i];
-                tmp2 += a[aj - j + i].conj() * x[ix as usize];
+                unsafe {
+                    *y.offset(iy) += tmp * *a.offset(aj - j + i);
+                    tmp2 += a.offset(aj - j + i).read().conj() * *x.offset(ix);
+                }
                 i += 1;
             }
-            y[jy as usize] += alpha * tmp2;
+            unsafe { *y.offset(jy) += alpha * tmp2 };
             jx += incx;
             jy += incy;
             j += 1;
@@ -474,19 +511,21 @@ pub fn hbmv<T: Float + NumAssignOps>(
 #[inline]
 pub fn hemv<T: Float + NumAssignOps>(
     uplo: char,
-    n: usize,
+    n: isize,
     alpha: Complex<T>,
-    a: &[Complex<T>],
-    lda: usize,
-    x: &[Complex<T>],
+    a: *const Complex<T>,
+    lda: isize,
+    x: *const Complex<T>,
     incx: isize,
     beta: Complex<T>,
-    y: &mut [Complex<T>],
+    y: *mut Complex<T>,
     incy: isize,
 ) {
     let mut info = 0;
     if uplo != 'l' && uplo != 'L' && uplo != 'u' && uplo != 'U' {
         info = 1;
+    } else if n < 0 {
+        info = 2;
     } else if lda < max(1, n) {
         info = 5;
     } else if incx == 0 {
@@ -505,14 +544,14 @@ pub fn hemv<T: Float + NumAssignOps>(
     let mut kx = 0;
     let mut ky = 0;
     if incx < 0 {
-        kx = (-(n as isize) * incx) + incx
+        kx = (-n * incx) + incx
     };
     if incy < 0 {
-        ky = (-(n as isize) * incy) + incy
+        ky = (-n * incy) + incy
     };
 
     if !beta.is_one() {
-        multiply(y, beta, n as isize, ky, incy)
+        multiply(y, beta, n, ky, incy)
     }
     if alpha.is_zero() {
         return;
@@ -522,20 +561,22 @@ pub fn hemv<T: Float + NumAssignOps>(
     let mut j = 0;
     if uplo == 'u' || uplo == 'U' {
         while j < n {
-            let tmp = alpha * x[jx as usize];
+            let tmp = unsafe { alpha * *x.offset(jx) };
             let mut tmp2: Complex<T> = Complex::zero();
             let mut ix = kx;
             let mut iy = ky;
             let aj = j * lda;
             let mut i = 0;
             while i < j {
-                y[iy as usize] += tmp * a[aj + i];
-                tmp2 += a[aj + i].conj() * x[ix as usize];
+                unsafe {
+                    *y.offset(iy) += tmp * *a.offset(aj + i);
+                    tmp2 += a.offset(aj + i).read().conj() * *x.offset(ix);
+                }
                 ix += incx;
                 iy += incy;
                 i += 1;
             }
-            y[jy as usize] += tmp * a[aj + j].re + (alpha * tmp2);
+            unsafe { *y.offset(jy) += tmp * a.offset(aj + j).read().re + (alpha * tmp2) };
             jx += incx;
             jy += incy;
             j += 1;
@@ -545,20 +586,22 @@ pub fn hemv<T: Float + NumAssignOps>(
         let mut jy = ky;
         while j < n {
             let aj = j * lda;
-            let tmp = alpha * x[jx as usize];
+            let tmp = unsafe { alpha * *x.offset(jx) };
             let mut tmp2: Complex<T> = Complex::zero();
-            y[jy as usize] += tmp * a[aj + j].re;
+            unsafe { *y.offset(jy) += tmp * a.offset(aj + j).read().re };
             let mut ix = jx;
             let mut iy = jy;
             let mut i = j + 1;
             while i < n {
                 ix += incx;
                 iy += incy;
-                y[iy as usize] += tmp * a[aj + i];
-                tmp2 += a[aj + i].conj() * x[ix as usize];
+                unsafe {
+                    *y.offset(iy) += tmp * *a.offset(aj + i);
+                    tmp2 += a.offset(aj + i).read().conj() * *x.offset(ix);
+                }
                 i += 1;
             }
-            y[jy as usize] += alpha * tmp2;
+            unsafe { *y.offset(jy) += alpha * tmp2 };
             jx += incx;
             jy += incy;
             j += 1;
@@ -573,16 +616,18 @@ pub fn hemv<T: Float + NumAssignOps>(
 #[inline]
 pub fn her<T: Float + NumAssignOps>(
     uplo: char,
-    n: usize,
+    n: isize,
     alpha: T,
-    x: &[Complex<T>],
+    x: *const Complex<T>,
     incx: isize,
-    a: &mut [Complex<T>],
-    lda: usize,
+    a: *mut Complex<T>,
+    lda: isize,
 ) {
     let mut info = 0;
     if uplo != 'l' && uplo != 'L' && uplo != 'u' && uplo != 'U' {
         info = 1;
+    } else if n < 0 {
+        info = 2;
     } else if incx == 0 {
         info = 5;
     } else if lda < max(1, n) {
@@ -599,30 +644,39 @@ pub fn her<T: Float + NumAssignOps>(
 
     let mut kx = 0;
     if incx < 0 {
-        kx = (-(n as isize) * incx) + incx
+        kx = (-n * incx) + incx
     };
     if uplo == 'u' || uplo == 'U' {
         let mut jx = kx;
         let mut j = 0;
         while j < n {
             let aj = j * lda;
-            let tmp = x[jx as usize];
+            let tmp = unsafe { *x.offset(jx) };
             if !tmp.is_zero() {
                 let tmp = tmp.conj() * alpha;
                 let mut ix = kx;
                 let mut i = 0;
                 while i < j {
-                    a[aj + i] += tmp * x[ix as usize];
+                    unsafe {
+                        *a.offset(aj + i) += tmp * *x.offset(ix);
+                    }
                     ix += incx;
                     i += 1;
                 }
-                let tmp = tmp * x[jx as usize];
-                a[aj + j] = Complex {
-                    re: a[aj + j].re + tmp.re,
-                    im: T::zero(),
-                };
+                let tmp = unsafe { tmp * *x.offset(jx) };
+                unsafe {
+                    *a.offset(aj + j) = Complex {
+                        re: a.offset(aj + j).read().re + tmp.re,
+                        im: T::zero(),
+                    };
+                }
             } else {
-                a[aj + j].im = T::zero();
+                unsafe {
+                    *a.offset(aj + j) = Complex {
+                        re: a.offset(aj + j).read().re,
+                        im: T::zero(),
+                    };
+                }
             }
             jx += incx;
             j += 1;
@@ -632,23 +686,32 @@ pub fn her<T: Float + NumAssignOps>(
         let mut j = 0;
         while j < n {
             let aj = j * lda;
-            let tmp = x[jx as usize];
+            let tmp = unsafe { *x.offset(jx) };
             if !tmp.is_zero() {
                 let tmp = tmp.conj() * alpha;
-                let tmp2 = tmp * x[jx as usize];
-                a[aj + j] = Complex {
-                    re: a[aj + j].re + tmp2.re,
-                    im: T::zero(),
-                };
+                let tmp2 = unsafe { tmp * *x.offset(jx) };
+                unsafe {
+                    *a.offset(aj + j) = Complex {
+                        re: a.offset(aj + j).read().re + tmp2.re,
+                        im: T::zero(),
+                    };
+                }
                 let mut ix = jx;
                 let mut i = j + 1;
                 while i < n {
                     ix += incx;
-                    a[aj + i] += tmp * x[ix as usize];
+                    unsafe {
+                        *a.offset(aj + i) += tmp * *x.offset(ix);
+                    }
                     i += 1;
                 }
             } else {
-                a[aj + j].im = T::zero();
+                unsafe {
+                    *a.offset(aj + j) = Complex {
+                        re: a.offset(aj + j).read().re,
+                        im: T::zero(),
+                    };
+                }
             }
             jx += incx;
             j += 1;
@@ -663,18 +726,20 @@ pub fn her<T: Float + NumAssignOps>(
 #[inline]
 pub fn her2<T: Float + NumAssignOps>(
     uplo: char,
-    n: usize,
+    n: isize,
     alpha: Complex<T>,
-    x: &[Complex<T>],
+    x: *const Complex<T>,
     incx: isize,
-    y: &[Complex<T>],
+    y: *const Complex<T>,
     incy: isize,
-    a: &mut [Complex<T>],
-    lda: usize,
+    a: *mut Complex<T>,
+    lda: isize,
 ) {
     let mut info = 0;
     if uplo != 'l' && uplo != 'L' && uplo != 'u' && uplo != 'U' {
         info = 1;
+    } else if n < 0 {
+        info = 2;
     } else if incx == 0 {
         info = 3;
     } else if incy == 0 {
@@ -694,10 +759,10 @@ pub fn her2<T: Float + NumAssignOps>(
     let mut kx = 0;
     let mut ky = 0;
     if incx < 0 {
-        kx = (-(n as isize) * incx) + incx
+        kx = (-n * incx) + incx
     };
     if incy < 0 {
-        ky = (-(n as isize) * incy) + incy
+        ky = (-n * incy) + incy
     };
     let mut jx = kx;
     let mut jy = ky;
@@ -705,8 +770,8 @@ pub fn her2<T: Float + NumAssignOps>(
     if uplo == 'u' || uplo == 'U' {
         while j < n {
             let aj = j * lda;
-            let y1 = y[jy as usize];
-            let x1 = x[jx as usize];
+            let y1 = unsafe { *y.offset(jy) };
+            let x1 = unsafe { *x.offset(jx) };
             if !x1.is_zero() || !y1.is_zero() {
                 let tmp = alpha * y1.conj();
                 let tmp2 = (alpha * x1).conj();
@@ -715,19 +780,28 @@ pub fn her2<T: Float + NumAssignOps>(
                 let mut iy = ky;
                 let mut i = 0;
                 while i < j {
-                    a[aj + i] += x[ix as usize] * tmp + y[iy as usize] * tmp2;
+                    unsafe {
+                        *a.offset(aj + i) += *x.offset(ix) * tmp + *y.offset(iy) * tmp2;
+                    }
                     ix += incx;
                     iy += incy;
                     i += 1;
                 }
                 // FIXME
                 // maybe only calculate the real.
-                a[aj + j] = Complex {
-                    re: a[aj + j].re + (x1 * tmp + y1 * tmp2).re,
-                    im: T::zero(),
-                };
+                unsafe {
+                    *a.offset(aj + j) = Complex {
+                        re: a.offset(aj + j).read().re + (x1 * tmp + y1 * tmp2).re,
+                        im: T::zero(),
+                    };
+                }
             } else {
-                a[aj + j].im = T::zero()
+                unsafe {
+                    *a.offset(aj + j) = Complex {
+                        re: a.offset(aj + j).read().re,
+                        im: T::zero(),
+                    };
+                }
             }
             jx += incx;
             jy += incy;
@@ -736,28 +810,35 @@ pub fn her2<T: Float + NumAssignOps>(
     } else {
         while j < n {
             let aj = j * lda;
-            let y1 = y[jy as usize];
-            let x1 = x[jx as usize];
+            let y1 = unsafe { *y.offset(jy) };
+            let x1 = unsafe { *x.offset(jx) };
             if !x1.is_zero() || !y1.is_zero() {
                 let tmp = alpha * y1.conj();
                 let tmp2 = (alpha * x1).conj();
                 // FIXME
                 // maybe only calculate the real.
-                a[aj + j] = Complex {
-                    re: a[aj + j].re + (x1 * tmp + y1 * tmp2).re,
-                    im: T::zero(),
-                };
+                unsafe {
+                    *a.offset(aj + j) = Complex {
+                        re: a.offset(aj + j).read().re + (x1 * tmp + y1 * tmp2).re,
+                        im: T::zero(),
+                    };
+                }
                 let mut ix = jx;
                 let mut iy = jy;
                 let mut i = j + 1;
                 while i < n {
                     ix += incx;
                     iy += incy;
-                    a[aj + i] += x[ix as usize] * tmp + y[iy as usize] * tmp2;
+                    unsafe { *a.offset(aj + i) += *x.offset(ix) * tmp + *y.offset(iy) * tmp2 };
                     i += 1;
                 }
             } else {
-                a[aj + j].im = T::zero()
+                unsafe {
+                    *a.offset(aj + j) = Complex {
+                        re: a.offset(aj + j).read().re,
+                        im: T::zero(),
+                    };
+                }
             }
             jx += incx;
             jy += incy;
@@ -773,18 +854,20 @@ pub fn her2<T: Float + NumAssignOps>(
 #[inline]
 pub fn hpmv<T: Float + NumAssignOps>(
     uplo: char,
-    n: usize,
+    n: isize,
     alpha: Complex<T>,
-    ap: &[Complex<T>],
-    x: &[Complex<T>],
+    ap: *const Complex<T>,
+    x: *const Complex<T>,
     incx: isize,
     beta: Complex<T>,
-    y: &mut [Complex<T>],
+    y: *mut Complex<T>,
     incy: isize,
 ) {
     let mut info = 0;
     if uplo != 'l' && uplo != 'L' && uplo != 'u' && uplo != 'U' {
         info = 1;
+    } else if n < 0 {
+        info = 2;
     } else if incx == 0 {
         info = 6;
     } else if incy == 0 {
@@ -801,14 +884,14 @@ pub fn hpmv<T: Float + NumAssignOps>(
     let mut kx = 0;
     let mut ky = 0;
     if incx < 0 {
-        kx = (-(n as isize) * incx) + incx
+        kx = (-n * incx) + incx
     };
     if incy < 0 {
-        ky = (-(n as isize) * incy) + incy
+        ky = (-n * incy) + incy
     };
 
     if !beta.is_one() {
-        multiply(y, beta, n as isize, ky, incy)
+        multiply(y, beta, n, ky, incy)
     }
     if alpha.is_zero() {
         return;
@@ -820,7 +903,7 @@ pub fn hpmv<T: Float + NumAssignOps>(
         let mut j = 0;
         while j < n {
             j += 1;
-            let tmp = alpha * x[jx as usize];
+            let tmp = unsafe { alpha * *x.offset(jx) };
             let mut tmp2: Complex<T> = Complex::zero();
             let mut ix = kx;
             let mut iy = ky;
@@ -828,13 +911,15 @@ pub fn hpmv<T: Float + NumAssignOps>(
             kk += j;
             while k < kk - 1 {
                 // KK + J - 2
-                y[iy as usize] += tmp * ap[k];
-                tmp2 += ap[k].conj() * x[ix as usize];
+                unsafe {
+                    *y.offset(iy) += tmp * *ap.offset(k);
+                    tmp2 += ap.offset(k).read().conj() * *x.offset(ix);
+                };
                 ix += incx;
                 iy += incy;
                 k += 1;
             }
-            y[jy as usize] += tmp * ap[kk - 1].re + alpha * tmp2;
+            unsafe { *y.offset(jy) += tmp * ap.offset(kk - 1).read().re + alpha * tmp2 };
             jx += incx;
             jy += incy;
         }
@@ -844,21 +929,23 @@ pub fn hpmv<T: Float + NumAssignOps>(
         let mut j = 0;
         while j < n {
             j += 1;
-            let tmp = alpha * x[jx as usize];
+            let tmp = unsafe { alpha * *x.offset(jx) };
             let mut tmp2: Complex<T> = Complex::zero();
             let mut ix = jx;
             let mut iy = jy;
             let mut k = kk;
             kk += n - j;
-            y[jy as usize] += tmp * ap[k].re;
+            unsafe { *y.offset(jy) += tmp * ap.offset(k).read().re };
             while k < kk {
                 k += 1;
                 ix += incx;
                 iy += incy;
-                y[iy as usize] += tmp * ap[k];
-                tmp2 += ap[k].conj() * x[ix as usize];
+                unsafe {
+                    *y.offset(iy) += tmp * *ap.offset(k);
+                    tmp2 += ap.offset(k).read().conj() * *x.offset(ix);
+                };
             }
-            y[jy as usize] += alpha * tmp2;
+            unsafe { *y.offset(jy) += alpha * tmp2 };
             jx += incx;
             jy += incy;
             kk += 1;
@@ -873,15 +960,17 @@ pub fn hpmv<T: Float + NumAssignOps>(
 #[inline]
 pub fn hpr<T: Float + NumAssignOps>(
     uplo: char,
-    n: usize,
+    n: isize,
     alpha: T,
-    x: &[Complex<T>],
+    x: *const Complex<T>,
     incx: isize,
-    ap: &mut [Complex<T>],
+    ap: *mut Complex<T>,
 ) {
     let mut info = 0;
     if uplo != 'l' && uplo != 'L' && uplo != 'u' && uplo != 'U' {
         info = 1;
+    } else if n < 0 {
+        info = 2;
     } else if incx == 0 {
         info = 6;
     }
@@ -894,32 +983,39 @@ pub fn hpr<T: Float + NumAssignOps>(
     }
     let mut kx = 0;
     if incx < 0 {
-        kx = (-(n as isize) * incx) + incx
+        kx = (-n * incx) + incx
     };
     let mut kk = 0;
     if uplo == 'u' || uplo == 'U' {
         let mut jx = kx;
         let mut j = 0;
         while j < n {
-            let x1 = x[jx as usize];
+            let x1 = unsafe { *x.offset(jx) };
             let mut k = kk;
             kk += j;
             if !x1.is_zero() {
                 let tmp = x1.conj() * alpha;
                 let mut ix = kx;
                 while k < kk {
-                    ap[k] += tmp * x[ix as usize];
+                    unsafe { *ap.offset(k) += tmp * *x.offset(ix) };
                     ix += incx;
                     k += 1;
                 }
                 // FIXME
                 // maybe only calculate the real.
-                ap[kk] = Complex {
-                    re: ap[kk].re + (x1 * tmp).re,
-                    im: T::zero(),
-                };
+                unsafe {
+                    *ap.offset(kk) = Complex {
+                        re: ap.offset(kk).read().re + (x1 * tmp).re,
+                        im: T::zero(),
+                    };
+                }
             } else {
-                ap[kk].im = T::zero();
+                unsafe {
+                    *ap.offset(kk) = Complex {
+                        re: ap.offset(kk).read().re,
+                        im: T::zero(),
+                    };
+                };
             }
             jx += incx;
             kk += 1;
@@ -930,23 +1026,30 @@ pub fn hpr<T: Float + NumAssignOps>(
         let mut j = 0;
         while j < n {
             j += 1;
-            let x1 = x[jx as usize];
+            let x1 = unsafe { *x.offset(jx) };
             let mut k = kk;
             kk += n - j;
             if !x1.is_zero() {
                 let tmp = x1.conj() * alpha;
-                ap[k] = Complex {
-                    re: ap[k].re + (x1 * tmp).re,
-                    im: T::zero(),
-                };
+                unsafe {
+                    *ap.offset(k) = Complex {
+                        re: ap.offset(k).read().re + (x1 * tmp).re,
+                        im: T::zero(),
+                    };
+                }
                 let mut ix = jx;
                 while k < kk {
                     k += 1;
                     ix += incx;
-                    ap[k] += tmp * x[ix as usize];
+                    unsafe { *ap.offset(k) += tmp * *x.offset(ix) };
                 }
             } else {
-                ap[k].im = T::zero();
+                unsafe {
+                    *ap.offset(k) = Complex {
+                        re: ap.offset(k).read().re,
+                        im: T::zero(),
+                    };
+                };
             }
             jx += incx;
             kk += 1;
@@ -961,17 +1064,19 @@ pub fn hpr<T: Float + NumAssignOps>(
 #[inline]
 pub fn hpr2<T: Float + NumAssignOps>(
     uplo: char,
-    n: usize,
+    n: isize,
     alpha: Complex<T>,
-    x: &[Complex<T>],
+    x: *const Complex<T>,
     incx: isize,
-    y: &[Complex<T>],
+    y: *const Complex<T>,
     incy: isize,
-    ap: &mut [Complex<T>],
+    ap: *mut Complex<T>,
 ) {
     let mut info = 0;
     if uplo != 'l' && uplo != 'L' && uplo != 'u' && uplo != 'U' {
         info = 1;
+    } else if n < 0 {
+        info = 2;
     } else if incx == 0 {
         info = 5;
     } else if incy == 0 {
@@ -990,10 +1095,10 @@ pub fn hpr2<T: Float + NumAssignOps>(
     let mut kx = 0;
     let mut ky = 0;
     if incx < 0 {
-        kx = (-(n as isize) * incx) + incx
+        kx = (-n * incx) + incx
     };
     if incy < 0 {
-        ky = (-(n as isize) * incy) + incy
+        ky = (-n * incy) + incy
     };
 
     let mut jx = kx;
@@ -1002,8 +1107,8 @@ pub fn hpr2<T: Float + NumAssignOps>(
     if uplo == 'u' || uplo == 'U' {
         let mut j = 0;
         while j < n {
-            let x1 = x[jx as usize];
-            let y1 = y[jy as usize];
+            let x1 = unsafe { *x.offset(jx) };
+            let y1 = unsafe { *y.offset(jy) };
             let mut k = kk;
             kk += j;
             if !x1.is_zero() || !y1.is_zero() {
@@ -1012,19 +1117,26 @@ pub fn hpr2<T: Float + NumAssignOps>(
                 let mut ix = kx;
                 let mut iy = ky;
                 while k < kk {
-                    ap[k] += x[ix as usize] * tmp + y[iy as usize] * tmp2;
+                    unsafe { *ap.offset(k) += *x.offset(ix) * tmp + *y.offset(iy) * tmp2 };
                     ix += incx;
                     iy += incy;
                     k += 1;
                 }
                 // FIXME
                 // maybe only calculate the real.
-                ap[kk] = Complex {
-                    re: ap[kk].re + (x1 * tmp + y1 * tmp2).re,
-                    im: T::zero(),
-                };
+                unsafe {
+                    *ap.offset(kk) = Complex {
+                        re: ap.offset(kk).read().re + (x1 * tmp + y1 * tmp2).re,
+                        im: T::zero(),
+                    };
+                }
             } else {
-                ap[kk].im = T::zero();
+                unsafe {
+                    *ap.offset(kk) = Complex {
+                        re: ap.offset(kk).read().re,
+                        im: T::zero(),
+                    };
+                };
             }
             jx += incx;
             jy += incy;
@@ -1035,8 +1147,8 @@ pub fn hpr2<T: Float + NumAssignOps>(
         let mut j = 0;
         while j < n {
             j += 1;
-            let x1 = x[jx as usize];
-            let y1 = y[jy as usize];
+            let x1 = unsafe { *x.offset(jx) };
+            let y1 = unsafe { *y.offset(jy) };
             let mut k = kk;
             kk += n - j;
             if !x1.is_zero() || !y1.is_zero() {
@@ -1044,10 +1156,12 @@ pub fn hpr2<T: Float + NumAssignOps>(
                 let tmp2 = (alpha * x1).conj();
                 // FIXME
                 // maybe only calculate the real.
-                ap[k] = Complex {
-                    re: ap[k].re + (x1 * tmp + y1 * tmp2).re,
-                    im: T::zero(),
-                };
+                unsafe {
+                    *ap.offset(k) = Complex {
+                        re: ap.offset(k).read().re + (x1 * tmp + y1 * tmp2).re,
+                        im: T::zero(),
+                    };
+                }
                 let mut ix = jx;
                 let mut iy = jy;
                 // FIXME Maybe we could move kk += n - j + 1 up here
@@ -1055,10 +1169,15 @@ pub fn hpr2<T: Float + NumAssignOps>(
                     k += 1;
                     ix += incx;
                     iy += incy;
-                    ap[k] += x[ix as usize] * tmp + y[iy as usize] * tmp2;
+                    unsafe { *ap.offset(k) += *x.offset(ix) * tmp + *y.offset(iy) * tmp2 };
                 }
             } else {
-                ap[k].im = T::zero();
+                unsafe {
+                    *ap.offset(k) = Complex {
+                        re: ap.offset(k).read().re,
+                        im: T::zero(),
+                    };
+                };
             }
             jx += incx;
             jy += incy;
@@ -1076,11 +1195,11 @@ pub fn tbmv<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
     diag: char,
-    n: usize,
-    k: usize,
-    a: &[Complex<T>],
-    lda: usize,
-    x: &mut [Complex<T>],
+    n: isize,
+    k: isize,
+    a: *const Complex<T>,
+    lda: isize,
+    x: *mut Complex<T>,
     incx: isize,
 ) {
     let mut info = 0;
@@ -1096,6 +1215,10 @@ pub fn tbmv<T: Float + NumAssignOps>(
         info = 2;
     } else if diag != 'n' && diag != 'N' && diag != 'u' && diag != 'U' {
         info = 3;
+    } else if n < 0 {
+        info = 4;
+    } else if k < 0 {
+        info = 5;
     } else if lda < k + 1 {
         info = 7;
     } else if incx == 0 {
@@ -1112,7 +1235,7 @@ pub fn tbmv<T: Float + NumAssignOps>(
     let nounit = diag == 'n' || diag == 'N';
     let mut kx = 0;
     if incx < 0 {
-        kx = (-(n as isize) * incx) + incx
+        kx = (-n * incx) + incx
     };
 
     if trans == 'n' || trans == 'N' {
@@ -1120,18 +1243,18 @@ pub fn tbmv<T: Float + NumAssignOps>(
             let mut jx = kx;
             let mut j = 0;
             while j < n {
-                let tmp = x[jx as usize];
+                let tmp = unsafe { *x.offset(jx) };
                 if !tmp.is_zero() {
                     let mut ix = kx;
                     let aj = j * lda;
-                    let mut i = j.saturating_sub(k);
+                    let mut i = max(0, j - k);
                     while i < j {
-                        x[ix as usize] += tmp * a[aj + i + k - j];
+                        unsafe { *x.offset(ix) += tmp * *a.offset(aj + i + k - j) };
                         ix += incx;
                         i += 1;
                     }
                     if nounit {
-                        x[jx as usize] = tmp * a[aj + k]
+                        unsafe { *x.offset(jx) = tmp * *a.offset(aj + k) }
                     }
                 }
                 jx += incx;
@@ -1142,23 +1265,23 @@ pub fn tbmv<T: Float + NumAssignOps>(
             }
         } else {
             // FIXME
-            kx += (n as isize - 1) * incx;
+            kx += (n - 1) * incx;
             let mut jx = kx;
             let mut j = n;
             while j >= 1 {
                 j -= 1;
                 let aj = j * lda;
-                let tmp = x[jx as usize];
+                let tmp = unsafe { *x.offset(jx) };
                 if !tmp.is_zero() {
                     let mut ix = kx;
                     let mut i = min(n - 1, j + k); // NOTE
                     while i >= j + 1 {
-                        x[ix as usize] += tmp * a[aj - j + i];
+                        unsafe { *x.offset(ix) += tmp * *a.offset(aj - j + i) };
                         ix -= incx;
                         i -= 1;
                     }
                     if nounit {
-                        x[jx as usize] = tmp * a[aj];
+                        unsafe { *x.offset(jx) = tmp * *a.offset(aj) };
                     }
                 }
                 jx -= incx;
@@ -1168,63 +1291,63 @@ pub fn tbmv<T: Float + NumAssignOps>(
             }
         }
     } else if uplo == 'u' || uplo == 'U' {
-        kx += (n as isize - 1) * incx;
+        kx += (n - 1) * incx;
         let mut jx = kx;
         let mut j = n;
         while j >= 1 {
             j -= 1;
-            let mut tmp = x[jx as usize];
+            let mut tmp = unsafe { *x.offset(jx) };
             kx -= incx;
             let mut ix = kx;
             let aj = j * lda;
             if nounit {
                 if noconj {
-                    tmp *= a[aj + k];
+                    unsafe { tmp *= *a.offset(aj + k) };
                 } else {
-                    tmp *= a[aj + k].conj();
+                    unsafe { tmp *= a.offset(aj + k).read().conj() };
                 }
             }
             let mut i = j;
             // FIXME figure out if there is a better way
-            while i >= max(1, j.saturating_sub(k) + 1) {
+            while i >= max(1, j - k + 1) {
                 i -= 1;
                 if noconj {
-                    tmp += a[aj + i + k - j] * x[ix as usize];
+                    unsafe { tmp += *a.offset(aj + i + k - j) * *x.offset(ix) };
                 } else {
-                    tmp += a[aj + i + k - j].conj() * x[ix as usize];
+                    unsafe { tmp += a.offset(aj + i + k - j).read().conj() * *x.offset(ix) };
                 }
                 ix -= incx;
             }
-            x[jx as usize] = tmp;
+            unsafe { *x.offset(jx) = tmp };
             jx -= incx;
         }
     } else {
         let mut jx = kx;
         let mut j = 0;
         while j < n {
-            let mut tmp = x[jx as usize];
+            let mut tmp = unsafe { *x.offset(jx) };
             kx += incx;
             let aj = j * lda;
             if nounit {
                 if noconj {
-                    tmp *= a[aj];
+                    unsafe { tmp *= *a.offset(aj) };
                 } else {
-                    tmp *= a[aj].conj();
+                    unsafe { tmp *= a.offset(aj).read().conj() };
                 }
             }
             let mut ix = kx;
             let mut i = j + 1;
             while i < min(n, j + k + 1) {
                 if noconj {
-                    tmp += a[aj - j + i] * x[ix as usize];
+                    unsafe { tmp += *a.offset(aj - j + i) * *x.offset(ix) };
                 } else {
-                    tmp += a[aj - j + i].conj() * x[ix as usize];
+                    unsafe { tmp += a.offset(aj - j + i).read().conj() * *x.offset(ix) };
                 }
 
                 ix += incx;
                 i += 1;
             }
-            x[jx as usize] = tmp;
+            unsafe { *x.offset(jx) = tmp };
             jx += incx;
             j += 1;
         }
@@ -1241,11 +1364,11 @@ pub fn tbsv<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
     diag: char,
-    n: usize,
-    k: usize,
-    a: &[Complex<T>],
-    lda: usize,
-    x: &mut [Complex<T>],
+    n: isize,
+    k: isize,
+    a: *const Complex<T>,
+    lda: isize,
+    x: *mut Complex<T>,
     incx: isize,
 ) {
     let mut info = 0;
@@ -1261,6 +1384,10 @@ pub fn tbsv<T: Float + NumAssignOps>(
         info = 2;
     } else if diag != 'n' && diag != 'N' && diag != 'u' && diag != 'U' {
         info = 3;
+    } else if n < 0 {
+        info = 4;
+    } else if k < 0 {
+        info = 5;
     } else if lda < k + 1 {
         info = 7;
     } else if incx == 0 {
@@ -1275,30 +1402,30 @@ pub fn tbsv<T: Float + NumAssignOps>(
     }
     let mut kx = 0;
     if incx < 0 {
-        kx = (-(n as isize) * incx) + incx
+        kx = (-n * incx) + incx
     };
 
     let noconj = trans == 't' || trans == 'T';
     let nounit = diag == 'n' || diag == 'N';
     if trans == 'n' || trans == 'N' {
         if uplo == 'u' || uplo == 'U' {
-            kx += (n as isize - 1) * incx;
+            kx += (n - 1) * incx;
             let mut jx = kx;
             let mut j = n;
             while j >= 1 {
                 j -= 1;
                 kx -= incx;
-                if !x[jx as usize].is_zero() {
+                if unsafe { !x.offset(jx).read().is_zero() } {
                     let mut ix = kx;
                     let aj = j * lda;
                     if nounit {
-                        x[jx as usize] /= a[aj + k];
+                        unsafe { *x.offset(jx) /= *a.offset(aj + k) };
                     }
-                    let tmp = x[jx as usize];
+                    let tmp = unsafe { *x.offset(jx) };
                     let mut i = j;
-                    while i > j.saturating_sub(k) {
+                    while i > max(0, j - k) {
                         i -= 1;
-                        x[ix as usize] -= tmp * a[aj + k - j + i];
+                        unsafe { *x.offset(ix) -= tmp * *a.offset(aj + k - j + i) };
                         ix -= incx;
                     }
                 }
@@ -1309,16 +1436,16 @@ pub fn tbsv<T: Float + NumAssignOps>(
             let mut j = 0;
             while j < n {
                 kx += incx;
-                if !x[jx as usize].is_zero() {
+                if unsafe { !x.offset(jx).read().is_zero() } {
                     let mut ix = kx;
                     let aj = j * lda;
                     if nounit {
-                        x[jx as usize] /= a[aj];
+                        unsafe { *x.offset(jx) /= *a.offset(aj) };
                     }
                     let mut i = j + 1;
-                    let tmp = x[jx as usize];
+                    let tmp = unsafe { *x.offset(jx) };
                     while i < min(n, j + k + 1) {
-                        x[ix as usize] -= tmp * a[aj - j + i];
+                        unsafe { *x.offset(ix) -= tmp * *a.offset(aj - j + i) };
                         ix += incx;
                         i += 1;
                     }
@@ -1331,27 +1458,27 @@ pub fn tbsv<T: Float + NumAssignOps>(
         let mut jx = kx;
         let mut j = 0;
         while j < n {
-            let mut tmp = x[jx as usize];
+            let mut tmp = unsafe { *x.offset(jx) };
             let mut ix = kx;
             let aj = j * lda;
-            let mut i = j.saturating_sub(k);
+            let mut i = max(0, j - k);
             while i < j {
                 if noconj {
-                    tmp -= a[aj + k - j + i] * x[ix as usize];
+                    unsafe { tmp -= *a.offset(aj + k - j + i) * *x.offset(ix) };
                 } else {
-                    tmp -= a[aj + k - j + i].conj() * x[ix as usize];
+                    unsafe { tmp -= a.offset(aj + k - j + i).read().conj() * *x.offset(ix) };
                 };
                 ix += incx;
                 i += 1;
             }
             if nounit {
                 if noconj {
-                    tmp /= a[aj + k];
+                    unsafe { tmp /= *a.offset(aj + k) };
                 } else {
-                    tmp /= a[aj + k].conj();
+                    unsafe { tmp /= a.offset(aj + k).read().conj() };
                 };
             }
-            x[jx as usize] = tmp;
+            unsafe { *x.offset(jx) = tmp };
             jx += incx;
             j += 1;
             if j > k {
@@ -1359,21 +1486,21 @@ pub fn tbsv<T: Float + NumAssignOps>(
             }
         }
     } else {
-        kx += (n as isize - 1) * incx;
+        kx += (n - 1) * incx;
         let mut jx = kx;
         let mut j = n;
         while j >= 1 {
             j -= 1;
             let aj = j * lda;
-            let mut tmp = x[jx as usize];
+            let mut tmp = unsafe { *x.offset(jx) };
             let mut ix = kx;
             //FIXME Maybe we could do this in a diffrent way
             let mut i = min(n - 1, j + k);
             while i > j {
                 if noconj {
-                    tmp -= a[aj - j + i] * x[ix as usize];
+                    unsafe { tmp -= *a.offset(aj - j + i) * *x.offset(ix) };
                 } else {
-                    tmp -= a[aj - j + i].conj() * x[ix as usize];
+                    unsafe { tmp -= a.offset(aj - j + i).read().conj() * *x.offset(ix) };
                 };
                 i -= 1;
                 ix -= incx;
@@ -1381,12 +1508,12 @@ pub fn tbsv<T: Float + NumAssignOps>(
             //
             if nounit {
                 if noconj {
-                    tmp /= a[aj];
+                    unsafe { tmp /= *a.offset(aj) };
                 } else {
-                    tmp /= a[aj].conj();
+                    unsafe { tmp /= a.offset(aj).read().conj() };
                 };
             }
-            x[jx as usize] = tmp;
+            unsafe { *x.offset(jx) = tmp };
             jx -= incx;
             if (n - 1) - j >= k {
                 kx -= incx;
@@ -1404,9 +1531,9 @@ pub fn tpmv<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
     diag: char,
-    n: usize,
-    ap: &[Complex<T>],
-    x: &mut [Complex<T>],
+    n: isize,
+    ap: *const Complex<T>,
+    x: *mut Complex<T>,
     incx: isize,
 ) {
     let mut info = 0;
@@ -1422,6 +1549,8 @@ pub fn tpmv<T: Float + NumAssignOps>(
         info = 2;
     } else if diag != 'n' && diag != 'N' && diag != 'u' && diag != 'U' {
         info = 3;
+    } else if n < 0 {
+        info = 4;
     } else if incx == 0 {
         info = 7;
     }
@@ -1437,7 +1566,7 @@ pub fn tpmv<T: Float + NumAssignOps>(
     let nounit = diag == 'n' || diag == 'N';
     let mut kx = 0;
     if incx < 0 {
-        kx = (-(n as isize) * incx) + incx
+        kx = (-n * incx) + incx
     };
 
     if trans == 'n' || trans == 'N' {
@@ -1447,18 +1576,17 @@ pub fn tpmv<T: Float + NumAssignOps>(
             let mut j = 0;
             while j < n {
                 j += 1;
-                if !x[jx as usize].is_zero() {
-                    let tmp = x[jx as usize];
+                if unsafe { !x.offset(jx).read().is_zero() } {
+                    let tmp = unsafe { *x.offset(jx) };
                     let mut ix = kx;
                     let mut k = kk;
                     while k < kk + j - 1 {
-                        x[ix as usize] += tmp * ap[k];
+                        unsafe { *x.offset(ix) += tmp * *ap.offset(k) };
                         ix += incx;
                         k += 1;
                     }
                     if nounit {
-                        x[jx as usize] *= ap[kk + j - 1];
-                        // x[jx as usize] = tmp * ap[kk + j - 1];
+                        unsafe { *x.offset(jx) *= *ap.offset(kk + j - 1) };
                     }
                 }
                 jx += incx;
@@ -1466,23 +1594,23 @@ pub fn tpmv<T: Float + NumAssignOps>(
             }
         } else {
             let mut kk = n * (n + 1) / 2;
-            kx += (n as isize - 1) * incx;
+            kx += (n - 1) * incx;
             let mut jx = kx;
             let mut j = n;
             while j >= 1 {
                 j -= 1;
                 //FIXME figure out a better way
-                if !x[jx as usize].is_zero() {
-                    let tmp = x[jx as usize];
+                if unsafe { !x.offset(jx).read().is_zero() } {
+                    let tmp = unsafe { *x.offset(jx) };
                     let mut ix = kx;
                     let mut k = kk - 1;
                     while k > kk - (n - j) {
-                        x[ix as usize] += tmp * ap[k];
+                        unsafe { *x.offset(ix) += tmp * *ap.offset(k) };
                         ix -= incx;
                         k -= 1;
                     }
                     if nounit {
-                        x[jx as usize] *= ap[kk - n + j];
+                        unsafe { *x.offset(jx) *= *ap.offset(kk - n + j) };
                     }
                 }
                 jx -= incx;
@@ -1492,31 +1620,31 @@ pub fn tpmv<T: Float + NumAssignOps>(
         }
     } else if uplo == 'u' || uplo == 'U' {
         let mut kk = n * (n + 1) / 2;
-        let mut jx = kx + (n as isize - 1) * incx;
+        let mut jx = kx + (n - 1) * incx;
         let mut j = n;
         while j >= 1 {
             kk -= j;
             j -= 1;
-            let mut tmp = x[jx as usize];
+            let mut tmp = unsafe { *x.offset(jx) };
             let mut ix = jx;
             let mut k = kk + j;
             if nounit {
                 if noconj {
-                    tmp *= ap[k];
+                    tmp *= unsafe { *ap.offset(k) };
                 } else {
-                    tmp *= ap[k].conj();
+                    tmp *= unsafe { ap.offset(k).read().conj() };
                 };
             }
             while k > kk {
                 ix -= incx;
                 k -= 1;
                 if noconj {
-                    tmp += ap[k] * x[ix as usize];
+                    unsafe { tmp += *ap.offset(k) * *x.offset(ix) };
                 } else {
-                    tmp += ap[k].conj() * x[ix as usize];
+                    unsafe { tmp += ap.offset(k).read().conj() * *x.offset(ix) };
                 };
             }
-            x[jx as usize] = tmp;
+            unsafe { *x.offset(jx) = tmp };
             jx -= incx;
         }
     } else {
@@ -1525,27 +1653,27 @@ pub fn tpmv<T: Float + NumAssignOps>(
         let mut j = 0;
         while j < n {
             j += 1;
-            let mut tmp = x[jx as usize];
+            let mut tmp = unsafe { *x.offset(jx) };
             let mut ix = jx;
             let mut k = kk;
             kk += n - j;
             if nounit {
                 if noconj {
-                    tmp *= ap[k];
+                    unsafe { tmp *= *ap.offset(k) };
                 } else {
-                    tmp *= ap[k].conj();
+                    unsafe { tmp *= ap.offset(k).read().conj() };
                 };
             }
             while k < kk {
                 ix += incx;
                 k += 1;
                 if noconj {
-                    tmp += ap[k] * x[ix as usize];
+                    unsafe { tmp += *ap.offset(k) * *x.offset(ix) };
                 } else {
-                    tmp += ap[k].conj() * x[ix as usize];
+                    unsafe { tmp += ap.offset(k).read().conj() * *x.offset(ix) };
                 };
             }
-            x[jx as usize] = tmp;
+            unsafe { *x.offset(jx) = tmp };
             jx += incx;
             kk += 1;
         }
@@ -1562,9 +1690,9 @@ pub fn tpsv<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
     diag: char,
-    n: usize,
-    ap: &[Complex<T>],
-    x: &mut [Complex<T>],
+    n: isize,
+    ap: *const Complex<T>,
+    x: *mut Complex<T>,
     incx: isize,
 ) {
     let mut info = 0;
@@ -1580,6 +1708,8 @@ pub fn tpsv<T: Float + NumAssignOps>(
         info = 2;
     } else if diag != 'n' && diag != 'N' && diag != 'u' && diag != 'U' {
         info = 3;
+    } else if n < 0 {
+        info = 4;
     } else if incx == 0 {
         info = 7;
     }
@@ -1594,28 +1724,28 @@ pub fn tpsv<T: Float + NumAssignOps>(
     let nounit = diag == 'n' || diag == 'N';
     let mut kx = 0;
     if incx < 0 {
-        kx = (-(n as isize) * incx) + incx
+        kx = (-n * incx) + incx
     };
 
     if trans == 'n' || trans == 'N' {
         if uplo == 'u' || uplo == 'U' {
             let mut kk = n * (n + 1) / 2;
-            let mut jx = kx + (n as isize - 1) * incx;
+            let mut jx = kx + (n - 1) * incx;
             let mut j = n;
             while j >= 1 {
                 kk -= j;
                 j -= 1;
-                if !x[jx as usize].is_zero() {
+                if unsafe { !x.offset(jx).read().is_zero() } {
                     let mut k = kk + j;
                     if nounit {
-                        x[jx as usize] /= ap[k];
+                        unsafe { *x.offset(jx) /= *ap.offset(k) };
                     }
-                    let tmp = x[jx as usize];
+                    let tmp = unsafe { *x.offset(jx) };
                     let mut ix = jx;
                     while k > kk {
                         ix -= incx;
                         k -= 1;
-                        x[ix as usize] -= tmp * ap[k];
+                        unsafe { *x.offset(ix) -= tmp * *ap.offset(k) };
                     }
                 }
                 jx -= incx;
@@ -1628,16 +1758,16 @@ pub fn tpsv<T: Float + NumAssignOps>(
                 j += 1;
                 let mut k = kk;
                 kk += n - j;
-                if !x[jx as usize].is_zero() {
+                if unsafe { !x.offset(jx).read().is_zero() } {
                     if nounit {
-                        x[jx as usize] /= ap[k];
+                        unsafe { *x.offset(jx) /= *ap.offset(k) };
                     }
-                    let tmp = x[jx as usize];
+                    let tmp = unsafe { *x.offset(jx) };
                     let mut ix = jx;
                     while k < kk {
                         k += 1;
                         ix += incx;
-                        x[ix as usize] -= tmp * ap[k];
+                        unsafe { *x.offset(ix) -= tmp * *ap.offset(k) };
                     }
                 }
                 jx += incx;
@@ -1650,15 +1780,15 @@ pub fn tpsv<T: Float + NumAssignOps>(
         let mut j = 0;
         while j < n {
             j += 1;
-            let mut tmp = x[jx as usize];
+            let mut tmp = unsafe { *x.offset(jx) };
             let mut ix = kx;
             let mut k = kk;
             kk += j;
             while k < kk - 1 {
                 if noconj {
-                    tmp -= ap[k] * x[ix as usize];
+                    unsafe { tmp -= *ap.offset(k) * *x.offset(ix) };
                 } else {
-                    tmp -= ap[k].conj() * x[ix as usize];
+                    unsafe { tmp -= ap.offset(k).read().conj() * *x.offset(ix) };
                 };
                 ix += incx;
                 k += 1;
@@ -1666,30 +1796,30 @@ pub fn tpsv<T: Float + NumAssignOps>(
             if nounit {
                 // NOTE k == kk + j - 1
                 if noconj {
-                    tmp /= ap[k];
+                    unsafe { tmp /= *ap.offset(k) };
                 } else {
-                    tmp /= ap[k].conj();
+                    unsafe { tmp /= ap.offset(k).read().conj() };
                 };
             }
-            x[jx as usize] = tmp;
+            unsafe { *x.offset(jx) = tmp };
             jx += incx;
         }
     } else {
         let mut kk = n * (n + 1) / 2;
-        kx += (n as isize - 1) * incx;
+        kx += (n - 1) * incx;
         let mut jx = kx;
         let mut j = n;
         while j >= 1 {
             j -= 1;
-            let mut tmp = x[jx as usize];
+            let mut tmp = unsafe { *x.offset(jx) };
             let mut ix = kx;
             let mut k = kk - 1;
             kk -= n - j;
             while k > kk {
                 if noconj {
-                    tmp -= ap[k] * x[ix as usize];
+                    unsafe { tmp -= *ap.offset(k) * *x.offset(ix) };
                 } else {
-                    tmp -= ap[k].conj() * x[ix as usize];
+                    unsafe { tmp -= ap.offset(k).read().conj() * *x.offset(ix) };
                 };
 
                 ix -= incx;
@@ -1698,12 +1828,12 @@ pub fn tpsv<T: Float + NumAssignOps>(
             if nounit {
                 // NOTE k == kk - n + j
                 if noconj {
-                    tmp /= ap[k];
+                    unsafe { tmp /= *ap.offset(k) };
                 } else {
-                    tmp /= ap[k].conj();
+                    unsafe { tmp /= ap.offset(k).read().conj() };
                 };
             }
-            x[jx as usize] = tmp;
+            unsafe { *x.offset(jx) = tmp };
             jx -= incx;
         }
     }
@@ -1718,10 +1848,10 @@ pub fn trmv<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
     diag: char,
-    n: usize,
-    a: &[Complex<T>],
-    lda: usize,
-    x: &mut [Complex<T>],
+    n: isize,
+    a: *const Complex<T>,
+    lda: isize,
+    x: *mut Complex<T>,
     incx: isize,
 ) {
     let mut info = 0;
@@ -1737,6 +1867,8 @@ pub fn trmv<T: Float + NumAssignOps>(
         info = 2;
     } else if diag != 'n' && diag != 'N' && diag != 'u' && diag != 'U' {
         info = 3;
+    } else if n < 0 {
+        info = 4;
     } else if lda < max(1, n) {
         info = 6;
     } else if incx == 0 {
@@ -1754,7 +1886,7 @@ pub fn trmv<T: Float + NumAssignOps>(
     let nounit = diag == 'n' || diag == 'N';
     let mut kx = 0;
     if incx < 0 {
-        kx = (-(n as isize) * incx) + incx
+        kx = (-n * incx) + incx
     };
 
     if trans == 'n' || trans == 'N' {
@@ -1762,105 +1894,105 @@ pub fn trmv<T: Float + NumAssignOps>(
             let mut jx = kx;
             let mut j = 0;
             while j < n {
-                let tmp = x[jx as usize];
+                let tmp = unsafe { *x.offset(jx) };
                 if !tmp.is_zero() {
                     let mut ix = kx;
                     let aj = j * lda;
                     let mut i = 0;
                     while i < j {
-                        x[ix as usize] += tmp * a[aj + i];
+                        unsafe { *x.offset(ix) += tmp * *a.offset(aj + i) };
                         ix += incx;
                         i += 1;
                     }
                     if nounit {
-                        x[jx as usize] = tmp * a[aj + j];
+                        unsafe { *x.offset(jx) = tmp * *a.offset(aj + j) };
                     }
                 }
                 j += 1;
                 jx += incx;
             }
         } else {
-            kx += (n as isize - 1) * incx;
+            kx += (n - 1) * incx;
             let mut jx = kx;
             let mut j = n;
             while j >= 1 {
                 j -= 1;
-                let tmp = x[jx as usize];
+                let tmp = unsafe { *x.offset(jx) };
                 if !tmp.is_zero() {
                     let aj = j * lda;
                     let mut ix = kx;
                     let mut i = n;
                     while i > j + 1 {
                         i -= 1;
-                        x[ix as usize] += tmp * a[aj + i];
+                        unsafe { *x.offset(ix) += tmp * *a.offset(aj + i) };
                         ix -= incx;
                     }
                     if nounit {
-                        x[jx as usize] = tmp * a[aj + j];
+                        unsafe { *x.offset(jx) = tmp * *a.offset(aj + j) };
                     }
                 }
                 jx -= incx;
             }
         }
     } else if uplo == 'u' || uplo == 'U' {
-        let mut jx = kx + (n as isize - 1) * incx;
+        let mut jx = kx + (n - 1) * incx;
         let mut j = n;
         while j >= 1 {
             j -= 1;
-            let mut tmp = x[jx as usize];
+            let mut tmp = unsafe { *x.offset(jx) };
             let mut ix = jx;
             let aj = j * lda;
             let mut i = j;
             if noconj {
                 if nounit {
-                    tmp *= a[aj + j];
+                    unsafe { tmp *= *a.offset(aj + j) };
                 }
                 while i >= 1 {
                     i -= 1;
                     ix -= incx;
-                    tmp += a[aj + i] * x[ix as usize];
+                    unsafe { tmp += *a.offset(aj + i) * *x.offset(ix) };
                 }
             } else {
                 if nounit {
-                    tmp *= a[aj + j].conj();
+                    unsafe { tmp *= a.offset(aj + j).read().conj() };
                 }
                 while i >= 1 {
                     i -= 1;
                     ix -= incx;
-                    tmp += a[aj + i].conj() * x[ix as usize];
+                    unsafe { tmp += a.offset(aj + i).read().conj() * *x.offset(ix) };
                 }
             }
-            x[jx as usize] = tmp;
+            unsafe { *x.offset(jx) = tmp };
             jx -= incx;
         }
     } else {
         let mut jx = kx;
         let mut j = 0;
         while j < n {
-            let mut tmp = x[jx as usize];
+            let mut tmp = unsafe { *x.offset(jx) };
             let mut ix = jx;
             let aj = j * lda;
             let mut i = j + 1;
             if noconj {
                 if nounit {
-                    tmp *= a[aj + j];
+                    unsafe { tmp *= *a.offset(aj + j) };
                 }
                 while i < n {
                     ix += incx;
-                    tmp += a[aj + i] * x[ix as usize];
+                    unsafe { tmp += *a.offset(aj + i) * *x.offset(ix) };
                     i += 1;
                 }
             } else {
                 if nounit {
-                    tmp *= a[aj + j].conj();
+                    unsafe { tmp *= a.offset(aj + j).read().conj() };
                 }
                 while i < n {
                     ix += incx;
-                    tmp += a[aj + i].conj() * x[ix as usize];
+                    unsafe { tmp += a.offset(aj + i).read().conj() * *x.offset(ix) };
                     i += 1;
                 }
             }
-            x[jx as usize] = tmp;
+            unsafe { *x.offset(jx) = tmp };
             jx += incx;
             j += 1;
         }
@@ -1877,10 +2009,10 @@ pub fn trsv<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
     diag: char,
-    n: usize,
-    a: &[Complex<T>],
-    lda: usize,
-    x: &mut [Complex<T>],
+    n: isize,
+    a: *const Complex<T>,
+    lda: isize,
+    x: *mut Complex<T>,
     incx: isize,
 ) {
     let mut info = 0;
@@ -1896,6 +2028,8 @@ pub fn trsv<T: Float + NumAssignOps>(
         info = 2;
     } else if diag != 'n' && diag != 'N' && diag != 'u' && diag != 'U' {
         info = 3;
+    } else if n < 0 {
+        info = 4;
     } else if lda < max(1, n) {
         info = 6;
     } else if incx == 0 {
@@ -1913,28 +2047,28 @@ pub fn trsv<T: Float + NumAssignOps>(
     let nounit = diag == 'n' || diag == 'N';
     let mut kx = 0;
     if incx < 0 {
-        kx = (-(n as isize) * incx) + incx
+        kx = (-n * incx) + incx
     };
 
     if trans == 'n' || trans == 'N' {
         if uplo == 'u' || uplo == 'U' {
-            let mut jx = kx + (n as isize - 1) * incx;
+            let mut jx = kx + (n - 1) * incx;
             let mut j = n;
             while j >= 1 {
                 j -= 1;
-                let tmp = x[jx as usize];
+                let tmp = unsafe { *x.offset(jx) };
                 if !tmp.is_zero() {
                     let aj = j * lda;
                     if nounit {
-                        x[jx as usize] = tmp / a[aj + j];
+                        unsafe { *x.offset(jx) = tmp / *a.offset(aj + j) };
                     }
-                    let tmp = x[jx as usize];
+                    let tmp = unsafe { *x.offset(jx) };
                     let mut ix = jx;
                     let mut i = j;
                     while i >= 1 {
                         i -= 1;
                         ix -= incx;
-                        x[ix as usize] -= tmp * a[aj + i];
+                        unsafe { *x.offset(ix) -= tmp * *a.offset(aj + i) };
                     }
                 }
                 jx -= incx;
@@ -1943,18 +2077,18 @@ pub fn trsv<T: Float + NumAssignOps>(
             let mut jx = kx;
             let mut j = 0;
             while j < n {
-                let tmp = x[jx as usize];
+                let tmp = unsafe { *x.offset(jx) };
                 if !tmp.is_zero() {
                     let aj = j * lda;
                     if nounit {
-                        x[jx as usize] = tmp / a[aj + j];
+                        unsafe { *x.offset(jx) = tmp / *a.offset(aj + j) };
                     }
-                    let tmp = x[jx as usize];
+                    let tmp = unsafe { *x.offset(jx) };
                     let mut ix = jx;
                     let mut i = j + 1;
                     while i < n {
                         ix += incx;
-                        x[ix as usize] -= tmp * a[aj + i];
+                        unsafe { *x.offset(ix) -= tmp * *a.offset(aj + i) };
                         i += 1;
                     }
                 }
@@ -1967,56 +2101,56 @@ pub fn trsv<T: Float + NumAssignOps>(
         let mut j = 0;
         while j < n {
             let mut ix = kx;
-            let mut tmp = x[jx as usize];
+            let mut tmp = unsafe { *x.offset(jx) };
             let aj = j * lda;
             let mut i = 0;
             while i < j {
                 if noconj {
-                    tmp -= a[aj + i] * x[ix as usize];
+                    unsafe { tmp -= *a.offset(aj + i) * *x.offset(ix) };
                 } else {
-                    tmp -= a[aj + i].conj() * x[ix as usize];
+                    unsafe { tmp -= a.offset(aj + i).read().conj() * *x.offset(ix) };
                 };
                 ix += incx;
                 i += 1;
             }
             if nounit {
                 if noconj {
-                    tmp /= a[aj + j];
+                    unsafe { tmp /= *a.offset(aj + j) };
                 } else {
-                    tmp /= a[aj + j].conj();
+                    unsafe { tmp /= a.offset(aj + j).read().conj() };
                 };
             }
-            x[jx as usize] = tmp;
+            unsafe { *x.offset(jx) = tmp };
             jx += incx;
             j += 1;
         }
     } else {
-        kx += (n as isize - 1) * incx;
+        kx += (n - 1) * incx;
         let mut jx = kx;
         let mut j = n;
         while j >= 1 {
             j -= 1;
             let mut ix = kx;
-            let mut tmp = x[jx as usize];
+            let mut tmp = unsafe { *x.offset(jx) };
             let aj = j * lda;
             let mut i = n;
             while i > j + 1 {
                 i -= 1;
                 if noconj {
-                    tmp -= a[aj + i] * x[ix as usize];
+                    unsafe { tmp -= *a.offset(aj + i) * *x.offset(ix) };
                 } else {
-                    tmp -= a[aj + i].conj() * x[ix as usize];
+                    unsafe { tmp -= a.offset(aj + i).read().conj() * *x.offset(ix) };
                 };
                 ix -= incx;
             }
             if nounit {
                 if noconj {
-                    tmp /= a[aj + j];
+                    unsafe { tmp /= *a.offset(aj + j) };
                 } else {
-                    tmp /= a[aj + j].conj();
+                    unsafe { tmp /= a.offset(aj + j).read().conj() };
                 };
             }
-            x[jx as usize] = tmp;
+            unsafe { *x.offset(jx) = tmp };
             jx -= incx;
         }
     }
