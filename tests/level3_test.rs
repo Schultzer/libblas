@@ -7,19 +7,75 @@ fn gemm() {
     let a = fixtures::matrix_mxn(8, 8);
     let b = fixtures::matrix_mxn(8, 8);
     let mut c = fixtures::matrix_mxn(8, 8);
-    level3::gemm('n', 'n', 6, 0, 4, 0.3, &a, 8, &b, 8, 0.2, &mut c, 8);
+    level3::gemm(
+        'n',
+        'n',
+        6,
+        0,
+        4,
+        0.3,
+        a.as_ptr(),
+        8,
+        b.as_ptr(),
+        8,
+        0.2,
+        c.as_mut_ptr(),
+        8,
+    );
     approximately!(c, fixtures::matrix_mxn(8, 8));
 
     let mut c = fixtures::matrix_mxn(8, 8);
-    level3::gemm('n', 'n', 0, 8, 4, 0.3, &a, 8, &b, 8, 0.2, &mut c, 8);
+    level3::gemm(
+        'n',
+        'n',
+        0,
+        8,
+        4,
+        0.3,
+        a.as_ptr(),
+        8,
+        b.as_ptr(),
+        8,
+        0.2,
+        c.as_mut_ptr(),
+        8,
+    );
     approximately!(c, fixtures::matrix_mxn(8, 8));
 
     let mut c = fixtures::matrix_mxn(8, 8);
-    level3::gemm('n', 'n', 6, 8, 4, 0.0, &a, 8, &b, 8, 1.0, &mut c, 8);
+    level3::gemm(
+        'n',
+        'n',
+        6,
+        8,
+        4,
+        0.0,
+        a.as_ptr(),
+        8,
+        b.as_ptr(),
+        8,
+        1.0,
+        c.as_mut_ptr(),
+        8,
+    );
     approximately!(c, fixtures::matrix_mxn(8, 8));
 
     let mut c = fixtures::matrix_mxn(8, 8);
-    level3::gemm('n', 'c', 6, 8, 4, 0.0, &a, 8, &b, 8, 0.0, &mut c, 8);
+    level3::gemm(
+        'n',
+        'c',
+        6,
+        8,
+        4,
+        0.0,
+        a.as_ptr(),
+        8,
+        b.as_ptr(),
+        8,
+        0.0,
+        c.as_mut_ptr(),
+        8,
+    );
     approximately!(
         c,
         vec![
@@ -92,7 +148,21 @@ fn gemm() {
     let a = fixtures::matrix_mxn(6, 6);
     let b = fixtures::matrix_mxn(6, 6);
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::gemm('n', 'c', 6, 6, 3, 0.0, &a, 6, &b, 6, 0.75, &mut c, 6);
+    level3::gemm(
+        'n',
+        'c',
+        6,
+        6,
+        3,
+        0.0,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.75,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -135,7 +205,21 @@ fn gemm() {
         ]
     );
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::gemm('n', 'n', 4, 6, 3, 0.3, &a, 6, &b, 6, -1.2, &mut c, 6);
+    level3::gemm(
+        'n',
+        'n',
+        4,
+        6,
+        3,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        -1.2,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -178,7 +262,21 @@ fn gemm() {
         ]
     );
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::gemm('n', 'n', 4, 6, 3, 0.3, &a, 6, &b, 6, 0.0, &mut c, 6);
+    level3::gemm(
+        'n',
+        'n',
+        4,
+        6,
+        3,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -221,7 +319,21 @@ fn gemm() {
         ]
     );
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::gemm('n', 'n', 4, 6, 3, 0.3, &a, 6, &b, 6, 1.0, &mut c, 6);
+    level3::gemm(
+        'n',
+        'n',
+        4,
+        6,
+        3,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        1.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -264,7 +376,21 @@ fn gemm() {
         ]
     );
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::gemm('c', 'n', 4, 6, 3, 0.3, &a, 6, &b, 6, 1.0, &mut c, 6);
+    level3::gemm(
+        'c',
+        'n',
+        4,
+        6,
+        3,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        1.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -307,7 +433,21 @@ fn gemm() {
         ]
     );
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::gemm('c', 'n', 4, 6, 3, 0.3, &a, 6, &b, 6, 0.0, &mut c, 6);
+    level3::gemm(
+        'c',
+        'n',
+        4,
+        6,
+        3,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -350,7 +490,21 @@ fn gemm() {
         ]
     );
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::gemm('n', 'c', 4, 6, 3, 0.3, &a, 6, &b, 6, 0.0, &mut c, 6);
+    level3::gemm(
+        'n',
+        'c',
+        4,
+        6,
+        3,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -394,7 +548,21 @@ fn gemm() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::gemm('n', 'c', 4, 6, 3, 0.3, &a, 6, &b, 6, 1.0, &mut c, 6);
+    level3::gemm(
+        'n',
+        'c',
+        4,
+        6,
+        3,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        1.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -438,7 +606,21 @@ fn gemm() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::gemm('n', 'c', 4, 6, 3, 0.3, &a, 6, &b, 6, 0.5, &mut c, 6);
+    level3::gemm(
+        'n',
+        'c',
+        4,
+        6,
+        3,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.5,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -481,7 +663,21 @@ fn gemm() {
         ]
     );
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::gemm('c', 'c', 4, 6, 3, 0.3, &a, 6, &b, 6, 0.5, &mut c, 6);
+    level3::gemm(
+        'c',
+        'c',
+        4,
+        6,
+        3,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.5,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -524,7 +720,21 @@ fn gemm() {
         ]
     );
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::gemm('c', 'c', 4, 6, 3, 0.3, &a, 6, &b, 6, 0.0, &mut c, 6);
+    level3::gemm(
+        'c',
+        'c',
+        4,
+        6,
+        3,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -569,27 +779,97 @@ fn gemm() {
     let a = vec![];
     let b = vec![];
     let result = std::panic::catch_unwind(|| {
-        level3::gemm('x', 't', 6, 8, 4, 0.0, &a, 8, &b, 8, 0.2, &mut vec![], 8);
+        level3::gemm(
+            'x',
+            't',
+            6,
+            8,
+            4,
+            0.0,
+            a.as_ptr(),
+            8,
+            b.as_ptr(),
+            8,
+            0.2,
+            vec![].as_mut_ptr(),
+            8,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::gemm('c', 'x', 6, 8, 4, 0.0, &a, 8, &b, 8, 0.2, &mut vec![], 8);
+        level3::gemm(
+            'c',
+            'x',
+            6,
+            8,
+            4,
+            0.0,
+            a.as_ptr(),
+            8,
+            b.as_ptr(),
+            8,
+            0.2,
+            vec![].as_mut_ptr(),
+            8,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::gemm('n', 'n', 6, 8, 4, 0.0, &a, 4, &b, 8, 0.2, &mut vec![], 8);
+        level3::gemm(
+            'n',
+            'n',
+            6,
+            8,
+            4,
+            0.0,
+            a.as_ptr(),
+            4,
+            b.as_ptr(),
+            8,
+            0.2,
+            vec![].as_mut_ptr(),
+            8,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::gemm('n', 'n', 6, 8, 4, 0.0, &a, 8, &b, 3, 0.2, &mut vec![], 8);
+        level3::gemm(
+            'n',
+            'n',
+            6,
+            8,
+            4,
+            0.0,
+            a.as_ptr(),
+            8,
+            b.as_ptr(),
+            3,
+            0.2,
+            vec![].as_mut_ptr(),
+            8,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::gemm('n', 'n', 6, 8, 4, 0.0, &a, 8, &b, 8, 0.2, &mut vec![], 5);
+        level3::gemm(
+            'n',
+            'n',
+            6,
+            8,
+            4,
+            0.0,
+            a.as_ptr(),
+            8,
+            b.as_ptr(),
+            8,
+            0.2,
+            vec![].as_mut_ptr(),
+            5,
+        );
     });
     assert!(result.is_err());
 }
@@ -599,19 +879,71 @@ fn symm() {
     let a = fixtures::matrix_mxn(6, 6);
     let b = fixtures::matrix_mxn(6, 6);
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::symm('l', 'u', 6, 0, 0.3, &a, 6, &b, 6, 0.2, &mut c, 6);
+    level3::symm(
+        'l',
+        'u',
+        6,
+        0,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.2,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(c, a);
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::symm('l', 'u', 0, 0, 0.3, &a, 6, &b, 6, 0.2, &mut c, 6);
+    level3::symm(
+        'l',
+        'u',
+        0,
+        0,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.2,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(c, b);
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::symm('l', 'u', 6, 4, 0.0, &a, 6, &b, 6, 1.0, &mut c, 6);
+    level3::symm(
+        'l',
+        'u',
+        6,
+        4,
+        0.0,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        1.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(c, a);
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::symm('l', 'u', 6, 4, 0.0, &a, 6, &b, 6, 0.0, &mut c, 6);
+    level3::symm(
+        'l',
+        'u',
+        6,
+        4,
+        0.0,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -655,7 +987,20 @@ fn symm() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::symm('l', 'u', 4, 6, 0.0, &a, 6, &b, 6, 0.2, &mut c, 6);
+    level3::symm(
+        'l',
+        'u',
+        4,
+        6,
+        0.0,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.2,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -699,7 +1044,20 @@ fn symm() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::symm('l', 'u', 4, 6, 0.3, &a, 6, &b, 6, 0.2, &mut c, 6);
+    level3::symm(
+        'l',
+        'u',
+        4,
+        6,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.2,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -743,7 +1101,20 @@ fn symm() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::symm('l', 'u', 4, 6, 0.3, &a, 6, &b, 6, 0.0, &mut c, 6);
+    level3::symm(
+        'l',
+        'u',
+        4,
+        6,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -787,7 +1158,20 @@ fn symm() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::symm('l', 'l', 4, 6, 0.3, &a, 6, &b, 6, 0.0, &mut c, 6);
+    level3::symm(
+        'l',
+        'l',
+        4,
+        6,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -831,7 +1215,20 @@ fn symm() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::symm('l', 'l', 4, 6, 0.3, &a, 6, &b, 6, 0.2, &mut c, 6);
+    level3::symm(
+        'l',
+        'l',
+        4,
+        6,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.2,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -875,7 +1272,20 @@ fn symm() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::symm('r', 'u', 4, 6, 0.3, &a, 6, &b, 6, 0.0, &mut c, 6);
+    level3::symm(
+        'r',
+        'u',
+        4,
+        6,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -919,7 +1329,20 @@ fn symm() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::symm('r', 'u', 4, 6, 0.3, &a, 6, &b, 6, 1.0, &mut c, 6);
+    level3::symm(
+        'r',
+        'u',
+        4,
+        6,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        1.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -963,7 +1386,20 @@ fn symm() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::symm('r', 'l', 4, 6, 0.3, &a, 6, &b, 6, 1.0, &mut c, 6);
+    level3::symm(
+        'r',
+        'l',
+        4,
+        6,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        1.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -1009,27 +1445,92 @@ fn symm() {
     let a = vec![];
     let b = vec![];
     let result = std::panic::catch_unwind(|| {
-        level3::symm('x', 'u', 6, 6, 0.3, &a, 6, &b, 6, 0.2, &mut vec![], 6);
+        level3::symm(
+            'x',
+            'u',
+            6,
+            6,
+            0.3,
+            a.as_ptr(),
+            6,
+            b.as_ptr(),
+            6,
+            0.2,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::symm('l', 'x', 0, 8, 0.3, &a, 6, &b, 6, 0.2, &mut vec![], 6);
+        level3::symm(
+            'l',
+            'x',
+            0,
+            8,
+            0.3,
+            a.as_ptr(),
+            6,
+            b.as_ptr(),
+            6,
+            0.2,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::symm('l', 'u', 6, 4, 0.3, &a, 5, &b, 6, 0.2, &mut vec![], 6);
+        level3::symm(
+            'l',
+            'u',
+            6,
+            4,
+            0.3,
+            a.as_ptr(),
+            5,
+            b.as_ptr(),
+            6,
+            0.2,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::symm('l', 'u', 3, 4, 0.3, &a, 6, &b, 2, 0.2, &mut vec![], 6);
+        level3::symm(
+            'l',
+            'u',
+            3,
+            4,
+            0.3,
+            a.as_ptr(),
+            6,
+            b.as_ptr(),
+            2,
+            0.2,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::symm('l', 'u', 3, 4, 0.3, &a, 6, &b, 6, 0.2, &mut vec![], 2);
+        level3::symm(
+            'l',
+            'u',
+            3,
+            4,
+            0.3,
+            a.as_ptr(),
+            6,
+            b.as_ptr(),
+            6,
+            0.2,
+            vec![].as_mut_ptr(),
+            2,
+        );
     });
     assert!(result.is_err());
 }
@@ -1039,15 +1540,54 @@ fn syr2k() {
     let a = fixtures::matrix_mxn(6, 6);
     let b = fixtures::matrix_mxn(6, 6);
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syr2k('l', 't', 0, 0, 0.2, &a, 6, &b, 6, 0.3, &mut c, 6);
+    level3::syr2k(
+        'l',
+        't',
+        0,
+        0,
+        0.2,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.3,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(c, a);
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syr2k('l', 't', 6, 0, 0.3, &a, 6, &b, 6, 1.0, &mut c, 6);
+    level3::syr2k(
+        'l',
+        't',
+        6,
+        0,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        1.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(c, b);
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syr2k('u', 'n', 6, 3, 0.0, &a, 6, &b, 6, 0.25, &mut c, 6);
+    level3::syr2k(
+        'u',
+        'n',
+        6,
+        3,
+        0.0,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.25,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -1091,7 +1631,20 @@ fn syr2k() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syr2k('u', 'n', 6, 3, 0.0, &a, 6, &b, 6, 0.0, &mut c, 6);
+    level3::syr2k(
+        'u',
+        'n',
+        6,
+        3,
+        0.0,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -1135,7 +1688,20 @@ fn syr2k() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syr2k('l', 'n', 6, 3, 0.0, &a, 6, &b, 6, 0.0, &mut c, 6);
+    level3::syr2k(
+        'l',
+        'n',
+        6,
+        3,
+        0.0,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -1182,7 +1748,20 @@ fn syr2k() {
     let a = mat.clone();
     let b = mat.clone();
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syr2k('u', 'n', 6, 3, 0.3, &a, 6, &b, 6, -0.5, &mut c, 6);
+    level3::syr2k(
+        'u',
+        'n',
+        6,
+        3,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        -0.5,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -1226,7 +1805,20 @@ fn syr2k() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syr2k('u', 'n', 6, 3, 0.3, &a, 6, &b, 6, 0.0, &mut c, 6);
+    level3::syr2k(
+        'u',
+        'n',
+        6,
+        3,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -1270,7 +1862,20 @@ fn syr2k() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syr2k('u', 'n', 6, 3, 0.3, &a, 6, &b, 6, 1.0, &mut c, 6);
+    level3::syr2k(
+        'u',
+        'n',
+        6,
+        3,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        1.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -1314,7 +1919,20 @@ fn syr2k() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syr2k('l', 'n', 6, 3, 0.3, &a, 6, &b, 6, 0.0, &mut c, 6);
+    level3::syr2k(
+        'l',
+        'n',
+        6,
+        3,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -1359,7 +1977,20 @@ fn syr2k() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syr2k('l', 'n', 6, 3, 0.3, &a, 6, &b, 6, 0.5, &mut c, 6);
+    level3::syr2k(
+        'l',
+        'n',
+        6,
+        3,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.5,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -1404,7 +2035,20 @@ fn syr2k() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syr2k('l', 'n', 6, 3, 0.3, &a, 6, &b, 6, 1.0, &mut c, 6);
+    level3::syr2k(
+        'l',
+        'n',
+        6,
+        3,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        1.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -1449,7 +2093,20 @@ fn syr2k() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syr2k('u', 't', 6, 3, 0.3, &a, 6, &b, 6, 1.0, &mut c, 6);
+    level3::syr2k(
+        'u',
+        't',
+        6,
+        3,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        1.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -1493,7 +2150,20 @@ fn syr2k() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syr2k('u', 't', 6, 3, 0.3, &a, 6, &b, 6, 0.0, &mut c, 6);
+    level3::syr2k(
+        'u',
+        't',
+        6,
+        3,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -1537,7 +2207,20 @@ fn syr2k() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syr2k('u', 't', 6, 3, 0.3, &a, 6, &b, 6, 0.4, &mut c, 6);
+    level3::syr2k(
+        'u',
+        't',
+        6,
+        3,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.4,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -1581,7 +2264,20 @@ fn syr2k() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syr2k('l', 't', 6, 3, 0.3, &a, 6, &b, 6, 0.0, &mut c, 6);
+    level3::syr2k(
+        'l',
+        't',
+        6,
+        3,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.0,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -1625,7 +2321,20 @@ fn syr2k() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syr2k('l', 't', 6, 3, 0.3, &a, 6, &b, 6, 0.2, &mut c, 6);
+    level3::syr2k(
+        'l',
+        't',
+        6,
+        3,
+        0.3,
+        a.as_ptr(),
+        6,
+        b.as_ptr(),
+        6,
+        0.2,
+        c.as_mut_ptr(),
+        6,
+    );
     approximately!(
         c,
         vec![
@@ -1671,27 +2380,92 @@ fn syr2k() {
     let a = vec![];
     let b = vec![];
     let result = std::panic::catch_unwind(|| {
-        level3::syr2k('x', 'u', 6, 3, 0.3, &a, 6, &b, 6, 0.2, &mut vec![], 6);
+        level3::syr2k(
+            'x',
+            'u',
+            6,
+            3,
+            0.3,
+            a.as_ptr(),
+            6,
+            b.as_ptr(),
+            6,
+            0.2,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::syr2k('l', 'x', 6, 3, 0.3, &a, 6, &b, 6, 0.2, &mut vec![], 6);
+        level3::syr2k(
+            'l',
+            'x',
+            6,
+            3,
+            0.3,
+            a.as_ptr(),
+            6,
+            b.as_ptr(),
+            6,
+            0.2,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::syr2k('t', 'u', 6, 3, 0.3, &a, 2, &b, 6, 0.2, &mut vec![], 6);
+        level3::syr2k(
+            't',
+            'u',
+            6,
+            3,
+            0.3,
+            a.as_ptr(),
+            2,
+            b.as_ptr(),
+            6,
+            0.2,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::syr2k('t', 'u', 6, 3, 0.3, &a, 6, &b, 2, 0.2, &mut vec![], 6);
+        level3::syr2k(
+            't',
+            'u',
+            6,
+            3,
+            0.3,
+            a.as_ptr(),
+            6,
+            b.as_ptr(),
+            2,
+            0.2,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::syr2k('t', 'u', 6, 3, 0.3, &a, 6, &b, 6, 0.2, &mut vec![], 5);
+        level3::syr2k(
+            't',
+            'u',
+            6,
+            3,
+            0.3,
+            a.as_ptr(),
+            6,
+            b.as_ptr(),
+            6,
+            0.2,
+            vec![].as_mut_ptr(),
+            5,
+        );
     });
     assert!(result.is_err());
 }
@@ -1700,15 +2474,15 @@ fn syr2k() {
 fn syrk() {
     let a = fixtures::matrix_mxn(6, 6);
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syrk('l', 't', 0, 3, 0.2, &a, 6, 1.0, &mut c, 6);
+    level3::syrk('l', 't', 0, 3, 0.2, a.as_ptr(), 6, 1.0, c.as_mut_ptr(), 6);
     approximately!(c, a);
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syrk('l', 't', 5, 0, 0.2, &a, 6, 1.0, &mut c, 6);
+    level3::syrk('l', 't', 5, 0, 0.2, a.as_ptr(), 6, 1.0, c.as_mut_ptr(), 6);
     approximately!(c, a);
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syrk('l', 't', 5, 3, 0.0, &a, 6, 0.25, &mut c, 6);
+    level3::syrk('l', 't', 5, 3, 0.0, a.as_ptr(), 6, 0.25, c.as_mut_ptr(), 6);
     approximately!(
         c,
         vec![
@@ -1752,7 +2526,7 @@ fn syrk() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syrk('u', 't', 5, 3, 0.0, &a, 6, 0.0, &mut c, 6);
+    level3::syrk('u', 't', 5, 3, 0.0, a.as_ptr(), 6, 0.0, c.as_mut_ptr(), 6);
     approximately!(
         c,
         vec![
@@ -1800,7 +2574,7 @@ fn syrk() {
     let a = mat;
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syrk('u', 'n', 5, 3, 0.5, &a, 6, 0.0, &mut c, 6);
+    level3::syrk('u', 'n', 5, 3, 0.5, a.as_ptr(), 6, 0.0, c.as_mut_ptr(), 6);
     approximately!(
         c,
         vec![
@@ -1844,7 +2618,7 @@ fn syrk() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syrk('l', 'n', 5, 3, 0.5, &a, 6, 0.1, &mut c, 6);
+    level3::syrk('l', 'n', 5, 3, 0.5, a.as_ptr(), 6, 0.1, c.as_mut_ptr(), 6);
     approximately!(
         c,
         vec![
@@ -1888,7 +2662,7 @@ fn syrk() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syrk('l', 'n', 5, 3, 0.5, &a, 6, 1.0, &mut c, 6);
+    level3::syrk('l', 'n', 5, 3, 0.5, a.as_ptr(), 6, 1.0, c.as_mut_ptr(), 6);
     approximately!(
         c,
         vec![
@@ -1932,7 +2706,7 @@ fn syrk() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syrk('u', 't', 5, 3, 0.5, &a, 6, 1.0, &mut c, 6);
+    level3::syrk('u', 't', 5, 3, 0.5, a.as_ptr(), 6, 1.0, c.as_mut_ptr(), 6);
     approximately!(
         c,
         vec![
@@ -1976,7 +2750,7 @@ fn syrk() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syrk('l', 't', 5, 3, 0.5, &a, 6, 1.0, &mut c, 6);
+    level3::syrk('l', 't', 5, 3, 0.5, a.as_ptr(), 6, 1.0, c.as_mut_ptr(), 6);
     approximately!(
         c,
         vec![
@@ -2020,7 +2794,7 @@ fn syrk() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syrk('l', 't', 5, 3, 0.5, &a, 6, -0.3, &mut c, 6);
+    level3::syrk('l', 't', 5, 3, 0.5, a.as_ptr(), 6, -0.3, c.as_mut_ptr(), 6);
     approximately!(
         c,
         vec![
@@ -2064,7 +2838,7 @@ fn syrk() {
     );
 
     let mut c = fixtures::matrix_mxn(6, 6);
-    level3::syrk('l', 't', 5, 3, 0.5, &a, 6, 0., &mut c, 6);
+    level3::syrk('l', 't', 5, 3, 0.5, a.as_ptr(), 6, 0., c.as_mut_ptr(), 6);
     approximately!(
         c,
         vec![
@@ -2109,22 +2883,66 @@ fn syrk() {
 
     let a = vec![];
     let result = std::panic::catch_unwind(|| {
-        level3::syrk('x', 't', 6, 3, 0.0, &a, 6, 0.0, &mut vec![], 6);
+        level3::syrk(
+            'x',
+            't',
+            6,
+            3,
+            0.0,
+            a.as_ptr(),
+            6,
+            0.0,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::syrk('l', 'x', 6, 3, 0.3, &a, 6, 0.2, &mut vec![], 6);
+        level3::syrk(
+            'l',
+            'x',
+            6,
+            3,
+            0.3,
+            a.as_ptr(),
+            6,
+            0.2,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::syrk('t', 'u', 6, 3, 0.3, &a, 2, 0.2, &mut vec![], 6);
+        level3::syrk(
+            't',
+            'u',
+            6,
+            3,
+            0.3,
+            a.as_ptr(),
+            2,
+            0.2,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::syrk('t', 'u', 6, 3, 0.3, &a, 6, 0.2, &mut vec![], 5);
+        level3::syrk(
+            't',
+            'u',
+            6,
+            3,
+            0.3,
+            a.as_ptr(),
+            6,
+            0.2,
+            vec![].as_mut_ptr(),
+            5,
+        );
     });
     assert!(result.is_err());
 }
@@ -2133,15 +2951,51 @@ fn syrk() {
 fn trmm() {
     let a = fixtures::matrix_mxn(6, 6);
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trmm('l', 'u', 'n', 'u', 3, 0, 0.25, &a, 6, &mut b, 6);
+    level3::trmm(
+        'l',
+        'u',
+        'n',
+        'u',
+        3,
+        0,
+        0.25,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(b, a);
 
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trmm('l', 'u', 'n', 'u', 0, 4, 0.25, &a, 6, &mut b, 6);
+    level3::trmm(
+        'l',
+        'u',
+        'n',
+        'u',
+        0,
+        4,
+        0.25,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(b, a);
 
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trmm('l', 'u', 'n', 'u', 4, 5, 0.0, &a, 6, &mut b, 6);
+    level3::trmm(
+        'l',
+        'u',
+        'n',
+        'u',
+        4,
+        5,
+        0.0,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -2223,7 +3077,19 @@ fn trmm() {
         1.1519117540872,
     ];
     b = data2.clone();
-    level3::trmm('l', 'u', 'n', 'n', 4, 5, 0.2, &a, 6, &mut b, 6);
+    level3::trmm(
+        'l',
+        'u',
+        'n',
+        'n',
+        4,
+        5,
+        0.2,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -2267,7 +3133,19 @@ fn trmm() {
     );
 
     b = data2.clone();
-    level3::trmm('l', 'u', 'n', 'u', 4, 5, 0.2, &a, 6, &mut b, 6);
+    level3::trmm(
+        'l',
+        'u',
+        'n',
+        'u',
+        4,
+        5,
+        0.2,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -2311,7 +3189,19 @@ fn trmm() {
     );
 
     b = data2.clone();
-    level3::trmm('l', 'l', 'n', 'n', 4, 5, 0.2, &a, 6, &mut b, 6);
+    level3::trmm(
+        'l',
+        'l',
+        'n',
+        'n',
+        4,
+        5,
+        0.2,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -2355,7 +3245,19 @@ fn trmm() {
     );
 
     b = data2.clone();
-    level3::trmm('l', 'l', 'n', 'u', 4, 5, 0.2, &a, 6, &mut b, 6);
+    level3::trmm(
+        'l',
+        'l',
+        'n',
+        'u',
+        4,
+        5,
+        0.2,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -2399,7 +3301,19 @@ fn trmm() {
     );
 
     b = data2.clone();
-    level3::trmm('l', 'u', 't', 'n', 4, 5, 0.2, &a, 6, &mut b, 6);
+    level3::trmm(
+        'l',
+        'u',
+        't',
+        'n',
+        4,
+        5,
+        0.2,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -2443,7 +3357,19 @@ fn trmm() {
     );
 
     b = data2.clone();
-    level3::trmm('l', 'u', 't', 'u', 4, 5, 0.2, &a, 6, &mut b, 6);
+    level3::trmm(
+        'l',
+        'u',
+        't',
+        'u',
+        4,
+        5,
+        0.2,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -2487,7 +3413,19 @@ fn trmm() {
     );
 
     b = data2.clone();
-    level3::trmm('l', 'l', 't', 'n', 4, 5, 0.2, &a, 6, &mut b, 6);
+    level3::trmm(
+        'l',
+        'l',
+        't',
+        'n',
+        4,
+        5,
+        0.2,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -2531,7 +3469,19 @@ fn trmm() {
     );
 
     b = data2.clone();
-    level3::trmm('l', 'l', 't', 'u', 4, 5, 0.2, &a, 6, &mut b, 6);
+    level3::trmm(
+        'l',
+        'l',
+        't',
+        'u',
+        4,
+        5,
+        0.2,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -2575,7 +3525,19 @@ fn trmm() {
     );
 
     b = data2.clone();
-    level3::trmm('r', 'u', 'n', 'n', 4, 5, 0.2, &a, 6, &mut b, 6);
+    level3::trmm(
+        'r',
+        'u',
+        'n',
+        'n',
+        4,
+        5,
+        0.2,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -2658,7 +3620,19 @@ fn trmm() {
     ];
 
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trmm('r', 'u', 'n', 'u', 4, 5, 0.2, &a, 6, &mut b, 6);
+    level3::trmm(
+        'r',
+        'u',
+        'n',
+        'u',
+        4,
+        5,
+        0.2,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -2740,7 +3714,19 @@ fn trmm() {
         1.1519117540872,
     ];
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trmm('r', 'l', 'n', 'n', 4, 5, 0.2, &a, 6, &mut b, 6);
+    level3::trmm(
+        'r',
+        'l',
+        'n',
+        'n',
+        4,
+        5,
+        0.2,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -2784,7 +3770,19 @@ fn trmm() {
     );
 
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trmm('r', 'l', 'n', 'u', 4, 5, 0.2, &a, 6, &mut b, 6);
+    level3::trmm(
+        'r',
+        'l',
+        'n',
+        'u',
+        4,
+        5,
+        0.2,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -2866,7 +3864,19 @@ fn trmm() {
         1.1519117540872,
     ];
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trmm('r', 'u', 't', 'n', 4, 5, 0.2, &a, 6, &mut b, 6);
+    level3::trmm(
+        'r',
+        'u',
+        't',
+        'n',
+        4,
+        5,
+        0.2,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -2910,7 +3920,19 @@ fn trmm() {
     );
 
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trmm('r', 'u', 't', 'u', 4, 5, 1.0, &a, 6, &mut b, 6);
+    level3::trmm(
+        'r',
+        'u',
+        't',
+        'u',
+        4,
+        5,
+        1.0,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -2993,7 +4015,19 @@ fn trmm() {
     ];
 
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trmm('r', 'l', 't', 'n', 4, 5, 0.2, &a, 6, &mut b, 6);
+    level3::trmm(
+        'r',
+        'l',
+        't',
+        'n',
+        4,
+        5,
+        0.2,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -3037,7 +4071,19 @@ fn trmm() {
     );
 
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trmm('r', 'l', 't', 'u', 4, 5, 1.0, &a, 6, &mut b, 6);
+    level3::trmm(
+        'r',
+        'l',
+        't',
+        'u',
+        4,
+        5,
+        1.0,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -3082,31 +4128,103 @@ fn trmm() {
 
     let a = vec![];
     let result = std::panic::catch_unwind(|| {
-        level3::trmm('x', 'u', 'n', 'u', 3, 5, 0.25, &a, 6, &mut vec![], 6);
+        level3::trmm(
+            'x',
+            'u',
+            'n',
+            'u',
+            3,
+            5,
+            0.25,
+            a.as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::trmm('l', 'x', 'n', 'u', 3, 5, 0.25, &a, 6, &mut vec![], 6);
+        level3::trmm(
+            'l',
+            'x',
+            'n',
+            'u',
+            3,
+            5,
+            0.25,
+            a.as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::trmm('l', 'u', 'x', 'u', 3, 5, 0.25, &a, 6, &mut vec![], 6);
+        level3::trmm(
+            'l',
+            'u',
+            'x',
+            'u',
+            3,
+            5,
+            0.25,
+            a.as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
     let result = std::panic::catch_unwind(|| {
-        level3::trmm('l', 'u', 'n', 'x', 3, 5, 0.25, &a, 6, &mut vec![], 6);
+        level3::trmm(
+            'l',
+            'u',
+            'n',
+            'x',
+            3,
+            5,
+            0.25,
+            a.as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::trmm('l', 'u', 'n', 'u', 3, 5, 0.25, &a, 2, &mut vec![], 6);
+        level3::trmm(
+            'l',
+            'u',
+            'n',
+            'u',
+            3,
+            5,
+            0.25,
+            a.as_ptr(),
+            2,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::trmm('l', 'u', 'n', 'u', 4, 5, 0.25, &a, 6, &mut vec![], 3);
+        level3::trmm(
+            'l',
+            'u',
+            'n',
+            'u',
+            4,
+            5,
+            0.25,
+            a.as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            3,
+        );
     });
     assert!(result.is_err());
 }
@@ -3115,15 +4233,51 @@ fn trmm() {
 fn trsm() {
     let a = fixtures::matrix_mxn(6, 6);
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trsm('l', 'l', 'n', 'n', 3, 0, 0.2, &a, 6, &mut b, 6);
+    level3::trsm(
+        'l',
+        'l',
+        'n',
+        'n',
+        3,
+        0,
+        0.2,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(b, a);
 
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trsm('l', 'u', 'n', 'u', 0, 4, 0.25, &a, 6, &mut b, 6);
+    level3::trsm(
+        'l',
+        'u',
+        'n',
+        'u',
+        0,
+        4,
+        0.25,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(b, a);
 
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trsm('l', 'u', 'n', 'u', 5, 4, 0.0, &a, 6, &mut b, 6);
+    level3::trsm(
+        'l',
+        'u',
+        'n',
+        'u',
+        5,
+        4,
+        0.0,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -3167,7 +4321,19 @@ fn trsm() {
     );
 
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trsm('l', 'u', 'n', 'n', 5, 4, -0.3, &a, 6, &mut b, 6);
+    level3::trsm(
+        'l',
+        'u',
+        'n',
+        'n',
+        5,
+        4,
+        -0.3,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -3248,7 +4414,19 @@ fn trsm() {
         0.726750747385451,
         1.1519117540872,
     ];
-    level3::trsm('l', 'u', 'n', 'u', 5, 4, 1.0, &a, 6, &mut b, 6);
+    level3::trsm(
+        'l',
+        'u',
+        'n',
+        'u',
+        5,
+        4,
+        1.0,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -3329,7 +4507,19 @@ fn trsm() {
         0.726750747385451,
         1.1519117540872,
     ];
-    level3::trsm('l', 'l', 'n', 'n', 5, 4, 1.0, &a, 6, &mut b, 6);
+    level3::trsm(
+        'l',
+        'l',
+        'n',
+        'n',
+        5,
+        4,
+        1.0,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -3410,7 +4600,19 @@ fn trsm() {
         0.726750747385451,
         1.1519117540872,
     ];
-    level3::trsm('l', 'l', 'n', 'u', 5, 4, 0.4, &a, 6, &mut b, 6);
+    level3::trsm(
+        'l',
+        'l',
+        'n',
+        'u',
+        5,
+        4,
+        0.4,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -3454,7 +4656,19 @@ fn trsm() {
     );
 
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trsm('l', 'u', 't', 'n', 5, 4, 0.4, &a, 6, &mut b, 6);
+    level3::trsm(
+        'l',
+        'u',
+        't',
+        'n',
+        5,
+        4,
+        0.4,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -3535,7 +4749,19 @@ fn trsm() {
         0.726750747385451,
         1.1519117540872,
     ];
-    level3::trsm('l', 'u', 't', 'u', 5, 4, 1.0, &a, 6, &mut b, 6);
+    level3::trsm(
+        'l',
+        'u',
+        't',
+        'u',
+        5,
+        4,
+        1.0,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -3616,7 +4842,19 @@ fn trsm() {
         0.726750747385451,
         1.1519117540872,
     ];
-    level3::trsm('l', 'l', 't', 'n', 5, 4, 1.0, &a, 6, &mut b, 6);
+    level3::trsm(
+        'l',
+        'l',
+        't',
+        'n',
+        5,
+        4,
+        1.0,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -3698,7 +4936,19 @@ fn trsm() {
         0.726750747385451,
         1.1519117540872,
     ];
-    level3::trsm('l', 'l', 't', 'u', 5, 4, 0.4, &a, 6, &mut b, 6);
+    level3::trsm(
+        'l',
+        'l',
+        't',
+        'u',
+        5,
+        4,
+        0.4,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -3742,7 +4992,19 @@ fn trsm() {
     );
 
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trsm('r', 'u', 'n', 'n', 5, 4, 0.4, &a, 6, &mut b, 6);
+    level3::trsm(
+        'r',
+        'u',
+        'n',
+        'n',
+        5,
+        4,
+        0.4,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -3824,7 +5086,19 @@ fn trsm() {
     ];
 
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trsm('r', 'u', 'n', 'u', 5, 4, 1.0, &a, 6, &mut b, 6);
+    level3::trsm(
+        'r',
+        'u',
+        'n',
+        'u',
+        5,
+        4,
+        1.0,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -3868,7 +5142,19 @@ fn trsm() {
     );
 
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trsm('r', 'l', 'n', 'n', 5, 4, 1.0, &a, 6, &mut b, 6);
+    level3::trsm(
+        'r',
+        'l',
+        'n',
+        'n',
+        5,
+        4,
+        1.0,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -3951,7 +5237,19 @@ fn trsm() {
     ];
 
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trsm('r', 'l', 'n', 'u', 5, 4, 0.4, &a, 6, &mut b, 6);
+    level3::trsm(
+        'r',
+        'l',
+        'n',
+        'u',
+        5,
+        4,
+        0.4,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -4034,7 +5332,19 @@ fn trsm() {
     ];
 
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trsm('r', 'u', 't', 'n', 5, 4, 0.4, &a, 6, &mut b, 6);
+    level3::trsm(
+        'r',
+        'u',
+        't',
+        'n',
+        5,
+        4,
+        0.4,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -4078,7 +5388,19 @@ fn trsm() {
     );
 
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trsm('r', 'u', 't', 'u', 5, 4, 1.0, &a, 6, &mut b, 6);
+    level3::trsm(
+        'r',
+        'u',
+        't',
+        'u',
+        5,
+        4,
+        1.0,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -4160,7 +5482,19 @@ fn trsm() {
         1.1519117540872,
     ];
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trsm('r', 'l', 't', 'n', 5, 4, 1.0, &a, 6, &mut b, 6);
+    level3::trsm(
+        'r',
+        'l',
+        't',
+        'n',
+        5,
+        4,
+        1.0,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -4205,7 +5539,19 @@ fn trsm() {
     );
 
     let mut b = fixtures::matrix_mxn(6, 6);
-    level3::trsm('r', 'l', 't', 'u', 5, 4, 0.4, &a, 6, &mut b, 6);
+    level3::trsm(
+        'r',
+        'l',
+        't',
+        'u',
+        5,
+        4,
+        0.4,
+        a.as_ptr(),
+        6,
+        b.as_mut_ptr(),
+        6,
+    );
     approximately!(
         b,
         vec![
@@ -4251,31 +5597,103 @@ fn trsm() {
 
     let a = vec![];
     let result = std::panic::catch_unwind(|| {
-        level3::trsm('x', 'u', 'n', 'u', 3, 5, 0.25, &a, 6, &mut vec![], 6);
+        level3::trsm(
+            'x',
+            'u',
+            'n',
+            'u',
+            3,
+            5,
+            0.25,
+            a.as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::trsm('l', 'x', 'n', 'u', 3, 5, 0.25, &a, 6, &mut vec![], 6);
+        level3::trsm(
+            'l',
+            'x',
+            'n',
+            'u',
+            3,
+            5,
+            0.25,
+            a.as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::trsm('l', 'u', 'x', 'u', 3, 5, 0.25, &a, 6, &mut vec![], 6);
+        level3::trsm(
+            'l',
+            'u',
+            'x',
+            'u',
+            3,
+            5,
+            0.25,
+            a.as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
     let result = std::panic::catch_unwind(|| {
-        level3::trsm('l', 'u', 'n', 'x', 3, 5, 0.25, &a, 6, &mut vec![], 6);
+        level3::trsm(
+            'l',
+            'u',
+            'n',
+            'x',
+            3,
+            5,
+            0.25,
+            a.as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::trsm('l', 'u', 'n', 'u', 3, 5, 0.25, &a, 2, &mut vec![], 6);
+        level3::trsm(
+            'l',
+            'u',
+            'n',
+            'u',
+            3,
+            5,
+            0.25,
+            a.as_ptr(),
+            2,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        level3::trsm('l', 'u', 'n', 'u', 4, 5, 0.25, &a, 6, &mut vec![], 3);
+        level3::trsm(
+            'l',
+            'u',
+            'n',
+            'u',
+            4,
+            5,
+            0.25,
+            a.as_ptr(),
+            6,
+            vec![].as_mut_ptr(),
+            3,
+        );
     });
     assert!(result.is_err());
 }

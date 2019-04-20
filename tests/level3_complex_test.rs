@@ -15,12 +15,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.3, -0.7),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(0.2, 0.8),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -101,12 +101,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.3, -0.7),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -187,12 +187,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.3, -0.7),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(1.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -272,12 +272,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.3, -0.7),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(0.2, 0.8),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -358,12 +358,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.3, -0.7),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -444,12 +444,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.3, -0.7),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(1.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -530,12 +530,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.3, -0.7),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(0.2, 0.8),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -616,12 +616,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.3, -0.7),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -701,12 +701,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.3, -0.7),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(0.2, 0.8),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -787,12 +787,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.3, -0.7),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -873,12 +873,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.3, -0.7),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(1.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -959,12 +959,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.3, -0.7),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -1045,12 +1045,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.3, -0.7),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(0.2, 0.8),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -1130,12 +1130,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.3, -0.7),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(0.2, 0.8),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -1216,12 +1216,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.3, -0.7),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -1301,12 +1301,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.3, -0.7),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(0.2, 0.8),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -1387,12 +1387,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.3, -0.7),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -1472,12 +1472,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.3, -0.7),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(0.2, 0.8),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -1558,12 +1558,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.3, -0.7),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -1644,12 +1644,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.3, -0.7),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(0.2, 0.8),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -1730,12 +1730,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.3, -0.7),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -1816,12 +1816,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(1.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -1902,12 +1902,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(0.2, 0.2),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -1988,12 +1988,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -2074,12 +2074,12 @@ fn gemm() {
         8,
         4,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         8,
-        &b,
+        b.as_ptr(),
         8,
         Complex::new(0.2, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         8,
     );
     capproximately!(
@@ -2160,12 +2160,12 @@ fn gemm() {
             8,
             4,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             8,
-            &b,
+            b.as_ptr(),
             8,
             Complex::new(0.2, 0.0),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -2179,12 +2179,12 @@ fn gemm() {
             8,
             4,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             8,
-            &b,
+            b.as_ptr(),
             8,
             Complex::new(0.2, 0.0),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -2198,12 +2198,12 @@ fn gemm() {
             8,
             4,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             4,
-            &b,
+            b.as_ptr(),
             8,
             Complex::new(0.2, 0.0),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -2217,12 +2217,12 @@ fn gemm() {
             8,
             4,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             8,
-            &b,
+            b.as_ptr(),
             3,
             Complex::new(0.2, 0.0),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -2236,12 +2236,12 @@ fn gemm() {
             8,
             4,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             8,
-            &b,
+            b.as_ptr(),
             8,
             Complex::new(0.2, 0.0),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             5,
         );
     });
@@ -2262,9 +2262,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -2318,9 +2318,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -2374,9 +2374,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -2430,9 +2430,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -2490,9 +2490,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -2547,9 +2547,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -2606,9 +2606,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -2664,9 +2664,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -2724,9 +2724,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -2779,9 +2779,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -2836,9 +2836,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -2892,9 +2892,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -2952,9 +2952,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -3008,9 +3008,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -3064,9 +3064,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -3122,9 +3122,9 @@ fn trmm() {
         4,
         6,
         Complex::new(1.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -3177,9 +3177,9 @@ fn trmm() {
         4,
         6,
         Complex::new(1.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -3233,9 +3233,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -3290,9 +3290,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -3346,9 +3346,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -3402,9 +3402,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -3458,9 +3458,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -3514,9 +3514,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -3570,9 +3570,9 @@ fn trmm() {
         4,
         6,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -3626,9 +3626,9 @@ fn trmm() {
         4,
         0,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(b, a);
@@ -3642,9 +3642,9 @@ fn trmm() {
         0,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(b, a);
@@ -3658,9 +3658,9 @@ fn trmm() {
             4,
             6,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             6,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -3675,9 +3675,9 @@ fn trmm() {
             4,
             6,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             6,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -3692,9 +3692,9 @@ fn trmm() {
             4,
             6,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             6,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -3709,9 +3709,9 @@ fn trmm() {
             4,
             6,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             6,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -3726,9 +3726,9 @@ fn trmm() {
             4,
             6,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             3,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             4,
         );
     });
@@ -3743,9 +3743,9 @@ fn trmm() {
             4,
             6,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             6,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             3,
         );
     });
@@ -3764,9 +3764,9 @@ fn trsm() {
         0,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(b, a);
@@ -3780,9 +3780,9 @@ fn trsm() {
         4,
         0,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(b, a);
@@ -3796,9 +3796,9 @@ fn trsm() {
         4,
         6,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -3852,9 +3852,9 @@ fn trsm() {
         4,
         6,
         Complex::new(0.2, 0.6),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -3911,9 +3911,9 @@ fn trsm() {
         4,
         6,
         Complex::new(1.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -3967,9 +3967,9 @@ fn trsm() {
         4,
         6,
         Complex::new(1.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -4023,9 +4023,9 @@ fn trsm() {
         4,
         6,
         Complex::new(0.5, 0.5),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -4079,9 +4079,9 @@ fn trsm() {
         4,
         6,
         Complex::new(0.5, 0.5),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -4135,9 +4135,9 @@ fn trsm() {
         4,
         6,
         Complex::new(0.5, 0.5),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -4191,9 +4191,9 @@ fn trsm() {
         4,
         6,
         Complex::new(0.5, 0.5),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -4247,9 +4247,9 @@ fn trsm() {
         4,
         6,
         Complex::new(0.5, 0.5),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -4303,9 +4303,9 @@ fn trsm() {
         4,
         6,
         Complex::new(0.5, 0.5),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -4362,9 +4362,9 @@ fn trsm() {
         4,
         6,
         Complex::new(1.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -4419,9 +4419,9 @@ fn trsm() {
         4,
         6,
         Complex::new(0.5, 0.5),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -4479,9 +4479,9 @@ fn trsm() {
         4,
         6,
         Complex::new(0.5, 0.5),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -4535,9 +4535,9 @@ fn trsm() {
         4,
         6,
         Complex::new(1.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -4594,9 +4594,9 @@ fn trsm() {
         4,
         6,
         Complex::new(1.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -4649,9 +4649,9 @@ fn trsm() {
         4,
         6,
         Complex::new(0.5, 0.5),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -4706,9 +4706,9 @@ fn trsm() {
         4,
         6,
         Complex::new(0.5, 0.5),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -4762,9 +4762,9 @@ fn trsm() {
         4,
         6,
         Complex::new(0.5, 0.5),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -4821,9 +4821,9 @@ fn trsm() {
         4,
         6,
         Complex::new(0.5, 0.5),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -4878,9 +4878,9 @@ fn trsm() {
         4,
         6,
         Complex::new(1.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &mut b,
+        b.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -4934,9 +4934,9 @@ fn trsm() {
             4,
             6,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             6,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -4951,9 +4951,9 @@ fn trsm() {
             4,
             6,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             6,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -4968,9 +4968,9 @@ fn trsm() {
             4,
             6,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             6,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -4985,9 +4985,9 @@ fn trsm() {
             4,
             6,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             6,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -5002,9 +5002,9 @@ fn trsm() {
             4,
             6,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             3,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             4,
         );
     });
@@ -5019,9 +5019,9 @@ fn trsm() {
             4,
             6,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             6,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             3,
         );
     });
@@ -5039,12 +5039,12 @@ fn hemm() {
         4,
         0,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(0.7, -0.3),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(c, a);
@@ -5056,12 +5056,12 @@ fn hemm() {
         0,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(0.7, -0.3),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(c, b);
@@ -5073,12 +5073,12 @@ fn hemm() {
         4,
         6,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(1.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(c, a);
@@ -5090,12 +5090,12 @@ fn hemm() {
         4,
         6,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -5147,12 +5147,12 @@ fn hemm() {
         4,
         6,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(-0.1, 0.5),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -5203,12 +5203,12 @@ fn hemm() {
         4,
         6,
         Complex::new(0.2, -0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(-0.4, 0.5),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -5260,12 +5260,12 @@ fn hemm() {
         4,
         6,
         Complex::new(0.2, -0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -5317,12 +5317,12 @@ fn hemm() {
         4,
         6,
         Complex::new(0.2, -0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(0.6, 0.4),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -5373,12 +5373,12 @@ fn hemm() {
         4,
         6,
         Complex::new(0.2, -0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -5430,12 +5430,12 @@ fn hemm() {
         4,
         6,
         Complex::new(0.2, -0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(0.1, 0.5),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -5487,12 +5487,12 @@ fn hemm() {
         4,
         6,
         Complex::new(0.2, -0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -5544,12 +5544,12 @@ fn hemm() {
             4,
             6,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             6,
-            &b,
+            b.as_ptr(),
             6,
             Complex::new(0.7, -0.3),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -5562,12 +5562,12 @@ fn hemm() {
             4,
             6,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             6,
-            &b,
+            b.as_ptr(),
             6,
             Complex::new(0.7, -0.3),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -5580,12 +5580,12 @@ fn hemm() {
             4,
             6,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             3,
-            &b,
+            b.as_ptr(),
             6,
             Complex::new(0.7, -0.3),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -5598,12 +5598,12 @@ fn hemm() {
             4,
             6,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             6,
-            &b,
+            b.as_ptr(),
             3,
             Complex::new(0.7, -0.3),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -5616,12 +5616,12 @@ fn hemm() {
             4,
             6,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             6,
-            &b,
+            b.as_ptr(),
             6,
             Complex::new(0.7, -0.3),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             3,
         );
     });
@@ -5639,12 +5639,12 @@ fn her2k() {
         5,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         0.3,
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -5698,12 +5698,12 @@ fn her2k() {
         5,
         4,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         0.0,
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -5756,12 +5756,12 @@ fn her2k() {
         5,
         4,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         0.0,
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -5814,12 +5814,12 @@ fn her2k() {
         5,
         4,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         0.0,
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -5871,12 +5871,12 @@ fn her2k() {
         5,
         4,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         1.0,
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -5928,12 +5928,12 @@ fn her2k() {
         5,
         4,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         1.0,
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -5987,12 +5987,12 @@ fn her2k() {
         5,
         4,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         1.0,
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -6044,12 +6044,12 @@ fn her2k() {
         5,
         4,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         0.5,
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -6101,12 +6101,12 @@ fn her2k() {
         5,
         4,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         0.0,
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -6157,12 +6157,12 @@ fn her2k() {
         5,
         4,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         0.0,
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -6214,12 +6214,12 @@ fn her2k() {
         5,
         4,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         0.5,
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -6271,12 +6271,12 @@ fn her2k() {
         5,
         4,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         1.0,
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(c, a);
@@ -6288,12 +6288,12 @@ fn her2k() {
         5,
         4,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         0.8,
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -6345,12 +6345,12 @@ fn her2k() {
         5,
         4,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         0.0,
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -6401,12 +6401,12 @@ fn her2k() {
         5,
         4,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         0.8,
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -6457,12 +6457,12 @@ fn her2k() {
         5,
         4,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         0.0,
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -6514,12 +6514,12 @@ fn her2k() {
             5,
             4,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             6,
-            &b,
+            b.as_ptr(),
             6,
             0.0,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -6532,12 +6532,12 @@ fn her2k() {
             5,
             4,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             6,
-            &b,
+            b.as_ptr(),
             6,
             0.0,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -6550,12 +6550,12 @@ fn her2k() {
             5,
             4,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             4,
-            &b,
+            b.as_ptr(),
             6,
             0.0,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -6568,12 +6568,12 @@ fn her2k() {
             5,
             4,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             6,
-            &b,
+            b.as_ptr(),
             4,
             0.0,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -6586,12 +6586,12 @@ fn her2k() {
             5,
             4,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             6,
-            &b,
+            b.as_ptr(),
             6,
             0.0,
-            &mut vec![],
+            vec![].as_mut_ptr(),
             4,
         );
     });
@@ -6602,7 +6602,7 @@ fn her2k() {
 fn herk() {
     let a = fixtures::complex::matrix_mxn(6, 6);
     let mut c = fixtures::complex::matrix_mxn(6, 6);
-    complex::herk('u', 'n', 4, 6, 0.0, &a, 6, 1.0, &mut c, 6);
+    complex::herk('u', 'n', 4, 6, 0.0, a.as_ptr(), 6, 1.0, c.as_mut_ptr(), 6);
     capproximately!(
         c,
         vec![
@@ -6645,7 +6645,7 @@ fn herk() {
         ]
     );
     let mut c = fixtures::complex::matrix_mxn(6, 6);
-    complex::herk('u', 'n', 4, 6, 0.0, &a, 6, 0.0, &mut c, 6);
+    complex::herk('u', 'n', 4, 6, 0.0, a.as_ptr(), 6, 0.0, c.as_mut_ptr(), 6);
     capproximately!(
         c,
         vec![
@@ -6689,7 +6689,7 @@ fn herk() {
     );
 
     let mut c = fixtures::complex::matrix_mxn(6, 6);
-    complex::herk('l', 'n', 4, 6, 0.0, &a, 6, 0.0, &mut c, 6);
+    complex::herk('l', 'n', 4, 6, 0.0, a.as_ptr(), 6, 0.0, c.as_mut_ptr(), 6);
     capproximately!(
         c,
         vec![
@@ -6733,7 +6733,7 @@ fn herk() {
     );
 
     let mut c = fixtures::complex::matrix_mxn(6, 6);
-    complex::herk('l', 'n', 4, 6, 0.0, &a, 6, 0.5, &mut c, 6);
+    complex::herk('l', 'n', 4, 6, 0.0, a.as_ptr(), 6, 0.5, c.as_mut_ptr(), 6);
     capproximately!(
         c,
         vec![
@@ -6780,7 +6780,7 @@ fn herk() {
     mat[0] = Complex { re: 0.0, im: 0.0 };
     let a = mat.clone();
     let mut c = fixtures::complex::matrix_mxn(6, 6);
-    complex::herk('u', 'n', 4, 6, 0.2, &a, 6, 0.5, &mut c, 6);
+    complex::herk('u', 'n', 4, 6, 0.2, a.as_ptr(), 6, 0.5, c.as_mut_ptr(), 6);
     capproximately!(
         c,
         vec![
@@ -6824,7 +6824,7 @@ fn herk() {
     );
 
     let mut c = fixtures::complex::matrix_mxn(6, 6);
-    complex::herk('u', 'n', 4, 6, 0.2, &a, 6, 0.0, &mut c, 6);
+    complex::herk('u', 'n', 4, 6, 0.2, a.as_ptr(), 6, 0.0, c.as_mut_ptr(), 6);
     capproximately!(
         c,
         vec![
@@ -6868,7 +6868,7 @@ fn herk() {
     );
 
     let mut c = fixtures::complex::matrix_mxn(6, 6);
-    complex::herk('u', 'n', 4, 6, 0.2, &a, 6, 1.0, &mut c, 6);
+    complex::herk('u', 'n', 4, 6, 0.2, a.as_ptr(), 6, 1.0, c.as_mut_ptr(), 6);
     capproximately!(
         c,
         vec![
@@ -6912,7 +6912,7 @@ fn herk() {
     );
 
     let mut c = fixtures::complex::matrix_mxn(6, 6);
-    complex::herk('l', 'n', 4, 6, 0.2, &a, 6, 1.0, &mut c, 6);
+    complex::herk('l', 'n', 4, 6, 0.2, a.as_ptr(), 6, 1.0, c.as_mut_ptr(), 6);
     capproximately!(
         c,
         vec![
@@ -6956,7 +6956,7 @@ fn herk() {
     );
 
     let mut c = fixtures::complex::matrix_mxn(6, 6);
-    complex::herk('u', 'c', 4, 6, 0.2, &a, 6, 0.0, &mut c, 6);
+    complex::herk('u', 'c', 4, 6, 0.2, a.as_ptr(), 6, 0.0, c.as_mut_ptr(), 6);
     capproximately!(
         c,
         vec![
@@ -6999,7 +6999,7 @@ fn herk() {
         ]
     );
     let mut c = fixtures::complex::matrix_mxn(6, 6);
-    complex::herk('u', 'c', 4, 6, 0.2, &a, 6, 0.2, &mut c, 6);
+    complex::herk('u', 'c', 4, 6, 0.2, a.as_ptr(), 6, 0.2, c.as_mut_ptr(), 6);
     capproximately!(
         c,
         vec![
@@ -7043,7 +7043,7 @@ fn herk() {
     );
 
     let mut c = fixtures::complex::matrix_mxn(6, 6);
-    complex::herk('l', 'c', 4, 6, 0.2, &a, 6, 0.0, &mut c, 6);
+    complex::herk('l', 'c', 4, 6, 0.2, a.as_ptr(), 6, 0.0, c.as_mut_ptr(), 6);
     capproximately!(
         c,
         vec![
@@ -7087,7 +7087,7 @@ fn herk() {
     );
 
     let mut c = fixtures::complex::matrix_mxn(6, 6);
-    complex::herk('l', 'c', 4, 6, 0.2, &a, 6, 0.2, &mut c, 6);
+    complex::herk('l', 'c', 4, 6, 0.2, a.as_ptr(), 6, 0.2, c.as_mut_ptr(), 6);
     capproximately!(
         c,
         vec![
@@ -7131,22 +7131,66 @@ fn herk() {
     );
 
     let result = std::panic::catch_unwind(|| {
-        complex::herk('x', 'n', 4, 6, 0.1, &a, 6, 0.3, &mut vec![], 6);
+        complex::herk(
+            'x',
+            'n',
+            4,
+            6,
+            0.1,
+            a.as_ptr(),
+            6,
+            0.3,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::herk('u', 'x', 4, 6, 0.1, &a, 6, 0.3, &mut vec![], 6);
+        complex::herk(
+            'u',
+            'x',
+            4,
+            6,
+            0.1,
+            a.as_ptr(),
+            6,
+            0.3,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::herk('u', 'n', 4, 6, 0.1, &a, 3, 0.3, &mut vec![], 6);
+        complex::herk(
+            'u',
+            'n',
+            4,
+            6,
+            0.1,
+            a.as_ptr(),
+            3,
+            0.3,
+            vec![].as_mut_ptr(),
+            6,
+        );
     });
     assert!(result.is_err());
 
     let result = std::panic::catch_unwind(|| {
-        complex::herk('u', 'n', 5, 6, 0.1, &a, 6, 0.3, &mut vec![], 4);
+        complex::herk(
+            'u',
+            'n',
+            5,
+            6,
+            0.1,
+            a.as_ptr(),
+            6,
+            0.3,
+            vec![].as_mut_ptr(),
+            4,
+        );
     });
     assert!(result.is_err());
 }
@@ -7162,12 +7206,12 @@ fn symm() {
         4,
         5,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(1.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(c, a);
@@ -7179,12 +7223,12 @@ fn symm() {
         4,
         5,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -7236,12 +7280,12 @@ fn symm() {
         4,
         5,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(0.0, 0.5),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -7293,12 +7337,12 @@ fn symm() {
         4,
         5,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -7350,12 +7394,12 @@ fn symm() {
         4,
         5,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(-0.45, 0.2),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -7407,12 +7451,12 @@ fn symm() {
         4,
         5,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -7464,12 +7508,12 @@ fn symm() {
         4,
         5,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(0.2, -0.3),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -7521,12 +7565,12 @@ fn symm() {
         4,
         5,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -7578,12 +7622,12 @@ fn symm() {
         4,
         5,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(0.1, 0.9),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -7635,12 +7679,12 @@ fn symm() {
         4,
         5,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(0.1, 0.9),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -7692,12 +7736,12 @@ fn symm() {
             4,
             5,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             6,
-            &b,
+            b.as_ptr(),
             6,
             Complex::new(0.3, -0.7),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -7710,12 +7754,12 @@ fn symm() {
             4,
             5,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             6,
-            &b,
+            b.as_ptr(),
             6,
             Complex::new(0.3, -0.7),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -7728,12 +7772,12 @@ fn symm() {
             4,
             5,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             3,
-            &b,
+            b.as_ptr(),
             6,
             Complex::new(0.3, 0.7),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -7746,12 +7790,12 @@ fn symm() {
             4,
             5,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             6,
-            &b,
+            b.as_ptr(),
             3,
             Complex::new(0.3, -0.7),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -7764,12 +7808,12 @@ fn symm() {
             4,
             5,
             Complex::new(0.2, 0.8),
-            &a,
+            a.as_ptr(),
             6,
-            &b,
+            b.as_ptr(),
             6,
             Complex::new(0.3, -0.7),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             3,
         );
     });
@@ -7787,12 +7831,12 @@ fn syr2k() {
         4,
         6,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(1.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(c, a);
@@ -7804,12 +7848,12 @@ fn syr2k() {
         4,
         6,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(0.5, 0.5),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -7861,12 +7905,12 @@ fn syr2k() {
         4,
         6,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -7921,12 +7965,12 @@ fn syr2k() {
         4,
         6,
         Complex::new(0.2, -0.6),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -7977,12 +8021,12 @@ fn syr2k() {
         4,
         6,
         Complex::new(0.2, -0.6),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(-0.4, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -8034,12 +8078,12 @@ fn syr2k() {
         4,
         6,
         Complex::new(0.2, -0.6),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(1.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -8091,12 +8135,12 @@ fn syr2k() {
         4,
         6,
         Complex::new(0.2, -0.6),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -8147,12 +8191,12 @@ fn syr2k() {
         4,
         6,
         Complex::new(0.2, -0.6),
-        &a,
+        a.as_ptr(),
         6,
-        &b,
+        b.as_ptr(),
         6,
         Complex::new(0.5, 0.5),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -8204,12 +8248,12 @@ fn syr2k() {
             4,
             6,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             6,
-            &b,
+            b.as_ptr(),
             6,
             Complex::new(1.0, 0.0),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -8222,12 +8266,12 @@ fn syr2k() {
             4,
             6,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             6,
-            &b,
+            b.as_ptr(),
             6,
             Complex::new(1.0, 0.0),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -8240,12 +8284,12 @@ fn syr2k() {
             4,
             6,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             3,
-            &b,
+            b.as_ptr(),
             6,
             Complex::new(1.0, 0.0),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -8258,12 +8302,12 @@ fn syr2k() {
             4,
             6,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             6,
-            &b,
+            b.as_ptr(),
             3,
             Complex::new(1.0, 0.0),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -8276,12 +8320,12 @@ fn syr2k() {
             4,
             6,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             6,
-            &b,
+            b.as_ptr(),
             6,
             Complex::new(1.0, 0.0),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             3,
         );
     });
@@ -8298,10 +8342,10 @@ fn syrk() {
         4,
         6,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
         Complex::new(1.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(c, a);
@@ -8313,10 +8357,10 @@ fn syrk() {
         4,
         6,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
         Complex::new(0.2, -0.3),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -8368,10 +8412,10 @@ fn syrk() {
         4,
         6,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
         Complex::new(0.2, -0.3),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -8423,10 +8467,10 @@ fn syrk() {
         4,
         6,
         Complex::new(0.0, 0.0),
-        &a,
+        a.as_ptr(),
         6,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -8481,10 +8525,10 @@ fn syrk() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
         Complex::new(0.2, -0.3),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -8535,10 +8579,10 @@ fn syrk() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -8590,10 +8634,10 @@ fn syrk() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
         Complex::new(1.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -8645,10 +8689,10 @@ fn syrk() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
         Complex::new(-0.3, 0.7),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -8700,10 +8744,10 @@ fn syrk() {
         4,
         6,
         Complex::new(0.2, 0.8),
-        &a,
+        a.as_ptr(),
         6,
         Complex::new(0.0, 0.0),
-        &mut c,
+        c.as_mut_ptr(),
         6,
     );
     capproximately!(
@@ -8755,10 +8799,10 @@ fn syrk() {
             4,
             6,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             6,
             Complex::new(1.0, 0.0),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -8771,10 +8815,10 @@ fn syrk() {
             4,
             6,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             6,
             Complex::new(1.0, 0.0),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -8787,10 +8831,10 @@ fn syrk() {
             4,
             6,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             3,
             Complex::new(1.0, 0.0),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             6,
         );
     });
@@ -8803,10 +8847,10 @@ fn syrk() {
             4,
             6,
             Complex::new(0.0, 0.0),
-            &a,
+            a.as_ptr(),
             6,
             Complex::new(1.0, 0.0),
-            &mut vec![],
+            vec![].as_mut_ptr(),
             3,
         );
     });

@@ -1036,7 +1036,18 @@ fn gemm() {
     for t in tests {
         let mut c = t.c;
         level3::gemm(
-            t.transa, t.transb, t.m, t.n, t.k, t.alpha, &t.a, t.lda, &t.b, t.ldb, t.beta, &mut c,
+            t.transa,
+            t.transb,
+            t.m,
+            t.n,
+            t.k,
+            t.alpha,
+            t.a.as_ptr(),
+            t.lda,
+            t.b.as_ptr(),
+            t.ldb,
+            t.beta,
+            c.as_mut_ptr(),
             t.ldc,
         );
         approximately!(c, t.expect, 1E-5);
@@ -1048,7 +1059,18 @@ fn gemm() {
     for t in tests {
         let mut c = t.c;
         level3::complex::gemm(
-            t.transa, t.transb, t.m, t.n, t.k, t.alpha, &t.a, t.lda, &t.b, t.ldb, t.beta, &mut c,
+            t.transa,
+            t.transb,
+            t.m,
+            t.n,
+            t.k,
+            t.alpha,
+            t.a.as_ptr(),
+            t.lda,
+            t.b.as_ptr(),
+            t.ldb,
+            t.beta,
+            c.as_mut_ptr(),
             t.ldc,
         );
         capproximately!(c, t.expect);
@@ -1065,7 +1087,18 @@ fn hemm() {
     for t in tests {
         let mut c = t.c;
         level3::complex::hemm(
-            t.side, t.uplo, t.m, t.n, t.alpha, &t.a, t.lda, &t.b, t.ldb, t.beta, &mut c, t.ldc,
+            t.side,
+            t.uplo,
+            t.m,
+            t.n,
+            t.alpha,
+            t.a.as_ptr(),
+            t.lda,
+            t.b.as_ptr(),
+            t.ldb,
+            t.beta,
+            c.as_mut_ptr(),
+            t.ldc,
         );
         capproximately!(c, t.expect);
     }
@@ -1081,7 +1114,16 @@ fn herk() {
     for t in tests {
         let mut c = t.c;
         level3::complex::herk(
-            t.uplo, t.trans, t.n, t.k, t.alpha, &t.a, t.lda, t.beta, &mut c, t.ldc,
+            t.uplo,
+            t.trans,
+            t.n,
+            t.k,
+            t.alpha,
+            t.a.as_ptr(),
+            t.lda,
+            t.beta,
+            c.as_mut_ptr(),
+            t.ldc,
         );
         capproximately!(c, t.expect);
     }
@@ -1097,7 +1139,18 @@ fn her2k() {
     for t in tests {
         let mut c = t.c;
         level3::complex::her2k(
-            t.uplo, t.trans, t.n, t.k, t.alpha, &t.a, t.lda, &t.b, t.ldb, t.beta, &mut c, t.ldc,
+            t.uplo,
+            t.trans,
+            t.n,
+            t.k,
+            t.alpha,
+            t.a.as_ptr(),
+            t.lda,
+            t.b.as_ptr(),
+            t.ldb,
+            t.beta,
+            c.as_mut_ptr(),
+            t.ldc,
         );
         capproximately!(c, t.expect);
     }
@@ -1113,7 +1166,18 @@ fn symm() {
     for t in tests {
         let mut c = t.c;
         level3::symm(
-            t.side, t.uplo, t.m, t.n, t.alpha, &t.a, t.lda, &t.b, t.ldb, t.beta, &mut c, t.ldc,
+            t.side,
+            t.uplo,
+            t.m,
+            t.n,
+            t.alpha,
+            t.a.as_ptr(),
+            t.lda,
+            t.b.as_ptr(),
+            t.ldb,
+            t.beta,
+            c.as_mut_ptr(),
+            t.ldc,
         );
         approximately!(c, t.expect);
     }
@@ -1124,7 +1188,18 @@ fn symm() {
     for t in tests {
         let mut c = t.c;
         level3::complex::symm(
-            t.side, t.uplo, t.m, t.n, t.alpha, &t.a, t.lda, &t.b, t.ldb, t.beta, &mut c, t.ldc,
+            t.side,
+            t.uplo,
+            t.m,
+            t.n,
+            t.alpha,
+            t.a.as_ptr(),
+            t.lda,
+            t.b.as_ptr(),
+            t.ldb,
+            t.beta,
+            c.as_mut_ptr(),
+            t.ldc,
         );
         capproximately!(c, t.expect);
     }
@@ -1139,7 +1214,16 @@ fn syrk() {
     for t in tests {
         let mut c = t.c;
         level3::syrk(
-            t.uplo, t.trans, t.n, t.k, t.alpha, &t.a, t.lda, t.beta, &mut c, t.ldc,
+            t.uplo,
+            t.trans,
+            t.n,
+            t.k,
+            t.alpha,
+            t.a.as_ptr(),
+            t.lda,
+            t.beta,
+            c.as_mut_ptr(),
+            t.ldc,
         );
         approximately!(c, t.expect);
     }
@@ -1150,7 +1234,16 @@ fn syrk() {
     for t in tests {
         let mut c = t.c;
         level3::complex::syrk(
-            t.uplo, t.trans, t.n, t.k, t.alpha, &t.a, t.lda, t.beta, &mut c, t.ldc,
+            t.uplo,
+            t.trans,
+            t.n,
+            t.k,
+            t.alpha,
+            t.a.as_ptr(),
+            t.lda,
+            t.beta,
+            c.as_mut_ptr(),
+            t.ldc,
         );
         capproximately!(c, t.expect);
     }
@@ -1166,7 +1259,18 @@ fn syr2k() {
     for t in tests {
         let mut c = t.c;
         level3::syr2k(
-            t.uplo, t.trans, t.n, t.k, t.alpha, &t.a, t.lda, &t.b, t.ldb, t.beta, &mut c, t.ldc,
+            t.uplo,
+            t.trans,
+            t.n,
+            t.k,
+            t.alpha,
+            t.a.as_ptr(),
+            t.lda,
+            t.b.as_ptr(),
+            t.ldb,
+            t.beta,
+            c.as_mut_ptr(),
+            t.ldc,
         );
         approximately!(c, t.expect);
     }
@@ -1177,7 +1281,18 @@ fn syr2k() {
     for t in tests {
         let mut c = t.c;
         level3::complex::syr2k(
-            t.uplo, t.trans, t.n, t.k, t.alpha, &t.a, t.lda, &t.b, t.ldb, t.beta, &mut c, t.ldc,
+            t.uplo,
+            t.trans,
+            t.n,
+            t.k,
+            t.alpha,
+            t.a.as_ptr(),
+            t.lda,
+            t.b.as_ptr(),
+            t.ldb,
+            t.beta,
+            c.as_mut_ptr(),
+            t.ldc,
         );
         capproximately!(c, t.expect);
     }
@@ -1193,7 +1308,17 @@ fn trmm() {
     for t in tests {
         let mut b = t.b;
         level3::trmm(
-            t.side, t.uplo, t.transa, t.diag, t.m, t.n, t.alpha, &t.a, t.lda, &mut b, t.ldb,
+            t.side,
+            t.uplo,
+            t.transa,
+            t.diag,
+            t.m,
+            t.n,
+            t.alpha,
+            t.a.as_ptr(),
+            t.lda,
+            b.as_mut_ptr(),
+            t.ldb,
         );
         approximately!(b, t.expect);
     }
@@ -1204,7 +1329,17 @@ fn trmm() {
     for t in tests {
         let mut b = t.b;
         level3::complex::trmm(
-            t.side, t.uplo, t.transa, t.diag, t.m, t.n, t.alpha, &t.a, t.lda, &mut b, t.ldb,
+            t.side,
+            t.uplo,
+            t.transa,
+            t.diag,
+            t.m,
+            t.n,
+            t.alpha,
+            t.a.as_ptr(),
+            t.lda,
+            b.as_mut_ptr(),
+            t.ldb,
         );
         capproximately!(b, t.expect);
     }
@@ -1220,7 +1355,17 @@ fn trsm() {
     for t in tests {
         let mut b = t.b;
         level3::trsm(
-            t.side, t.uplo, t.transa, t.diag, t.m, t.n, t.alpha, &t.a, t.lda, &mut b, t.ldb,
+            t.side,
+            t.uplo,
+            t.transa,
+            t.diag,
+            t.m,
+            t.n,
+            t.alpha,
+            t.a.as_ptr(),
+            t.lda,
+            b.as_mut_ptr(),
+            t.ldb,
         );
         approximately!(b, t.expect);
     }
@@ -1231,7 +1376,17 @@ fn trsm() {
     for t in tests {
         let mut b = t.b;
         level3::complex::trsm(
-            t.side, t.uplo, t.transa, t.diag, t.m, t.n, t.alpha, &t.a, t.lda, &mut b, t.ldb,
+            t.side,
+            t.uplo,
+            t.transa,
+            t.diag,
+            t.m,
+            t.n,
+            t.alpha,
+            t.a.as_ptr(),
+            t.lda,
+            b.as_mut_ptr(),
+            t.ldb,
         );
         capproximately!(b, t.expect);
     }

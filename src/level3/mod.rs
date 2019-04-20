@@ -1,10 +1,9 @@
-// use std::arch::x86_64::*;
 use num_traits::{Float, NumAssignOps};
 use std::cmp::max;
 
 pub mod complex;
 
-fn multiply<T: Float + NumAssignOps>(left: &mut [T], right: T, ld: usize, n: usize, m: usize) {
+fn multiply<T: Float + NumAssignOps>(left: *mut T, right: T, ld: isize, n: isize, m: isize) {
     if right.is_zero() {
         zero(left, ld, n, m);
     } else {
@@ -13,7 +12,7 @@ fn multiply<T: Float + NumAssignOps>(left: &mut [T], right: T, ld: usize, n: usi
             let coords = j * ld;
             let mut i = 0;
             while i < m {
-                left[coords + i] *= right;
+                unsafe { *left.offset(coords + i) *= right };
                 i += 1;
             }
             j += 1;
@@ -21,13 +20,13 @@ fn multiply<T: Float + NumAssignOps>(left: &mut [T], right: T, ld: usize, n: usi
     }
 }
 
-fn zero<T: Float + NumAssignOps>(left: &mut [T], ld: usize, n: usize, m: usize) {
+fn zero<T: Float + NumAssignOps>(left: *mut T, ld: isize, n: isize, m: isize) {
     let mut j = 0;
     while j < n {
         let coords = j * ld;
         let mut i = 0;
         while i < m {
-            left[coords + i] = T::zero();
+            unsafe { *left.offset(coords + i) = T::zero() };
             i += 1;
         }
         j += 1;
@@ -42,17 +41,17 @@ fn zero<T: Float + NumAssignOps>(left: &mut [T], ld: usize, n: usize, m: usize) 
 pub fn gemm<T: Float + NumAssignOps>(
     trans_a: char,
     trans_b: char,
-    m: usize,
-    n: usize,
-    k: usize,
+    m: isize,
+    n: isize,
+    k: isize,
     alpha: T,
-    a: &[T],
-    lda: usize,
-    b: &[T],
-    ldb: usize,
+    a: *const T,
+    lda: isize,
+    b: *const T,
+    ldb: isize,
     beta: T,
-    c: &mut [T],
-    ldc: usize,
+    c: *mut T,
+    ldc: isize,
 ) {
     let not_a = trans_a == 'n' || trans_a == 'N';
     let not_b = trans_b == 'n' || trans_b == 'N';
@@ -99,23 +98,23 @@ pub fn gemm<T: Float + NumAssignOps>(
                     //Refactor
                     let mut i = 0;
                     while i < m {
-                        c[cj + i] = T::zero();
+                        unsafe { *c.offset(cj + i) = T::zero() };
                         i += 1;
                     }
                 } else if !beta.is_one() {
                     let mut i = 0;
                     while i < m {
-                        c[cj + i] *= beta;
+                        unsafe { *c.offset(cj + i) *= beta };
                         i += 1;
                     }
                 }
                 let mut l = 0;
                 while l < k {
-                    let tmp = alpha * b[bj + l];
+                    let tmp = unsafe { alpha * *b.offset(bj + l) };
                     let aj = l * lda;
                     let mut i = 0;
                     while i < m {
-                        c[cj + i] += tmp * a[aj + i];
+                        unsafe { *c.offset(cj + i) += tmp * *a.offset(aj + i) };
                         i += 1;
                     }
                     l += 1;
@@ -133,13 +132,15 @@ pub fn gemm<T: Float + NumAssignOps>(
                     let coords = i * lda;
                     let mut l = 0;
                     while l < k {
-                        tmp += a[l + coords] * b[bj + l];
+                        unsafe { tmp += *a.offset(l + coords) * *b.offset(bj + l) };
                         l += 1;
                     }
-                    if beta.is_zero() {
-                        c[cj + i] = alpha * tmp;
-                    } else {
-                        c[cj + i] = alpha * tmp + beta * c[cj + i];
+                    unsafe {
+                        if beta.is_zero() {
+                            *c.offset(cj + i) = alpha * tmp;
+                        } else {
+                            *c.offset(cj + i) = alpha * tmp + beta * *c.offset(cj + i);
+                        }
                     }
                     i += 1;
                 }
@@ -154,24 +155,24 @@ pub fn gemm<T: Float + NumAssignOps>(
                 //Refactor
                 let mut i = 0;
                 while i < m {
-                    c[cj + i] = T::zero();
+                    unsafe { *c.offset(cj + i) = T::zero() };
                     i += 1;
                 }
             } else if !beta.is_one() {
                 let mut i = 0;
                 while i < m {
-                    c[cj + i] *= beta;
+                    unsafe { *c.offset(cj + i) *= beta };
                     i += 1;
                 }
             }
             let mut l = 0;
             while l < k {
                 let bj = l * ldb;
-                let tmp = alpha * b[bj + j];
+                let tmp = unsafe { alpha * *b.offset(bj + j) };
                 let aj = l * lda;
                 let mut i = 0;
                 while i < m {
-                    c[cj + i] += tmp * a[aj + i];
+                    unsafe { *c.offset(cj + i) += tmp * *a.offset(aj + i) };
                     i += 1;
                 }
                 l += 1;
@@ -188,14 +189,16 @@ pub fn gemm<T: Float + NumAssignOps>(
                 let mut l = 0;
                 while l < k {
                     let bl = l * ldb;
-                    tmp += a[ai + l] * b[bl + j];
+                    unsafe { tmp += *a.offset(ai + l) * *b.offset(bl + j) };
                     l += 1;
                 }
                 let cj = j * ldc;
-                if beta.is_zero() {
-                    c[cj + i] = alpha * tmp;
-                } else {
-                    c[cj + i] = alpha * tmp + beta * c[cj + i];
+                unsafe {
+                    if beta.is_zero() {
+                        *c.offset(cj + i) = alpha * tmp;
+                    } else {
+                        *c.offset(cj + i) = alpha * tmp + beta * *c.offset(cj + i);
+                    }
                 }
                 i += 1;
             }
@@ -212,16 +215,16 @@ pub fn gemm<T: Float + NumAssignOps>(
 pub fn symm<T: Float + NumAssignOps>(
     side: char,
     uplo: char,
-    m: usize,
-    n: usize,
+    m: isize,
+    n: isize,
     alpha: T,
-    a: &[T],
-    lda: usize,
-    b: &[T],
-    ldb: usize,
+    a: *const T,
+    lda: isize,
+    b: *const T,
+    ldb: isize,
     beta: T,
-    c: &mut [T],
-    ldc: usize,
+    c: *mut T,
+    ldc: isize,
 ) {
     let nrow_a = if side == 'l' || side == 'L' { m } else { n };
     let mut info = 0;
@@ -229,6 +232,10 @@ pub fn symm<T: Float + NumAssignOps>(
         info = 1;
     } else if uplo != 'l' && uplo != 'L' && uplo != 'u' && uplo != 'U' {
         info = 2;
+    } else if m < 0 {
+        info = 3;
+    } else if n < 0 {
+        info = 4;
     } else if lda < max(1, nrow_a) {
         info = 7;
     } else if ldb < max(1, m) {
@@ -258,19 +265,21 @@ pub fn symm<T: Float + NumAssignOps>(
                 let mut i = 0;
                 while i < m {
                     let ai = i * ldc;
-                    let tmp = alpha * b[bj + i];
+                    let tmp = unsafe { alpha * *b.offset(bj + i) };
                     let mut tmp2 = T::zero();
                     let mut k = 0;
                     while k < i {
-                        c[cj + k] += tmp * a[ai + k];
-                        tmp2 += b[bj + k] * a[ai + k];
+                        unsafe {
+                            *c.offset(cj + k) += tmp * *a.offset(ai + k);
+                            tmp2 += *b.offset(bj + k) * *a.offset(ai + k);
+                        }
                         k += 1
                     }
-                    let mut re = tmp * a[ai + i] + alpha * tmp2;
+                    let mut re = unsafe { tmp * *a.offset(ai + i) + alpha * tmp2 };
                     if !beta.is_zero() {
-                        re += beta * c[cj + i];
+                        unsafe { re += beta * *c.offset(cj + i) };
                     }
-                    c[cj + i] = re;
+                    unsafe { *c.offset(cj + i) = re };
                     i += 1
                 }
                 j += 1;
@@ -284,19 +293,21 @@ pub fn symm<T: Float + NumAssignOps>(
                 while i >= 1 {
                     i -= 1;
                     let ai = i * ldc;
-                    let tmp = alpha * b[bj + i];
+                    let tmp = unsafe { alpha * *b.offset(bj + i) };
                     let mut tmp2 = T::zero();
                     let mut k = i + 1;
                     while k < m {
-                        c[cj + k] += tmp * a[ai + k];
-                        tmp2 += b[bj + k] * a[ai + k];
+                        unsafe {
+                            *c.offset(cj + k) += tmp * *a.offset(ai + k);
+                            tmp2 += *b.offset(bj + k) * *a.offset(ai + k);
+                        }
                         k += 1
                     }
-                    let mut re = tmp * a[ai + i] + alpha * tmp2;
+                    let mut re = unsafe { tmp * *a.offset(ai + i) + alpha * tmp2 };
                     if !beta.is_zero() {
-                        re += beta * c[cj + i];
+                        unsafe { re += beta * *c.offset(cj + i) };
                     }
-                    c[cj + i] = re;
+                    unsafe { *c.offset(cj + i) = re };
                 }
                 j += 1;
             }
@@ -307,17 +318,19 @@ pub fn symm<T: Float + NumAssignOps>(
             let aj = j * lda;
             let bj = j * ldb;
             let cj = j * ldc;
-            let tmp = alpha * a[aj + j];
+            let tmp = unsafe { alpha * *a.offset(aj + j) };
             if beta.is_zero() {
                 let mut i = 0;
                 while i < m {
-                    c[cj + i] = tmp * b[bj + i];
+                    unsafe { *c.offset(cj + i) = tmp * *b.offset(bj + i) };
                     i += 1;
                 }
             } else {
                 let mut i = 0;
                 while i < m {
-                    c[cj + i] = beta * c[cj + i] + tmp * b[bj + i];
+                    unsafe {
+                        *c.offset(cj + i) = beta * *c.offset(cj + i) + tmp * *b.offset(bj + i)
+                    };
                     i += 1;
                 }
             }
@@ -326,13 +339,13 @@ pub fn symm<T: Float + NumAssignOps>(
                 let ak = k * lda;
                 let bk = k * ldb;
                 let tmp = if uplo == 'u' || uplo == 'U' {
-                    alpha * a[aj + k]
+                    unsafe { alpha * *a.offset(aj + k) }
                 } else {
-                    alpha * a[ak + j]
+                    unsafe { alpha * *a.offset(ak + j) }
                 };
                 let mut i = 0;
                 while i < m {
-                    c[cj + i] += tmp * b[bk + i];
+                    unsafe { *c.offset(cj + i) += tmp * *b.offset(bk + i) };
                     i += 1;
                 }
                 k += 1;
@@ -342,13 +355,13 @@ pub fn symm<T: Float + NumAssignOps>(
                 let ak = k * lda;
                 let bk = k * ldb;
                 let tmp = if uplo == 'u' || uplo == 'U' {
-                    alpha * a[ak + j]
+                    unsafe { alpha * *a.offset(ak + j) }
                 } else {
-                    alpha * a[aj + k]
+                    unsafe { alpha * *a.offset(aj + k) }
                 };
                 let mut i = 0;
                 while i < m {
-                    c[cj + i] += tmp * b[bk + i];
+                    unsafe { *c.offset(cj + i) += tmp * *b.offset(bk + i) };
                     i += 1;
                 }
                 k += 1;
@@ -367,16 +380,16 @@ pub fn symm<T: Float + NumAssignOps>(
 pub fn syr2k<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
-    n: usize,
-    k: usize,
+    n: isize,
+    k: isize,
     alpha: T,
-    a: &[T],
-    lda: usize,
-    b: &[T],
-    ldb: usize,
+    a: *const T,
+    lda: isize,
+    b: *const T,
+    ldb: isize,
     beta: T,
-    c: &mut [T],
-    ldc: usize,
+    c: *mut T,
+    ldc: isize,
 ) {
     let nrow_a = if trans == 'n' || trans == 'N' { n } else { k };
     let mut info = 0;
@@ -390,6 +403,10 @@ pub fn syr2k<T: Float + NumAssignOps>(
         && trans != 'T'
     {
         info = 2;
+    } else if n < 0 {
+        info = 3;
+    } else if k < 0 {
+        info = 4;
     } else if lda < max(1, nrow_a) {
         info = 7;
     } else if ldb < max(1, nrow_a) {
@@ -415,12 +432,12 @@ pub fn syr2k<T: Float + NumAssignOps>(
             let cj = j * ldc;
             if beta.is_zero() {
                 while start < stop {
-                    c[cj + start] = T::zero();
+                    unsafe { *c.offset(cj + start) = T::zero() };
                     start += 1;
                 }
             } else {
                 while start < stop {
-                    c[cj + start] *= beta;
+                    unsafe { *c.offset(cj + start) *= beta };
                     start += 1;
                 }
             }
@@ -438,13 +455,13 @@ pub fn syr2k<T: Float + NumAssignOps>(
                 if beta.is_zero() {
                     let mut i = 0;
                     while i < j + 1 {
-                        c[cj + i] = T::zero();
+                        unsafe { *c.offset(cj + i) = T::zero() };
                         i += 1;
                     }
                 } else if !beta.is_one() {
                     let mut i = 0;
                     while i < j + 1 {
-                        c[cj + i] *= beta;
+                        unsafe { *c.offset(cj + i) *= beta };
                         i += 1;
                     }
                 }
@@ -452,12 +469,17 @@ pub fn syr2k<T: Float + NumAssignOps>(
                 while l < k {
                     let al = l * lda;
                     let bl = l * ldb;
-                    if !a[al + j].is_zero() || !b[bl + j].is_zero() {
-                        let tmp = alpha * b[bl + j];
-                        let tmp2 = alpha * a[al + j];
+                    if unsafe {
+                        !a.offset(al + j).read().is_zero() || !b.offset(bl + j).read().is_zero()
+                    } {
+                        let tmp = unsafe { alpha * *b.offset(bl + j) };
+                        let tmp2 = unsafe { alpha * *a.offset(al + j) };
                         let mut i = 0;
                         while i < j + 1 {
-                            c[cj + i] += a[al + i] * tmp + b[bl + i] * tmp2;
+                            unsafe {
+                                *c.offset(cj + i) +=
+                                    *a.offset(al + i) * tmp + *b.offset(bl + i) * tmp2
+                            };
                             i += 1;
                         }
                     }
@@ -473,13 +495,13 @@ pub fn syr2k<T: Float + NumAssignOps>(
                 if beta.is_zero() {
                     let mut i = j;
                     while i < n {
-                        c[cj + i] = T::zero();
+                        unsafe { *c.offset(cj + i) = T::zero() };
                         i += 1;
                     }
                 } else if !beta.is_one() {
                     let mut i = j;
                     while i < n {
-                        c[cj + i] *= beta;
+                        unsafe { *c.offset(cj + i) *= beta };
                         i += 1;
                     }
                 }
@@ -487,12 +509,17 @@ pub fn syr2k<T: Float + NumAssignOps>(
                 while l < k {
                     let al = l * lda;
                     let bl = l * ldb;
-                    if !a[al + j].is_zero() || !b[bl + j].is_zero() {
-                        let tmp = alpha * b[bl + j];
-                        let tmp2 = alpha * a[al + j];
+                    if unsafe {
+                        !a.offset(al + j).read().is_zero() || !b.offset(bl + j).read().is_zero()
+                    } {
+                        let tmp = unsafe { alpha * *b.offset(bl + j) };
+                        let tmp2 = unsafe { alpha * *a.offset(al + j) };
                         let mut i = j;
                         while i < n {
-                            c[cj + i] += a[al + i] * tmp + b[bl + i] * tmp2;
+                            unsafe {
+                                *c.offset(cj + i) +=
+                                    *a.offset(al + i) * tmp + *b.offset(bl + i) * tmp2
+                            };
                             i += 1;
                         }
                     }
@@ -514,14 +541,18 @@ pub fn syr2k<T: Float + NumAssignOps>(
                 let bi = i * ldb;
                 let mut l = 0;
                 while l < k {
-                    tmp += a[ai + l] * b[bj + l];
-                    tmp2 += b[bi + l] * b[bj + l];
+                    unsafe {
+                        tmp += *a.offset(ai + l) * *b.offset(bj + l);
+                        tmp2 += *b.offset(bi + l) * *b.offset(bj + l);
+                    }
                     l += 1;
                 }
-                if beta.is_zero() {
-                    c[cj + i] = alpha * tmp + alpha * tmp2;
-                } else {
-                    c[cj + i] = beta * c[cj + i] + alpha * tmp + alpha * tmp2;
+                unsafe {
+                    if beta.is_zero() {
+                        *c.offset(cj + i) = alpha * tmp + alpha * tmp2;
+                    } else {
+                        *c.offset(cj + i) = beta * *c.offset(cj + i) + alpha * tmp + alpha * tmp2;
+                    }
                 }
                 i += 1;
             }
@@ -541,16 +572,18 @@ pub fn syr2k<T: Float + NumAssignOps>(
                 let bi = i * ldb;
                 let mut l = 0;
                 while l < k {
-                    tmp += a[ai + l] * b[bj + l];
-                    tmp2 += b[bi + l] * a[aj + l];
+                    unsafe {
+                        tmp += *a.offset(ai + l) * *b.offset(bj + l);
+                        tmp2 += *b.offset(bi + l) * *a.offset(aj + l);
+                    }
                     l += 1;
                 }
                 let b = if !beta.is_zero() {
-                    beta * c[cj + i]
+                    unsafe { beta * *c.offset(cj + i) }
                 } else {
                     T::zero()
                 };
-                c[cj + i] = alpha * (tmp + tmp2) + b;
+                unsafe { *c.offset(cj + i) = alpha * (tmp + tmp2) + b };
                 i += 1;
             }
             j += 1;
@@ -567,14 +600,14 @@ pub fn syr2k<T: Float + NumAssignOps>(
 pub fn syrk<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
-    n: usize,
-    k: usize,
+    n: isize,
+    k: isize,
     alpha: T,
-    a: &[T],
-    lda: usize,
+    a: *const T,
+    lda: isize,
     beta: T,
-    c: &mut [T],
-    ldc: usize,
+    c: *mut T,
+    ldc: isize,
 ) {
     let nrow_a = if trans == 'n' || trans == 'N' { n } else { k };
     let mut info = 0;
@@ -588,6 +621,10 @@ pub fn syrk<T: Float + NumAssignOps>(
         && trans != 'T'
     {
         info = 2;
+    } else if n < 0 {
+        info = 3;
+    } else if k < 0 {
+        info = 4;
     } else if lda < max(1, nrow_a) {
         info = 7;
     } else if ldc < max(1, n) {
@@ -611,11 +648,13 @@ pub fn syrk<T: Float + NumAssignOps>(
             let stop = if uplo == 'u' || uplo == 'U' { j + 1 } else { n };
             let mut i = start;
             while i < stop {
-                c[cj + i] = if beta.is_zero() {
-                    T::zero()
-                } else {
-                    beta * c[cj + i]
-                };
+                unsafe {
+                    *c.offset(cj + i) = if beta.is_zero() {
+                        T::zero()
+                    } else {
+                        beta * *c.offset(cj + i)
+                    };
+                }
                 i += 1;
             }
             j += 1;
@@ -633,23 +672,23 @@ pub fn syrk<T: Float + NumAssignOps>(
             if beta.is_zero() {
                 for i in cj + start..cj + stop {
                     // for i in cj + start..cj + stop + 1 {
-                    c[i] = T::zero();
+                    unsafe { *c.offset(i) = T::zero() };
                 }
             } else if !beta.is_one() {
                 let mut i = start;
                 while i < stop {
-                    c[cj + i] *= beta;
+                    unsafe { *c.offset(cj + i) *= beta };
                     i += 1;
                 }
             }
             let mut l = 0;
             while l < k {
                 let al = l * lda;
-                if !a[al + j].is_zero() {
-                    let tmp = alpha * a[al + j];
+                if unsafe { !a.offset(al + j).read().is_zero() } {
+                    let tmp = unsafe { alpha * *a.offset(al + j) };
                     let mut i = start;
                     while i < stop {
-                        c[cj + i] += tmp * a[al + i];
+                        unsafe { *c.offset(cj + i) += tmp * *a.offset(al + i) };
                         i += 1;
                     }
                 }
@@ -670,14 +709,14 @@ pub fn syrk<T: Float + NumAssignOps>(
                 let ai = i * lda;
                 let mut l = 0;
                 while l < k {
-                    tmp += a[ai + l] * a[aj + l];
+                    unsafe { tmp += *a.offset(ai + l) * *a.offset(aj + l) };
                     l += 1;
                 }
                 let mut re = alpha * tmp;
                 if !beta.is_zero() {
-                    re += beta * c[cj + i];
+                    unsafe { re += beta * *c.offset(cj + i) };
                 }
-                c[cj + i] = re;
+                unsafe { *c.offset(cj + i) = re };
                 i += 1;
             }
             j += 1;
@@ -696,13 +735,13 @@ pub fn trmm<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
     diag: char,
-    m: usize,
-    n: usize,
+    m: isize,
+    n: isize,
     alpha: T,
-    a: &[T],
-    lda: usize,
-    b: &mut [T],
-    ldb: usize,
+    a: *const T,
+    lda: isize,
+    b: *mut T,
+    ldb: isize,
 ) {
     let lside = side == 'l' || side == 'L';
     let nrowa = if lside { m } else { n };
@@ -723,6 +762,10 @@ pub fn trmm<T: Float + NumAssignOps>(
         info = 3;
     } else if diag != 'n' && diag != 'N' && diag != 'u' && diag != 'U' {
         info = 4;
+    } else if m < 0 {
+        info = 5;
+    } else if n < 0 {
+        info = 6;
     } else if lda < max(1, nrowa) {
         info = 9;
     } else if ldb < max(1, m) {
@@ -750,17 +793,17 @@ pub fn trmm<T: Float + NumAssignOps>(
                     let mut k = 0;
                     while k < m {
                         let ak = k * lda;
-                        if !b[bj + k].is_zero() {
-                            let mut tmp = alpha * b[bj + k];
+                        if unsafe { !b.offset(bj + k).read().is_zero() } {
+                            let mut tmp = unsafe { alpha * *b.offset(bj + k) };
                             let mut i = 0;
                             while i < k {
-                                b[bj + i] += tmp * a[ak + i];
+                                unsafe { *b.offset(bj + i) += tmp * *a.offset(ak + i) };
                                 i += 1;
                             }
                             if nounit {
-                                tmp *= a[ak + k]
+                                unsafe { tmp *= *a.offset(ak + k) }
                             };
-                            b[bj + k] = tmp;
+                            unsafe { *b.offset(bj + k) = tmp };
                         }
                         k += 1;
                     }
@@ -774,15 +817,15 @@ pub fn trmm<T: Float + NumAssignOps>(
                     while k >= 1 {
                         k -= 1;
                         let ak = k * lda;
-                        if !b[bj + k].is_zero() {
-                            let tmp = alpha * b[bj + k];
-                            b[bj + k] = tmp;
+                        if unsafe { !b.offset(bj + k).read().is_zero() } {
+                            let tmp = unsafe { alpha * *b.offset(bj + k) };
+                            unsafe { *b.offset(bj + k) = tmp };
                             if nounit {
-                                b[bj + k] *= a[ak + k]
+                                unsafe { *b.offset(bj + k) *= *a.offset(ak + k) }
                             };
                             let mut i = k + 1;
                             while i < m {
-                                b[bj + i] += tmp * a[ak + i];
+                                unsafe { *b.offset(bj + i) += tmp * *a.offset(ak + i) };
                                 i += 1;
                             }
                         }
@@ -797,17 +840,17 @@ pub fn trmm<T: Float + NumAssignOps>(
                 let mut i = m;
                 while i >= 1 {
                     i -= 1;
-                    let mut tmp = b[bj + i];
+                    let mut tmp = unsafe { *b.offset(bj + i) };
                     let ai = i * lda;
                     if nounit {
-                        tmp *= a[ai + i]
+                        unsafe { tmp *= *a.offset(ai + i) }
                     };
                     let mut k = 0;
                     while k < i {
-                        tmp += a[ai + k] * b[bj + k];
+                        unsafe { tmp += *a.offset(ai + k) * *b.offset(bj + k) };
                         k += 1;
                     }
-                    b[bj + i] = alpha * tmp;
+                    unsafe { *b.offset(bj + i) = alpha * tmp };
                 }
                 j += 1;
             }
@@ -818,16 +861,16 @@ pub fn trmm<T: Float + NumAssignOps>(
                 let mut i = 0;
                 while i < m {
                     let ai = i * lda;
-                    let mut tmp = b[bj + i];
+                    let mut tmp = unsafe { *b.offset(bj + i) };
                     if nounit {
-                        tmp *= a[ai + i]
+                        unsafe { tmp *= *a.offset(ai + i) }
                     }
                     let mut k = i + 1;
                     while k < m {
-                        tmp += a[ai + k] * b[bj + k];
+                        unsafe { tmp += *a.offset(ai + k) * *b.offset(bj + k) };
                         k += 1;
                     }
-                    b[bj + i] = alpha * tmp;
+                    unsafe { *b.offset(bj + i) = alpha * tmp };
                     i += 1;
                 }
                 j += 1;
@@ -842,22 +885,24 @@ pub fn trmm<T: Float + NumAssignOps>(
                 let aj = j * lda;
                 let bj = j * ldb;
                 if nounit {
-                    tmp *= a[aj + j]
+                    unsafe { tmp *= *a.offset(aj + j) }
                 };
                 let mut i = 0;
                 while i < m {
-                    b[bj + i] *= tmp;
+                    unsafe { *b.offset(bj + i) *= tmp };
                     i += 1;
                 }
                 let mut k = 0;
                 while k < j {
                     let bk = k * ldb;
-                    if !a[aj + k].is_zero() {
-                        tmp = alpha * a[aj + k];
+                    if unsafe { !a.offset(aj + k).read().is_zero() } {
+                        tmp = unsafe { alpha * *a.offset(aj + k) };
                         let mut i = 0;
                         while i < m {
-                            let tmp2 = tmp * b[bk + i];
-                            b[bj + i] += tmp2;
+                            unsafe {
+                                let tmp2 = tmp * *b.offset(bk + i);
+                                *b.offset(bj + i) += tmp2;
+                            }
                             i += 1;
                         }
                     }
@@ -871,22 +916,24 @@ pub fn trmm<T: Float + NumAssignOps>(
                 let bj = j * ldb;
                 let mut tmp = alpha;
                 if nounit {
-                    tmp *= a[aj + j]
+                    unsafe { tmp *= *a.offset(aj + j) }
                 };
                 let mut i = 0;
                 while i < m {
-                    b[bj + i] *= tmp;
+                    unsafe { *b.offset(bj + i) *= tmp };
                     i += 1;
                 }
                 let mut k = j + 1;
                 while k < n {
                     let bk = k * ldb;
-                    if !a[aj + k].is_zero() {
-                        tmp = alpha * a[aj + k];
+                    if unsafe { !a.offset(aj + k).read().is_zero() } {
+                        tmp = unsafe { alpha * *a.offset(aj + k) };
                         let mut i = 0;
                         while i < m {
-                            let tmp2 = tmp * b[bk + i];
-                            b[bj + i] += tmp2;
+                            unsafe {
+                                let tmp2 = tmp * *b.offset(bk + i);
+                                *b.offset(bj + i) += tmp2;
+                            }
                             i += 1;
                         }
                     }
@@ -903,12 +950,14 @@ pub fn trmm<T: Float + NumAssignOps>(
             let mut j = 0;
             while j < k {
                 let bj = j * ldb;
-                if !a[ak + j].is_zero() {
-                    let tmp = alpha * a[ak + j];
+                if unsafe { !a.offset(ak + j).read().is_zero() } {
+                    let tmp = unsafe { alpha * *a.offset(ak + j) };
                     let mut i = 0;
                     while i < m {
-                        let tmp2 = tmp * b[bk + i];
-                        b[bj + i] += tmp2;
+                        unsafe {
+                            let tmp2 = tmp * *b.offset(bk + i);
+                            *b.offset(bj + i) += tmp2;
+                        }
                         i += 1;
                     }
                 }
@@ -916,13 +965,15 @@ pub fn trmm<T: Float + NumAssignOps>(
             }
             let mut tmp = alpha;
             if nounit {
-                tmp *= a[ak + k]
+                unsafe { tmp *= *a.offset(ak + k) }
             };
             if tmp != T::one() {
                 let mut i = 0;
                 while i < m {
-                    let tmp2 = tmp * b[bk + i];
-                    b[bk + i] = tmp2;
+                    unsafe {
+                        let tmp2 = tmp * *b.offset(bk + i);
+                        *b.offset(bk + i) = tmp2;
+                    }
                     i += 1;
                 }
             }
@@ -937,12 +988,14 @@ pub fn trmm<T: Float + NumAssignOps>(
             let mut j = k + 1;
             while j < n {
                 let bj = j * ldb;
-                if !a[ak + j].is_zero() {
-                    let tmp = alpha * a[ak + j];
+                if unsafe { !a.offset(ak + j).read().is_zero() } {
+                    let tmp = unsafe { alpha * *a.offset(ak + j) };
                     let mut i = 0;
                     while i < m {
-                        let tmp2 = tmp * b[bk + i];
-                        b[bj + i] += tmp2;
+                        unsafe {
+                            let tmp2 = tmp * *b.offset(bk + i);
+                            *b.offset(bj + i) += tmp2;
+                        }
                         i += 1;
                     }
                 }
@@ -950,12 +1003,12 @@ pub fn trmm<T: Float + NumAssignOps>(
             }
             let mut tmp = alpha;
             if nounit {
-                tmp *= a[ak + k]
+                unsafe { tmp *= *a.offset(ak + k) }
             };
             if !tmp.is_zero() {
                 let mut i = 0;
                 while i < m {
-                    b[bk + i] *= tmp;
+                    unsafe { *b.offset(bk + i) *= tmp };
                     i += 1
                 }
             }
@@ -974,13 +1027,13 @@ pub fn trsm<T: Float + NumAssignOps>(
     uplo: char,
     trans: char,
     diag: char,
-    m: usize,
-    n: usize,
+    m: isize,
+    n: isize,
     alpha: T,
-    a: &[T],
-    lda: usize,
-    b: &mut [T],
-    ldb: usize,
+    a: *const T,
+    lda: isize,
+    b: *mut T,
+    ldb: isize,
 ) {
     let lside = side == 'l' || side == 'L';
     let nrowa = if lside { m } else { n };
@@ -1001,6 +1054,10 @@ pub fn trsm<T: Float + NumAssignOps>(
         info = 3;
     } else if diag != 'n' && diag != 'N' && diag != 'u' && diag != 'U' {
         info = 4;
+    } else if m < 0 {
+        info = 5;
+    } else if n < 0 {
+        info = 6;
     } else if lda < max(1, nrowa) {
         info = 9;
     } else if ldb < max(1, m) {
@@ -1028,7 +1085,7 @@ pub fn trsm<T: Float + NumAssignOps>(
                     if !alpha.is_one() {
                         let mut i = 0;
                         while i < m {
-                            b[bj + i] *= alpha;
+                            unsafe { *b.offset(bj + i) *= alpha };
                             i += 1;
                         }
                     }
@@ -1036,14 +1093,16 @@ pub fn trsm<T: Float + NumAssignOps>(
                     while k >= 1 {
                         k -= 1;
                         let ak = k * lda;
-                        if !b[bj + k].is_zero() {
+                        if unsafe { !b.offset(bj + k).read().is_zero() } {
                             if nounit {
-                                b[bj + k] /= a[ak + k]
+                                unsafe { *b.offset(bj + k) /= *a.offset(ak + k) }
                             };
                             let mut i = 0;
                             while i < k {
-                                let tmp = b[bj + k] * a[ak + i];
-                                b[bj + i] -= tmp;
+                                unsafe {
+                                    let tmp = *b.offset(bj + k) * *a.offset(ak + i);
+                                    *b.offset(bj + i) -= tmp;
+                                }
                                 i += 1;
                             }
                         }
@@ -1057,21 +1116,23 @@ pub fn trsm<T: Float + NumAssignOps>(
                     if !alpha.is_one() {
                         let mut i = 0;
                         while i < m {
-                            b[bj + i] *= alpha;
+                            unsafe { *b.offset(bj + i) *= alpha };
                             i += 1;
                         }
                     }
                     let mut k = 0;
                     while k < m {
                         let ak = k * lda;
-                        if !b[bj + k].is_zero() {
+                        if unsafe { !b.offset(bj + k).read().is_zero() } {
                             if nounit {
-                                b[bj + k] /= a[ak + k]
+                                unsafe { *b.offset(bj + k) /= *a.offset(ak + k) }
                             };
                             let mut i = k + 1;
                             while i < m {
-                                let tmp = b[bj + k] * a[ak + i];
-                                b[bj + i] -= tmp;
+                                unsafe {
+                                    let tmp = *b.offset(bj + k) * *a.offset(ak + i);
+                                    *b.offset(bj + i) -= tmp;
+                                }
                                 i += 1;
                             }
                         }
@@ -1087,16 +1148,16 @@ pub fn trsm<T: Float + NumAssignOps>(
                 let mut i = 0;
                 while i < m {
                     let ai = i * lda;
-                    let mut tmp = alpha * b[bj + i];
+                    let mut tmp = unsafe { alpha * *b.offset(bj + i) };
                     let mut k = 0;
                     while k < i {
-                        tmp -= a[ai + k] * b[bj + k];
+                        unsafe { tmp -= *a.offset(ai + k) * *b.offset(bj + k) };
                         k += 1;
                     }
                     if nounit {
-                        tmp /= a[ai + i]
+                        unsafe { tmp /= *a.offset(ai + i) }
                     };
-                    b[bj + i] = tmp;
+                    unsafe { *b.offset(bj + i) = tmp };
                     i += 1;
                 }
                 j += 1;
@@ -1109,16 +1170,16 @@ pub fn trsm<T: Float + NumAssignOps>(
                 while i >= 1 {
                     i -= 1;
                     let ai = i * lda;
-                    let mut tmp = alpha * b[bj + i];
+                    let mut tmp = unsafe { alpha * *b.offset(bj + i) };
                     let mut k = i + 1;
                     while k < m {
-                        tmp -= a[ai + k] * b[bj + k];
+                        unsafe { tmp -= *a.offset(ai + k) * *b.offset(bj + k) };
                         k += 1;
                     }
                     if nounit {
-                        tmp /= a[ai + i]
+                        unsafe { tmp /= *a.offset(ai + i) }
                     };
-                    b[bj + i] = tmp;
+                    unsafe { *b.offset(bj + i) = tmp };
                 }
                 j += 1;
             }
@@ -1132,29 +1193,33 @@ pub fn trsm<T: Float + NumAssignOps>(
                 if !alpha.is_one() {
                     let mut i = 0;
                     while i < m {
-                        let tmp = alpha * b[bj + i];
-                        b[bj + i] = tmp;
+                        unsafe {
+                            let tmp = alpha * *b.offset(bj + i);
+                            *b.offset(bj + i) = tmp;
+                        }
                         i += 1;
                     }
                 }
                 let mut k = 0;
                 while k < j {
                     let bk = k * lda;
-                    if !a[aj + k].is_zero() {
+                    if unsafe { !a.offset(aj + k).read().is_zero() } {
                         let mut i = 0;
                         while i < m {
-                            let tmp = a[aj + k] * b[bk + i];
-                            b[bj + i] -= tmp;
+                            unsafe {
+                                let tmp = *a.offset(aj + k) * *b.offset(bk + i);
+                                *b.offset(bj + i) -= tmp;
+                            }
                             i += 1;
                         }
                     }
                     k += 1;
                 }
                 if nounit {
-                    let tmp = T::one() / a[aj + j];
+                    let tmp = unsafe { T::one() / *a.offset(aj + j) };
                     let mut i = 0;
                     while i < m {
-                        b[bj + i] *= tmp;
+                        unsafe { *b.offset(bj + i) *= tmp };
                         i += 1;
                     }
                 };
@@ -1169,28 +1234,30 @@ pub fn trsm<T: Float + NumAssignOps>(
                 if !alpha.is_one() {
                     let mut i = 0;
                     while i < m {
-                        b[bj + i] *= alpha;
+                        unsafe { *b.offset(bj + i) *= alpha };
                         i += 1;
                     }
                 }
                 let mut k = j + 1;
                 while k < n {
                     let bk = k * ldb;
-                    if !a[aj + k].is_zero() {
+                    if unsafe { !a.offset(aj + k).read().is_zero() } {
                         let mut i = 0;
                         while i < m {
-                            let tmp = a[aj + k] * b[bk + i];
-                            b[bj + i] -= tmp;
+                            unsafe {
+                                let tmp = *a.offset(aj + k) * *b.offset(bk + i);
+                                *b.offset(bj + i) -= tmp;
+                            }
                             i += 1;
                         }
                     }
                     k += 1;
                 }
                 if nounit {
-                    let tmp = T::one() / a[aj + j];
+                    let tmp = unsafe { T::one() / *a.offset(aj + j) };
                     let mut i = 0;
                     while i < m {
-                        b[bj + i] *= tmp;
+                        unsafe { *b.offset(bj + i) *= tmp };
                         i += 1;
                     }
                 };
@@ -1203,22 +1270,24 @@ pub fn trsm<T: Float + NumAssignOps>(
             let ak = k * lda;
             let bk = k * ldb;
             if nounit {
-                let tmp = T::one() / a[ak + k];
+                let tmp = unsafe { T::one() / *a.offset(ak + k) };
                 let mut i = 0;
                 while i < m {
-                    b[bk + i] *= tmp;
+                    unsafe { *b.offset(bk + i) *= tmp };
                     i += 1;
                 }
             };
             let mut j = 0;
             while j < k {
                 let bj = j * lda;
-                if !a[ak + j].is_zero() {
-                    let tmp = a[ak + j];
+                if unsafe { !a.offset(ak + j).read().is_zero() } {
+                    let tmp = unsafe { *a.offset(ak + j) };
                     let mut i = 0;
                     while i < m {
-                        let tmp2 = tmp * b[bk + i];
-                        b[bj + i] -= tmp2;
+                        unsafe {
+                            let tmp2 = tmp * *b.offset(bk + i);
+                            *b.offset(bj + i) -= tmp2;
+                        }
                         i += 1;
                     }
                 }
@@ -1227,7 +1296,7 @@ pub fn trsm<T: Float + NumAssignOps>(
             if !alpha.is_one() {
                 let mut i = 0;
                 while i < m {
-                    b[bk + i] *= alpha;
+                    unsafe { *b.offset(bk + i) *= alpha };
                     i += 1;
                 }
             }
@@ -1238,22 +1307,24 @@ pub fn trsm<T: Float + NumAssignOps>(
             let ak = k * lda;
             let bk = k * ldb;
             if nounit {
-                let tmp = T::one() / a[ak + k];
+                let tmp = unsafe { T::one() / *a.offset(ak + k) };
                 let mut i = 0;
                 while i < m {
-                    b[bk + i] *= tmp;
+                    unsafe { *b.offset(bk + i) *= tmp };
                     i += 1;
                 }
             };
             let mut j = k + 1;
             while j < n {
                 let bj = j * ldb;
-                if !a[ak + j].is_zero() {
-                    let tmp = a[ak + j];
+                if unsafe { !a.offset(ak + j).read().is_zero() } {
+                    let tmp = unsafe { *a.offset(ak + j) };
                     let mut i = 0;
                     while i < m {
-                        let tmp2 = tmp * b[bk + i];
-                        b[bj + i] -= tmp2;
+                        unsafe {
+                            let tmp2 = tmp * *b.offset(bk + i);
+                            *b.offset(bj + i) -= tmp2;
+                        }
                         i += 1;
                     }
                 }
@@ -1262,7 +1333,7 @@ pub fn trsm<T: Float + NumAssignOps>(
             if !alpha.is_one() {
                 let mut i = 0;
                 while i < m {
-                    b[bk + i] *= alpha;
+                    unsafe { *b.offset(bk + i) *= alpha };
                     i += 1
                 }
             }
