@@ -5,3 +5,4 @@ Cargo.lock
 /tests/fixtures/level1
 /tests/fixtures/level3
 /tests/fixtures/matrix
+/.codecov
