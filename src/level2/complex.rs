@@ -1152,7 +1152,7 @@ pub fn tbmv<T: Float + NumAssignOps>(
                 if !tmp.is_zero() {
                     let mut ix = kx;
                     let mut i = min(n - 1, j + k); // NOTE
-                    while i >= j + 1 {
+                    while i > j {
                         x[ix as usize] += tmp * a[aj - j + i];
                         ix -= incx;
                         i -= 1;
