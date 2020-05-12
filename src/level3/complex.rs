@@ -134,7 +134,6 @@ pub fn gemm<T: Float + NumAssignOps>(
             }
             j += 1;
         }
-        return;
     } else if (trans_a == 'n' || trans_a == 'N') && (trans_b == 'c' || trans_b == 'C') {
         let mut j = 0;
         while j < n {
@@ -166,7 +165,6 @@ pub fn gemm<T: Float + NumAssignOps>(
             }
             j += 1;
         }
-        return;
     } else if (trans_a == 'n' || trans_a == 'N') && (trans_b == 't' || trans_b == 'T') {
         let mut j = 0;
         while j < n {
@@ -198,7 +196,6 @@ pub fn gemm<T: Float + NumAssignOps>(
             }
             j += 1;
         }
-        return;
     } else if (trans_a == 'c' || trans_a == 'C') && (trans_b == 'n' || trans_b == 'N') {
         let mut j = 0;
         while j < n {
@@ -222,7 +219,6 @@ pub fn gemm<T: Float + NumAssignOps>(
             }
             j += 1;
         }
-        return;
     } else if (trans_a == 'c' || trans_a == 'C') && (trans_b == 'c' || trans_b == 'C') {
         let mut j = 0;
         while j < n {
@@ -246,7 +242,6 @@ pub fn gemm<T: Float + NumAssignOps>(
             }
             j += 1;
         }
-        return;
     } else if (trans_a == 'c' || trans_a == 'C') && (trans_b == 't' || trans_b == 'T') {
         let mut j = 0;
         while j < n {
@@ -270,7 +265,6 @@ pub fn gemm<T: Float + NumAssignOps>(
             }
             j += 1;
         }
-        return;
     } else if (trans_a == 't' || trans_a == 'T') && (trans_b == 'n' || trans_b == 'N') {
         let mut j = 0;
         while j < n {
@@ -294,7 +288,6 @@ pub fn gemm<T: Float + NumAssignOps>(
             }
             j += 1;
         }
-        return;
     } else if (trans_a == 't' || trans_a == 'T') && (trans_b == 'c' || trans_b == 'C') {
         let mut j = 0;
         while j < n {
@@ -318,7 +311,6 @@ pub fn gemm<T: Float + NumAssignOps>(
             }
             j += 1;
         }
-        return;
     } else {
         let mut j = 0;
         while j < n {
@@ -343,7 +335,6 @@ pub fn gemm<T: Float + NumAssignOps>(
             j += 1;
         }
     }
-    return;
 }
 
 /// CSYMM  performs one of the matrix-matrix operations
@@ -886,7 +877,6 @@ pub fn trmm<T: Float + NumAssignOps>(
                 j += 1;
             }
         }
-        return;
     } else if (side == 'l' || side == 'L')
         && (trans == 't' || trans == 'T' || trans == 'c' || trans == 'C')
     {
@@ -950,7 +940,6 @@ pub fn trmm<T: Float + NumAssignOps>(
                 j += 1;
             }
         }
-        return;
     } else if (side == 'r' || side == 'R') && (trans == 'n' || trans == 'N') {
         if upper {
             let mut j = n;
@@ -1013,7 +1002,6 @@ pub fn trmm<T: Float + NumAssignOps>(
                 j += 1;
             }
         }
-        return;
     } else {
         if upper {
             let mut k = 0;
@@ -1096,7 +1084,6 @@ pub fn trmm<T: Float + NumAssignOps>(
                 }
             }
         }
-        return;
     }
 }
 
@@ -1404,7 +1391,6 @@ pub fn trsm<T: Float + NumAssignOps>(
                 }
             }
         }
-        return;
     } else {
         let mut k = 0;
         while k < n {
@@ -1450,7 +1436,6 @@ pub fn trsm<T: Float + NumAssignOps>(
             }
             k += 1;
         }
-        return;
     }
 }
 
@@ -1930,7 +1915,7 @@ pub fn herk<T: Float + NumAssignOps>(
                         c[(cj as isize + i) as usize] += tmp * a[(al as isize + i) as usize];
                         i += 1;
                     }
-                    let mut ct = c[cj + j] + tmp * a[al + j];;
+                    let mut ct = c[cj + j] + tmp * a[al + j];
                     ct.im = T::zero();
                     c[cj + j] = ct;
                 }
