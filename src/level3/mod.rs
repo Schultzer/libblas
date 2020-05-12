@@ -631,9 +631,9 @@ pub fn syrk<T: Float + NumAssignOps>(
             let stop = if uplo == 'u' || uplo == 'U' { j + 1 } else { n };
             // Refactor #001
             if beta.is_zero() {
-                for i in cj + start..cj + stop {
+                for c in &mut c[cj + start..cj + stop] {
                     // for i in cj + start..cj + stop + 1 {
-                    c[i] = T::zero();
+                    *c = T::zero();
                 }
             } else if !beta.is_one() {
                 let mut i = start;
