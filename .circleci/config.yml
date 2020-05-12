@@ -11,7 +11,7 @@ jobs:
       - run:
           name: Setup
           command: |
-            sudo apt-get install build-essential curl file git cmake make gfortran python-pip
+            sudo apt-get install build-essential curl file git cmake make gfortran python-pip kcov
             curl -o rustup-init.sh https://sh.rustup.rs
             sh rustup-init.sh -y
             rustup install nightly
