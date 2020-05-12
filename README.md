@@ -9,11 +9,11 @@
 ## Why
 [why]: #why
 
- - No special trait representing matrice or vectors
+ - No special trait representing matrices or vectors
  - Powerful generics
  - Fully tested against [REFERENCE BLAS Version 3.8.0](http://www.netlib.org/blas/)
- - Proformance are eqaul or faster to [Accelerate](https://developer.apple.com/documentation/accelerate) framework
- - No hand tuned assambly
+ - Performance are equal or faster than [Accelerate](https://developer.apple.com/documentation/accelerate) framework
+ - No hand tuned assembly
 
 ## Examples
 
@@ -22,7 +22,7 @@ extern crate libblas;
 use libblas::level3;
 
 fn main {
-  // 3X2 matrice
+  // 3X2 matrix
   let a = vec![1.,2.,3.,4.,5.,6.];
   let b = vec![1.,1.,1.,1.,1.,1.];
   let mut c = vec![2.,1.,3.,1.,4.,1.];
@@ -56,12 +56,12 @@ Release notes are available in [RELEASES.md](RELEASES.md).
 ## Conformance
 [conformance]: #conformance
 
-Conformance testing is done by generating fixtures from [REFERENCE BLAS Version 3.8.0](http://www.netlib.org/blas/) and run against libblas.
+Conformance testing is done by generating fixtures from [REFERENCE BLAS Version 3.8.0](http://www.netlib.org/blas/) and run against `libblas`.
 To generate the fixture you need to have [json-fortran](https://github.com/jacobwilliams/json-fortran) installed.
 
-then run `sh ./script/conformance.sh && cargo test --test conformance`
+Run `sh ./script/conformance.sh && cargo test --test conformance`.
 
-NOTE: only `double precision` and `complex*16` fixtures are genereated.
+NOTE: only `double precision` and `complex*16` fixtures are generated.
 
 ## Benchmark
 [benchmark]: #benchmark
@@ -69,19 +69,19 @@ The benchmark suite does not benchmark against other BLAS implemations. See [lib
 
 Run `cargo +nightly bench`
 
-NOTE: remember to have nightly installed `rustup install nightly`
+NOTE: remember to have nightly installed `rustup install nightly`.
 
 
 ## Acknowledgement
 [acknowledgement]: #acknowledgement
 
-libblas is implememeted following the [REFERENCE BLAS Version 3.8.0](http://www.netlib.org/blas/) and [blas-js](https://github.com/R-js/blasjs).
+`libblas` is implemented following the [REFERENCE BLAS Version 3.8.0](http://www.netlib.org/blas/) and [blas-js](https://github.com/R-js/blasjs).
 
 
 ## License
 [license]: #license
 
-libblas is primarily distributed under the terms of both the MIT license
+`libblas` is primarily distributed under the terms of both the MIT license
 and the Apache License (Version 2.0).
 
 See [LICENSE-APACHE](LICENSE-APACHE), [LICENSE-MIT](LICENSE-MIT), and
